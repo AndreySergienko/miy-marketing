@@ -20,6 +20,9 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, unique: true })
   email: string;
 
+  @Column({ type: DataType.BOOLEAN })
+  isValidEmail: boolean;
+
   @Column({ type: DataType.BIGINT, unique: true })
   inn: number;
 
@@ -37,4 +40,6 @@ export class User extends Model<User, UserModelAttrs> {
 
   // TODO набор сообщений для рекламы
   // TODO набор подключенных каналов
+  // TODO связь с auth
+  // TODO связь с mail
 }
