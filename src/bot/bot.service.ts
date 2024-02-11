@@ -3,22 +3,18 @@ import * as TelegramBot from 'node-telegram-bot-api';
 import { InjectModel } from '@nestjs/sequelize';
 import { Bot } from './models/bot.model';
 import { useSendMessage } from '../hooks/useSendMessage';
-import { btnActions, btnTo } from '../utils/keyboard';
-import { acceptMsg, btnValidMsg, validateMsg } from '../utils/messages';
+import { btnActions } from '../utils/keyboard';
+import { validateMsg } from '../utils/messages';
 import * as process from 'process';
-
-/**
- * Method check timeout request
- * @param {number} date - timestamp tlg
- * **/
-function hasPassedTwoDays(date: number) {
-  return Date.now() - 48 * 60 * 60 * 1000 > date * 1000;
-}
+import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
-  constructor(@InjectModel(Bot) private botRepository: typeof Bot) {
-    // global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
+  constructor(
+    @InjectModel(Bot) private botRepository: typeof Bot,
+    private authService: AuthService,
+  ) {
+    global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
   }
 
   async startBot() {
@@ -62,40 +58,14 @@ export class BotService implements OnModuleInit {
     );
 
     // watch msg thread
-    global.bot.on('message', async ({ from, text }: TelegramBot.Message) => {
-      const userId = from.id;
-      let isHasUser = false;
-
-      try {
-        if (text !== btnValidMsg) return;
-        const user = await this.botRepository.findOne({ where: { userId } });
-        isHasUser = !!user;
-        if (!user) return;
-
-        // check timeout request
-        if (hasPassedTwoDays(user.date)) {
-          await this.botRepository.destroy({ where: { userId } });
-          return;
-        }
-
-        await global.bot.approveChatJoinRequest(user.chatId, userId);
-        await global.bot.sendMessage(
-          userId,
-          acceptMsg,
-          useSendMessage({
-            inline_keyboard: btnTo(process.env.LINK),
-            remove_keyboard: true,
-          }),
-        );
-        await this.botRepository.destroy({ where: { userId } });
-      } catch (e) {
-        console.log(e);
-        if (isHasUser) await this.botRepository.destroy({ where: { userId } });
+    global.bot.on('message', async ({ text, chat }: TelegramBot.Message) => {
+      if (text === 'Рег') {
+        await this.authService.registrationInBot(chat.id);
       }
     });
   }
 
   async onModuleInit() {
-    // await this.startBot();
+    await this.startBot();
   }
 }

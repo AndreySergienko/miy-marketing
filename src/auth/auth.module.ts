@@ -11,13 +11,13 @@ import { LocalStrategy } from './local.strategy';
 @Module({
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy],
-  exports: [],
+  exports: [AuthService],
   imports: [
     UserModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '7d' },
     }),
   ],
 })

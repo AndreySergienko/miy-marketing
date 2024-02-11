@@ -17,14 +17,24 @@ export class AuthController {
 
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
-    await this.authService.registration();
+    try {
+      await this.authService.registration(registrationDto);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.EXPECTATION_FAILED,
+          error,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req) {
+  async login() {
     try {
-      return this.authService.login(req);
+      // return this.authService.login();
     } catch (e) {
       throw new HttpException(
         {

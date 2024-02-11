@@ -5,8 +5,21 @@ export interface UserModelAttrs {
   password: string;
   inn: number;
   email: string;
-  uniqueBotId: number;
+  uniqueBotId: string;
   chatId: number;
+  isValidEmail: boolean;
+}
+
+export class UserCreateDto implements UserModelAttrs {
+  chatId: number;
+  email: string;
+  inn: number;
+  lastname: string;
+  name: string;
+  password: string;
+  surname: string;
+  uniqueBotId: string;
+  isValidEmail: boolean;
 }
 
 export class findUserDto {
