@@ -5,8 +5,8 @@ import SqlDatabase from './database/samples/SqlDatabase';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BotModule } from './bot/bot.module';
 import { Bot } from './bot/models/bot.model';
-import { AuthController } from './auth/auth.controller';
-import { RolesController } from './roles/roles.controller';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -15,9 +15,11 @@ import { RolesController } from './roles/roles.controller';
     }),
     SequelizeModule.forRoot(new SqlDatabase().connect([Bot])),
     BotModule,
+    UserModule,
+    AuthModule,
   ],
 
-  controllers: [AuthController, RolesController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

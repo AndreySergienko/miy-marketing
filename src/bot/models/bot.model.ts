@@ -1,10 +1,5 @@
 import { Column, DataType, Table, Model } from 'sequelize-typescript';
-
-interface BotModelAttrs {
-  chatId: number;
-  userId: number;
-  date: number;
-}
+import { BotModelAttrs } from '../types/bot.types';
 
 @Table({ tableName: 'bot' })
 export class Bot extends Model<Bot, BotModelAttrs> {

@@ -18,7 +18,7 @@ function hasPassedTwoDays(date: number) {
 @Injectable()
 export class BotService implements OnModuleInit {
   constructor(@InjectModel(Bot) private botRepository: typeof Bot) {
-    global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
+    // global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
   }
 
   async startBot() {
