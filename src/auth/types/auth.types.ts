@@ -13,11 +13,6 @@ import {
 } from '../../constants/validate.value';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 
-export interface AuthModelAttrs {
-  chatId: number;
-  uniqueBotId: string;
-}
-
 export class LoginDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email?: string;

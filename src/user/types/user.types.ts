@@ -7,7 +7,9 @@ export interface UserModelAttrs {
   email?: string;
   uniqueBotId: string;
   chatId: number;
+  mailTimeSend?: number;
   isValidEmail?: boolean;
+  mailCode?: number;
 }
 
 export class UserRegistrationBotDto {
@@ -25,6 +27,7 @@ export class UserCreateDto implements UserModelAttrs {
   surname: string;
   uniqueBotId: string;
   isValidEmail: boolean;
+  mailTimeSend?: number;
 }
 
 export class findUserDto {

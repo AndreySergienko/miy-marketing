@@ -6,4 +6,12 @@ export default class ErrorMessages {
   static USER_IS_REGISTERED() {
     return 'Проверьте данные для регистрации';
   }
+
+  static A_LOT_OF_SEND_MAIL() {
+    return `Письмо уже отправлено, повторите попытку позже`;
+  }
+
+  static INCORRECT_CODE() {
+    return `Неправильный код`;
+  }
 }

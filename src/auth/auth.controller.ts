@@ -30,6 +30,21 @@ export class AuthController {
     }
   }
 
+  @Post('repeat-mail')
+  async repeatSendMail(@Body() chatId: number) {
+    try {
+      return await this.authService.repeatSendMail(chatId);
+    } catch (error) {
+      throw new HttpException(
+        {
+          status: HttpStatus.FORBIDDEN,
+          error,
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+  }
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login() {

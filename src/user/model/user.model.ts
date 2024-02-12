@@ -38,7 +38,12 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
   surname: string;
 
+  @Column({ type: DataType.NUMBER, unique: false, allowNull: true })
+  mailTimeSend: number;
+
+  @Column({ type: DataType.NUMBER, unique: false, allowNull: true })
+  mailCode: number;
+
   // TODO набор сообщений для рекламы
   // TODO набор подключенных каналов
-  // TODO связь с mail
 }
