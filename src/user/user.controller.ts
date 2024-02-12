@@ -7,12 +7,12 @@ export class UserController {
 
   @Post('create')
   async create() {
-    await this.userService.create();
+    // await this.userService.create();
   }
 
   @Get('me')
   async getMe() {
-    await this.userService.findOne({ wem });
+    // await this.userService.findOne();
   }
 
   @Put('update')

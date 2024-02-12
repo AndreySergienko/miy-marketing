@@ -22,7 +22,7 @@ export class AuthController {
     } catch (error) {
       throw new HttpException(
         {
-          status: HttpStatus.EXPECTATION_FAILED,
+          status: HttpStatus.FORBIDDEN,
           error,
         },
         HttpStatus.FORBIDDEN,

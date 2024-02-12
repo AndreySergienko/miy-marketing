@@ -11,6 +11,7 @@ import {
   MIN_LENGTH_NAME,
   MIN_LENGTH_PASSWORD,
 } from '../../constants/validate.value';
+import ErrorValidation from "../../modules/errors/ErrorValidation";
 
 export interface AuthModelAttrs {
   chatId: number;
@@ -18,41 +19,41 @@ export interface AuthModelAttrs {
 }
 
 export class LoginDto {
-  @IsEmail()
+  @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email?: string;
 
-  @IsString()
+  @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_PASSWORD)
   @MaxLength(MAX_LENGTH_PASSWORD)
   public readonly password: string;
 }
 
 export class RegistrationDto {
-  @IsEmail()
+  @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
 
-  @IsNumber()
-  @IsInnValidate('inn')
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsInnValidate('inn', ErrorValidation.IS_INN())
   public readonly inn: number;
 
-  @IsString()
-  @MinLength(MIN_LENGTH_NAME)
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
   public readonly lastname: string;
 
-  @IsString()
-  @MinLength(MIN_LENGTH_NAME)
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
   public readonly name: string;
 
-  @IsString()
-  @MinLength(MIN_LENGTH_PASSWORD)
-  @MaxLength(MAX_LENGTH_PASSWORD)
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_PASSWORD, ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD))
+  @MaxLength(MAX_LENGTH_PASSWORD, ErrorValidation.MIN_LENGTH(MAX_LENGTH_PASSWORD))
   public readonly password: string;
 
-  @IsString()
-  @MinLength(MIN_LENGTH_NAME)
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
   public readonly surname: string;
 
-  @IsNumber()
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
   public readonly uniqueBotId: string;
 }
 

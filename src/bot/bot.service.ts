@@ -6,13 +6,12 @@ import { useSendMessage } from '../hooks/useSendMessage';
 import { btnActions } from '../utils/keyboard';
 import { validateMsg } from '../utils/messages';
 import * as process from 'process';
-import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class BotService implements OnModuleInit {
   constructor(
     @InjectModel(Bot) private botRepository: typeof Bot,
-    private authService: AuthService,
+    // private authService: AuthService,
   ) {
     global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
   }
@@ -58,9 +57,9 @@ export class BotService implements OnModuleInit {
     );
 
     // watch msg thread
-    global.bot.on('message', async ({ text, chat }: TelegramBot.Message) => {
+    global.bot.on('message', async ({ text }: TelegramBot.Message) => {
       if (text === 'Рег') {
-        await this.authService.registrationInBot(chat.id);
+        // await this.authService.registrationInBot(chat.id);
       }
     });
   }
