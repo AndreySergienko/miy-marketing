@@ -40,14 +40,24 @@ export class AuthService {
   }
 
   async registrationInBot(chatId: number) {
-    const isHasAuthBot = await this.authRepository.findOne({
-      where: { chatId },
-    });
-    if (isHasAuthBot) return;
-    await this.authRepository.create({
-      chatId,
-      uniqueId: uuidv4(),
-    });
+    const user = await this.userService.findOne({ chatId });
+
+    if (user) {
+      return {
+        isAlready: true,
+        id: user.uniqueBotId,
+      };
+    } else {
+      const uniqueBotId = uuidv4();
+      const user = await this.userService.registrationUser({
+        uniqueBotId: String(uniqueBotId),
+        chatId,
+      });
+      return {
+        isAlready: false,
+        id: user.uniqueBotId,
+      };
+    }
   }
 
   async validateUser({ email, password }: LoginDto) {

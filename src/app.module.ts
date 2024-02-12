@@ -7,7 +7,7 @@ import { BotModule } from './bot/bot.module';
 import { Bot } from './bot/models/bot.model';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import {User} from "./user/model/user.model";
+import { User } from './user/model/user.model';
 
 @Module({
   imports: [

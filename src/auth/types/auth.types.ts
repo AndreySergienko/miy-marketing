@@ -11,11 +11,11 @@ import {
   MIN_LENGTH_NAME,
   MIN_LENGTH_PASSWORD,
 } from '../../constants/validate.value';
-import ErrorValidation from "../../modules/errors/ErrorValidation";
+import ErrorValidation from '../../modules/errors/ErrorValidation';
 
 export interface AuthModelAttrs {
   chatId: number;
-  uniqueId: string;
+  uniqueBotId: string;
 }
 
 export class LoginDto {
@@ -45,8 +45,14 @@ export class RegistrationDto {
   public readonly name: string;
 
   @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_PASSWORD, ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD))
-  @MaxLength(MAX_LENGTH_PASSWORD, ErrorValidation.MIN_LENGTH(MAX_LENGTH_PASSWORD))
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MAX_LENGTH_PASSWORD),
+  )
   public readonly password: string;
 
   @IsString(ErrorValidation.IS_STRING())

@@ -1,13 +1,18 @@
 export interface UserModelAttrs {
-  surname: string;
-  lastname: string;
-  name: string;
-  password: string;
-  inn: number;
-  email: string;
+  surname?: string;
+  lastname?: string;
+  name?: string;
+  password?: string;
+  inn?: number;
+  email?: string;
   uniqueBotId: string;
   chatId: number;
-  isValidEmail: boolean;
+  isValidEmail?: boolean;
+}
+
+export class UserRegistrationBotDto {
+  chatId: number;
+  uniqueBotId: string;
 }
 
 export class UserCreateDto implements UserModelAttrs {

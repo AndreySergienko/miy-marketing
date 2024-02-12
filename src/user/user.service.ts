@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './model/user.model';
-import { UserCreateDto } from './types/user.types';
+import { UserCreateDto, UserRegistrationBotDto } from './types/user.types';
 
 @Injectable()
 export class UserService {
@@ -9,6 +9,10 @@ export class UserService {
 
   async create(user: UserCreateDto) {
     await this.userRepository.create(user);
+  }
+
+  async registrationUser({ uniqueBotId, chatId }: UserRegistrationBotDto) {
+    return await this.userRepository.create({ uniqueBotId, chatId });
   }
 
   async update() {}

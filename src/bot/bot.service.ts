@@ -2,54 +2,41 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { InjectModel } from '@nestjs/sequelize';
 import { Bot } from './models/bot.model';
-import { useSendMessage } from '../hooks/useSendMessage';
-import { btnActions } from '../utils/keyboard';
-import { validateMsg } from '../utils/messages';
 import * as process from 'process';
+import { mapMessage } from '../modules/extensions/bot/mapMessage';
+import { AuthService } from '../auth/auth.service';
+import { CallbackData } from '../modules/extensions/bot/callback.data';
+import {
+  hasToken,
+  newToken,
+} from '../modules/extensions/bot/messages/messages';
 
 @Injectable()
 export class BotService implements OnModuleInit {
   constructor(
     @InjectModel(Bot) private botRepository: typeof Bot,
-    // private authService: AuthService,
+    private authService: AuthService,
   ) {
     global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
   }
 
   async startBot() {
-    // watch chat request thread
     global.bot.on(
-      'chat_join_request',
-      async ({
-        user_chat_id,
-        chat,
-        date,
-        from,
-      }: TelegramBot.ChatJoinRequest) => {
+      'callback_query',
+      async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
-          const userId = user_chat_id;
-          const isInclude = await this.botRepository.findOne({
-            where: { userId },
-          });
-          const chatId = chat.id;
-          if (isInclude) {
-            await this.botRepository.update(
-              { chatId, userId, date },
-              { where: { userId } },
-            );
-          } else {
-            await this.botRepository.create({ userId, date, chatId });
+          switch (data) {
+            case CallbackData.GET_TOKEN:
+              const { id, isAlready } =
+                await this.authService.registrationInBot(from.id);
+              const sendToken = async (cb: (id: string) => string) =>
+                await global.bot.sendMessage(from.id, cb(String(id)));
+              isAlready ? await sendToken(hasToken) : await sendToken(newToken);
+
+              break;
           }
-          const login = from.first_name || from.last_name || from.username;
-          await global.bot.sendMessage(
-            userId,
-            validateMsg(login),
-            useSendMessage({
-              keyboard: btnActions,
-              remove_keyboard: true,
-              resize_keyboard: true,
-            }),
-          );
+
+          await global.bot.answerCallbackQuery(id);
         } catch (e) {
           console.log(e);
         }
@@ -57,9 +44,9 @@ export class BotService implements OnModuleInit {
     );
 
     // watch msg thread
-    global.bot.on('message', async ({ text }: TelegramBot.Message) => {
-      if (text === 'Рег') {
-        // await this.authService.registrationInBot(chat.id);
+    global.bot.on('message', async (message: TelegramBot.Message) => {
+      if (mapMessage.has(message.text)) {
+        await mapMessage.get(message.text)(message);
       }
     });
   }
