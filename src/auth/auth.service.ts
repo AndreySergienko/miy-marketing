@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from '../user/models/user.model';
 import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { UserService } from '../user/user.service';
@@ -9,11 +9,13 @@ import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import Mailer from '../modules/extensions/nodemailer/Mailer';
 import { generateRandomCode } from '../utils/math';
+import { PermissionService } from '../permission/permission.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private permissionService: PermissionService,
     private jwtService: JwtService,
   ) {}
 
@@ -69,6 +71,8 @@ export class AuthService {
       },
       { chatId },
     );
+    const roles = await this.permissionService.getIdsDefaultRoles();
+    await this.userService.updatePermission(chatId, roles);
     return SuccessMessages.ACTIVATE_EMAIL();
   }
 
@@ -93,16 +97,15 @@ export class AuthService {
     }
   }
 
-  async validateUser({ email, password }: LoginDto) {
-    const user: User = await this.userService.findOne({ email });
-    if (!user) return;
-    // Временно
-    if (user.password === password) return true;
-  }
+  async login({ email, password }: LoginDto) {
+    const candidate = await this.userService.findOne({ email });
+    if (!candidate) return;
+    if (!candidate.isValidEmail) return;
 
-  async login(user: User) {
+    const passwordEquals = await bcrypt.compare(password, candidate.password);
+    if (!passwordEquals) return;
     return {
-      access_token: this.jwtService.sign(user),
+      access_token: this.jwtService.sign(candidate.uniqueBotId),
     };
   }
 

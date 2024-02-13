@@ -5,13 +5,14 @@ import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConstants } from './auth.constants';
-import { LocalStrategy } from './local.strategy';
+import { PermissionModule } from '../permission/permission.module';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy],
+  providers: [AuthService],
   exports: [AuthService],
   imports: [
+    PermissionModule,
     UserModule,
     PassportModule,
     JwtModule.register({

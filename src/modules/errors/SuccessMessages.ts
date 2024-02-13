@@ -10,4 +10,8 @@ export default class SuccessMessages {
   static ACTIVATE_EMAIL() {
     return 'Почта подтверждена';
   }
+
+  static CREATE_PERMISSION(permission: string) {
+    return `Права "${permission}" успешно созданы`;
+  }
 }

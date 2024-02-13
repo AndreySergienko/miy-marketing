@@ -22,6 +22,11 @@ export class UserService {
     return await this.userRepository.create({ uniqueBotId, chatId });
   }
 
+  async updatePermission(chatId: number, permissions: number[]) {
+    const user = await this.userRepository.findOne({ where: { chatId } });
+    await user.$set('permissions', permissions);
+  }
+
   async update(user: UserCreateDto) {
     return await this.userRepository.update(user, {
       where: { chatId: user.chatId },

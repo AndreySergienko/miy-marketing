@@ -1,15 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
-import { ConfirmEmailDto, RegistrationDto } from './types/auth.types';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -17,48 +8,17 @@ export class AuthController {
 
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
-    try {
-      return await this.authService.registration(registrationDto);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    return await this.authService.registration(registrationDto);
   }
 
   @Post('repeat-mail')
   async repeatSendMail(@Body() chatId: number) {
-    try {
-      return await this.authService.repeatSendMail(chatId);
-    } catch (error) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error,
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+    return await this.authService.repeatSendMail(chatId);
   }
 
-  @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login() {
-    try {
-      // return this.authService.login();
-    } catch (e) {
-      throw new HttpException(
-        {
-          status: HttpStatus.FORBIDDEN,
-          error: 'Что-то пошло не так',
-        },
-        HttpStatus.FORBIDDEN,
-      );
-    }
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.login(loginDto);
   }
 
   @Get('logout')

@@ -14,4 +14,8 @@ export default class ErrorMessages {
   static INCORRECT_CODE() {
     return `Неправильный код`;
   }
+
+  static PERMISSION_HAS_DEFINED(permission: string) {
+    return `Правило "${permission}" уже определено`;
+  }
 }

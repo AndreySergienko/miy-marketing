@@ -16,6 +16,7 @@ import {
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 
 export class LoginDto {
+  @IsString(ErrorValidation.IS_STRING())
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email?: string;
 
