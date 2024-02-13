@@ -16,6 +16,7 @@ export default class Mailer {
   }
 
   async sendMessage(to: string, code: number) {
+    // @ts-ignore
     await this.transporter.sendMail({
       from: process.env.USER_MAIL,
       to,

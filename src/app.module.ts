@@ -7,17 +7,23 @@ import { BotModule } from './bot/bot.module';
 import { Bot } from './bot/models/bot.model';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { User } from './user/model/user.model';
+import { User } from './user/models/user.model';
+import { UserPermission } from './permission/models/user-permission.model';
+import { Permission } from './permission/models/persmissions.model';
+import { PermissionModule } from './permission/permission.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.envs/.${process.env.STAND}.env`,
     }),
-    SequelizeModule.forRoot(new SqlDatabase().connect([Bot, User])),
+    SequelizeModule.forRoot(
+      new SqlDatabase().connect([Bot, User, Permission, UserPermission]),
+    ),
     BotModule,
     UserModule,
     AuthModule,
+    PermissionModule,
   ],
 
   controllers: [],

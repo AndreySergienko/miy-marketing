@@ -2,11 +2,13 @@ import {
   IsEmail,
   IsNumber,
   IsString,
+  Length,
   MaxLength,
   MinLength,
 } from 'class-validator';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
 import {
+  LENGTH_CODE,
   MAX_LENGTH_PASSWORD,
   MIN_LENGTH_NAME,
   MIN_LENGTH_PASSWORD,
@@ -55,10 +57,20 @@ export class RegistrationDto {
   public readonly surname: string;
 
   @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))
   public readonly uniqueBotId: string;
 }
 
 export class ConfirmEmailDto {
-  @IsNumber()
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @Length(
+    LENGTH_CODE,
+    LENGTH_CODE,
+    ErrorValidation.LENGTH(LENGTH_CODE, LENGTH_CODE),
+  )
   public readonly code: number;
+
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))
+  public readonly chatId: number;
 }

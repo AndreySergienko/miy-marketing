@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../user/model/user.model';
-import { LoginDto, RegistrationDto } from './types/auth.types';
+import { User } from '../user/models/user.model';
+import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import ErrorMessages from '../modules/errors/ErrorMessages';
@@ -57,7 +57,7 @@ export class AuthService {
     return SuccessMessages.REPEAT_MAIL();
   }
 
-  async validateSendMail(chatId: number, code: number) {
+  async validateSendMail({ chatId, code }: ConfirmEmailDto) {
     const user = await this.userService.findOne({ chatId });
     if (!user) return;
 

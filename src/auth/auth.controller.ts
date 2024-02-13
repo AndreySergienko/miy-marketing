@@ -18,7 +18,7 @@ export class AuthController {
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
     try {
-      await this.authService.registration(registrationDto);
+      return await this.authService.registration(registrationDto);
     } catch (error) {
       throw new HttpException(
         {
@@ -67,5 +67,7 @@ export class AuthController {
   }
 
   @Post('confirm-email')
-  async confirmEmail(@Body() confirmEmailDto: ConfirmEmailDto) {}
+  async confirmEmail(@Body() confirmEmailDto: ConfirmEmailDto) {
+    return await this.authService.validateSendMail(confirmEmailDto);
+  }
 }

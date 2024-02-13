@@ -10,6 +10,8 @@ export interface UserModelAttrs {
   mailTimeSend?: number;
   isValidEmail?: boolean;
   mailCode?: number;
+  ban?: boolean;
+  banReason?: string;
 }
 
 export class UserRegistrationBotDto {

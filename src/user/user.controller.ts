@@ -14,9 +14,4 @@ export class UserController {
   async getMe() {
     // await this.userService.findOne();
   }
-
-  @Put('update')
-  async update() {
-    await this.userService.update();
-  }
 }
