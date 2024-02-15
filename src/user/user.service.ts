@@ -28,14 +28,15 @@ export class UserService {
   }
 
   async update(user: UserCreateDto) {
+    console.log('DATA2=', user);
     return await this.userRepository.update(user, {
-      where: { chatId: user.chatId },
+      where: { uniqueBotId: user.uniqueBotId },
     });
   }
 
-  async updateTimeSending(chatId: number, time: number) {
+  async updateMailSending(chatId: number, time: number, mailCode: string) {
     return await this.userRepository.update(
-      { mailTimeSend: time },
+      { mailTimeSend: time, mailCode },
       { where: { chatId } },
     );
   }

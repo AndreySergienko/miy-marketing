@@ -14,4 +14,8 @@ export default class SuccessMessages {
   static CREATE_PERMISSION(permission: string) {
     return `Права "${permission}" успешно созданы`;
   }
+
+  static SEND_PASSWORD_RESET() {
+    return 'Новый пароль отправлен на email';
+  }
 }

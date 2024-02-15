@@ -49,7 +49,7 @@ export class RegistrationDto {
   )
   @MaxLength(
     MAX_LENGTH_PASSWORD,
-    ErrorValidation.MIN_LENGTH(MAX_LENGTH_PASSWORD),
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
   )
   public readonly password: string;
 
@@ -57,21 +57,19 @@ export class RegistrationDto {
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
   public readonly surname: string;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsString(ErrorValidation.IS_STRING())
   @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))
   public readonly uniqueBotId: string;
 }
 
 export class ConfirmEmailDto {
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  @Length(
-    LENGTH_CODE,
-    LENGTH_CODE,
-    ErrorValidation.LENGTH(LENGTH_CODE, LENGTH_CODE),
-  )
-  public readonly code: number;
+  @IsEmail({}, ErrorValidation.IS_EMAIL())
+  public readonly email: string;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))
-  public readonly chatId: number;
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  public readonly mailCode: string;
 }

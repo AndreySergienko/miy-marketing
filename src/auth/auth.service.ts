@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { User } from '../user/models/user.model';
 import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -8,8 +7,9 @@ import SuccessMessages from '../modules/errors/SuccessMessages';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import Mailer from '../modules/extensions/nodemailer/Mailer';
-import { generateRandomCode } from '../utils/math';
 import { PermissionService } from '../permission/permission.service';
+import { dayLater, fifthMinuteLater } from '../utils/date';
+import { generatePassword } from '../utils/password';
 
 @Injectable()
 export class AuthService {
@@ -22,24 +22,34 @@ export class AuthService {
   async registration(registrationDto: RegistrationDto) {
     const { uniqueBotId, password, email } = registrationDto;
     const userIsBot = await this.userService.findOne({ uniqueBotId });
+    if (!userIsBot) {
+      throw new HttpException(
+        ErrorMessages.UNDEFINED_UNIQUE_USER_ID(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const isUser = await this.userService.findOne({ email });
-    if (isUser) throw new Error(ErrorMessages.USER_IS_REGISTERED());
-    if (!uniqueBotId) throw new Error(ErrorMessages.UNDEFINED_UNIQUE_USER_ID());
-
+    if (isUser) {
+      throw new HttpException(
+        ErrorMessages.USER_IS_REGISTERED(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    console.log('DATA=', userIsBot);
     const hashPassword = await bcrypt.hash(password, 7);
 
-    const now = Date.now();
-
-    await this.userService.update({
-      ...registrationDto,
-      password: hashPassword,
-      chatId: userIsBot.chatId,
-      isValidEmail: false,
-      mailTimeSend: now,
-    });
+    const authenticationLink = uuidv4();
+    // await this.userService.update({
+    //   ...registrationDto,
+    //   password: hashPassword,
+    //   chatId: userIsBot.chatId,
+    //   isValidEmail: false,
+    //   mailTimeSend: fifthMinuteLater(),
+    //   mailCode: authenticationLink,
+    // });
 
     const mailer = new Mailer();
-    await mailer.sendMessage(registrationDto.email, generateRandomCode());
+    await mailer.sendMessage(registrationDto.email, authenticationLink);
 
     return SuccessMessages.SUCCESS_REGISTERED();
   }
@@ -49,30 +59,45 @@ export class AuthService {
     if (!user) return;
 
     const now = Date.now();
-    const isSending = now > user.mailTimeSend + 1000 * 60 * 10;
+    const isSending = now > user.mailTimeSend;
     if (isSending) throw new Error(ErrorMessages.A_LOT_OF_SEND_MAIL());
 
-    const mailer = new Mailer();
-    await mailer.sendMessage(user.email, generateRandomCode());
+    const isBlockOneDayMessage = user.counterSend === 2;
 
-    await this.userService.updateTimeSending(chatId, now);
+    if (isBlockOneDayMessage) {
+      await user.$set('mailTimeSend', dayLater());
+      await user.$set('counterSend', 0);
+      throw new Error(ErrorMessages.A_LOT_OF_SEND_MAIL());
+    }
+
+    await user.$set('mailTimeSend', fifthMinuteLater());
+    await user.$set('counterSend', user.counterSend++);
+
+    const mailer = new Mailer();
+    const authenticationLink = uuidv4();
+
+    await mailer.sendMessage(user.email, authenticationLink);
+
+    await this.userService.updateMailSending(chatId, now, authenticationLink);
     return SuccessMessages.REPEAT_MAIL();
   }
 
-  async validateSendMail({ chatId, code }: ConfirmEmailDto) {
-    const user = await this.userService.findOne({ chatId });
+  async validateSendMail({ email, mailCode: token }: ConfirmEmailDto) {
+    const user = await this.userService.findOne({ email, token });
     if (!user) return;
 
-    if (code !== user.mailCode) throw new Error(ErrorMessages.INCORRECT_CODE());
+    if (token !== user.mailCode)
+      throw new Error(ErrorMessages.INCORRECT_CODE());
     await this.userService.updateProperty(
       {
-        mailTimeSend: Date.now(),
+        mailTimeSend: fifthMinuteLater(),
         isValidEmail: true,
+        mailCode: null,
       },
-      { chatId },
+      { chatId: user.chatId },
     );
     const roles = await this.permissionService.getIdsDefaultRoles();
-    await this.userService.updatePermission(chatId, roles);
+    await this.userService.updatePermission(user.chatId, roles);
     return SuccessMessages.ACTIVATE_EMAIL();
   }
 
@@ -104,9 +129,20 @@ export class AuthService {
 
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
+
+    // notification
     return {
       access_token: this.jwtService.sign(candidate.uniqueBotId),
     };
+  }
+
+  async resetPassword(chatId: number) {
+    const candidate = await this.userService.findOne({ chatId });
+    if (!candidate) return;
+    const password = await bcrypt.hash(generatePassword(), 7);
+
+    await candidate.$set('password', password);
+    return SuccessMessages.SEND_PASSWORD_RESET();
   }
 
   async logout() {}

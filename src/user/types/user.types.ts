@@ -9,7 +9,7 @@ export interface UserModelAttrs {
   chatId: number;
   mailTimeSend?: number;
   isValidEmail?: boolean;
-  mailCode?: number;
+  mailCode?: string;
   ban?: boolean;
   banReason?: string;
 }
@@ -30,6 +30,8 @@ export class UserCreateDto implements UserModelAttrs {
   uniqueBotId: string;
   isValidEmail: boolean;
   mailTimeSend?: number;
+  mailCode?: string;
+  counterSend?: number;
 }
 
 export class findUserDto {

@@ -31,7 +31,7 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   isValidEmail: boolean;
 
-  @Column({ type: DataType.INTEGER, unique: true, allowNull: true })
+  @Column({ type: DataType.BIGINT, unique: true, allowNull: true })
   inn: number;
 
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
@@ -46,11 +46,15 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
   surname: string;
 
-  @Column({ type: DataType.INTEGER, unique: false, allowNull: true })
+  // Время до повторной отправки
+  @Column({ type: DataType.BIGINT, unique: false, allowNull: true })
   mailTimeSend: number;
 
-  @Column({ type: DataType.INTEGER, unique: false, allowNull: true })
-  mailCode: number;
+  @Column({ type: DataType.STRING, unique: true, allowNull: true })
+  mailCode: string;
+
+  @Column({ type: DataType.INTEGER, defaultValue: 0 })
+  counterSend: number;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isBan: boolean;

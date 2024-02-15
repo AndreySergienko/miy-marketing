@@ -46,7 +46,7 @@ export class BotService implements OnModuleInit {
     // watch msg thread
     global.bot.on('message', async (message: TelegramBot.Message) => {
       if (mapMessage.has(message.text)) {
-        await mapMessage.get(message.text)(message);
+        await mapMessage.get(message.text)(message, this.authService);
       }
     });
   }

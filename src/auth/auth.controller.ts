@@ -1,6 +1,16 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { AuthService } from './auth.service';
+import { ConfirmEmail } from './auth.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -8,7 +18,11 @@ export class AuthController {
 
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
-    return await this.authService.registration(registrationDto);
+    try {
+      return await this.authService.registration(registrationDto);
+    } catch (e) {
+      throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
+    }
   }
 
   @Post('repeat-mail')
@@ -26,8 +40,8 @@ export class AuthController {
     await this.authService.logout();
   }
 
-  @Post('confirm-email')
-  async confirmEmail(@Body() confirmEmailDto: ConfirmEmailDto) {
+  @Get('confirm-email/:email/:mailCode')
+  async confirmEmail(@ConfirmEmail() confirmEmailDto: ConfirmEmailDto) {
     return await this.authService.validateSendMail(confirmEmailDto);
   }
 }
