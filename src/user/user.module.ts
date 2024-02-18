@@ -6,6 +6,7 @@ import { User } from './models/user.model';
 import { Permission } from '../permission/models/persmissions.model';
 import { UserPermission } from '../permission/models/user-permission.model';
 import { PermissionModule } from '../permission/permission.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   controllers: [UserController],
@@ -14,6 +15,7 @@ import { PermissionModule } from '../permission/permission.module';
   imports: [
     SequelizeModule.forFeature([User, Permission, UserPermission]),
     PermissionModule,
+    JwtModule,
   ],
 })
 export class UserModule {}

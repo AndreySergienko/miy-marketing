@@ -63,8 +63,8 @@ export class RegistrationDto {
 }
 
 export class ConfirmEmailDto {
-  @IsEmail({}, ErrorValidation.IS_EMAIL())
-  public readonly email: string;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  public readonly userId: number;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(

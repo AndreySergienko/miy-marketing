@@ -17,7 +17,7 @@ export class PermissionService {
       where: { value },
     });
     if (permission) {
-      throw new Error(ErrorMessages.PERMISSION_HAS_DEFINED(value));
+      // throw new Error(ErrorMessages.PERMISSION_HAS_DEFINED(value));
     }
     await this.permissionRepository.create(dto);
     return SuccessMessages.CREATE_PERMISSION(value);

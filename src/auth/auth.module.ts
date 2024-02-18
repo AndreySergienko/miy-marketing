@@ -4,8 +4,8 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConstants } from './auth.constants';
 import { PermissionModule } from '../permission/permission.module';
+import { configSecretToken } from './auth.constants';
 
 @Module({
   controllers: [AuthController],
@@ -15,10 +15,7 @@ import { PermissionModule } from '../permission/permission.module';
     PermissionModule,
     UserModule,
     PassportModule,
-    JwtModule.register({
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '7d' },
-    }),
+    JwtModule.register(configSecretToken),
   ],
 })
 export class AuthModule {}

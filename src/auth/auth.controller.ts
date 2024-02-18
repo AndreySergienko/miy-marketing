@@ -4,18 +4,18 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
-  Query,
 } from '@nestjs/common';
 import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { AuthService } from './auth.service';
 import { ConfirmEmail } from './auth.decorator';
+import { Public } from './decorators/public-auth.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
     try {
@@ -25,22 +25,26 @@ export class AuthController {
     }
   }
 
+  @Public()
   @Post('repeat-mail')
   async repeatSendMail(@Body() chatId: number) {
     return await this.authService.repeatSendMail(chatId);
   }
 
+  @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+    return await this.authService.login(loginDto);
   }
 
+  @Public()
   @Get('logout')
   async logout() {
     await this.authService.logout();
   }
 
-  @Get('confirm-email/:email/:mailCode')
+  @Public()
+  @Get('confirm-email/:userId/:mailCode')
   async confirmEmail(@ConfirmEmail() confirmEmailDto: ConfirmEmailDto) {
     return await this.authService.validateSendMail(confirmEmailDto);
   }

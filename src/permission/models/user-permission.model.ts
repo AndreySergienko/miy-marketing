@@ -22,12 +22,6 @@ export class UserPermission extends Model<
   })
   id: number;
 
-  @Column({ type: DataType.STRING, unique: true })
-  value: string;
-
-  @Column({ type: DataType.STRING })
-  description: string;
-
   @ForeignKey(() => Permission)
   @Column({ type: DataType.INTEGER })
   permissionId: number;

@@ -5,16 +5,15 @@ export default class Mailer {
   private readonly transporter: object;
 
   constructor() {
-    console.log(process.env.USER_MAIL, process.env.PASSWORD_MAIL);
     this.transporter = mailer.createTransport({
       service: process.env.MAIL_SERVICE,
       auth: {
         type: process.env.MAIL_TYPE,
-        user: process.env.USER_MAIL,
+        user: process.env.MAIL_USER,
         clientId: process.env.MAIL_CLIENT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-        accessUrl: process.env.ACCESS_URL,
-        refreshToken: process.env.REFRESH_TOKEN,
+        clientSecret: process.env.MAIL_CLIENT_SECRET,
+        accessUrl: process.env.MAIL_ACCESS_URL,
+        refreshToken: process.env.MAIL_REFRESH_TOKEN,
       },
     });
   }
@@ -37,14 +36,22 @@ export default class Mailer {
     });
   }
 
-  async sendMessage(to: string, code: number) {
+  async sendMessage(to: string, text: string, subject: string) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await this.transporter.sendMail({
       from: process.env.USER_MAIL,
       to,
-      subject: 'Код подтверждения',
-      text: `Ваш код подтверждения ${code}`,
+      subject,
+      text,
     });
+  }
+
+  async sendVerificationMail(to: string, link: string) {
+    await this.sendMessage(
+      to,
+      `Ваш код подтверждения: http://localhost:3000/api/v1/auth/confirm-email/${link}`,
+      'Код подтверждения',
+    );
   }
 }
