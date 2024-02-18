@@ -11,6 +11,7 @@ import { PermissionService } from '../permission/permission.service';
 import { dayLater, fifthMinuteLater } from '../utils/date';
 import { generatePassword } from '../utils/password';
 import { User } from '../user/models/user.model';
+import { SECRET_TOKEN } from './auth.constants';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
     if (!userBot) {
       throw new HttpException(
         ErrorMessages.UNDEFINED_UNIQUE_USER_ID(),
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.FORBIDDEN,
       );
     }
     const candidate = await this.userService.getUserByEmail(email);
@@ -65,14 +66,21 @@ export class AuthService {
 
     const now = Date.now();
     const isSending = now > user.mailTimeSend;
-    // if (isSending) throw new Error(ErrorMessages.A_LOT_OF_SEND_MAIL());
+    if (isSending)
+      throw new HttpException(
+        ErrorMessages.A_LOT_OF_SEND_MAIL(),
+        HttpStatus.FORBIDDEN,
+      );
 
     const isBlockOneDayMessage = user.counterSend === 2;
 
     if (isBlockOneDayMessage) {
       await user.$set('mailTimeSend', dayLater());
       await user.$set('counterSend', 0);
-      // throw new Error(ErrorMessages.A_LOT_OF_SEND_MAIL());
+      throw new HttpException(
+        ErrorMessages.A_LOT_OF_SEND_MAIL(),
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     await user.$set('mailTimeSend', fifthMinuteLater());
@@ -93,16 +101,19 @@ export class AuthService {
     if (!user) return;
 
     if (mailCode !== user.mailCode)
-      // throw new Error(ErrorMessages.INCORRECT_CODE());
-
-      await this.userService.updateProperty(
-        {
-          mailTimeSend: fifthMinuteLater(),
-          isValidEmail: true,
-          mailCode: null,
-        },
-        user.id,
+      throw new HttpException(
+        ErrorMessages.INCORRECT_CODE(),
+        HttpStatus.BAD_REQUEST,
       );
+
+    await this.userService.updateProperty(
+      {
+        mailTimeSend: fifthMinuteLater(),
+        isValidEmail: true,
+        mailCode: null,
+      },
+      user.id,
+    );
     const permissions = await this.permissionService.getIdsDefaultRoles();
     await user.$set('permissions', permissions);
     return SuccessMessages.ACTIVATE_EMAIL();
@@ -132,27 +143,43 @@ export class AuthService {
   async login({ email, password }: LoginDto) {
     const candidate =
       await this.userService.getUserByEmailIncludePermission(email);
-    if (!candidate) return;
-    if (!candidate.isValidEmail) return;
-
+    if (!candidate) {
+      throw new HttpException(
+        ErrorMessages.USER_IS_NOT_DEFINED(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (!candidate.isValidEmail) {
+      throw new HttpException(
+        ErrorMessages.MAIL_IS_NOT_VALIDATE(),
+        HttpStatus.FORBIDDEN,
+      );
+    }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
-    // notification
-    const token = this.generateToken(candidate);
-    return {
-      token,
-    };
+    // TODO notification
+    return this.generateToken(candidate);
   }
 
   private generateToken({ email, id, permissions }: User) {
     return {
-      token: this.jwtService.sign({ email, id, permissions }),
+      token: this.jwtService.sign(
+        { email, id, permissions },
+        {
+          secret: SECRET_TOKEN,
+        },
+      ),
     };
   }
 
   async resetPassword(chatId: number) {
     const candidate = await this.userService.getUserByChatId(chatId);
-    if (!candidate) return;
+    if (!candidate) {
+      throw new HttpException(
+        ErrorMessages.USER_IS_NOT_DEFINED(),
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const password = await bcrypt.hash(generatePassword(), 7);
 
     await candidate.$set('password', password);

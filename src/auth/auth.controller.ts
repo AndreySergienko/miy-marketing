@@ -1,11 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpException,
-  HttpStatus,
-  Post,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { AuthService } from './auth.service';
 import { ConfirmEmail } from './auth.decorator';
@@ -18,11 +11,7 @@ export class AuthController {
   @Public()
   @Post('registration')
   async registration(@Body() registrationDto: RegistrationDto) {
-    try {
-      return await this.authService.registration(registrationDto);
-    } catch (e) {
-      throw new HttpException({ message: e.message }, HttpStatus.BAD_REQUEST);
-    }
+    return await this.authService.registration(registrationDto);
   }
 
   @Public()

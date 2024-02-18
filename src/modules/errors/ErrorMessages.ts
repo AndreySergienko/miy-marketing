@@ -1,6 +1,14 @@
 import { createError } from './createError';
 
 export default class ErrorMessages {
+  static MAIL_IS_NOT_VALIDATE() {
+    return createError('Почта не подтверждена');
+  }
+
+  static USER_IS_NOT_DEFINED() {
+    return createError('Пользователь не найден');
+  }
+
   static UNDEFINED_UNIQUE_USER_ID() {
     return createError('Авторизуйтесь в боте');
   }
