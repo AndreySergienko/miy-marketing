@@ -5,10 +5,13 @@ import { PermissionGuard } from './auth/guards/permission.guard';
 import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 
-function connectPermissionGuard(app: INestApplication) {
+// import { BanGuard } from './user/guards/ban.guard';
+
+function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
   const jwt = app.get(JwtService);
   app.useGlobalGuards(new PermissionGuard(jwt, reflector));
+  // app.useGlobalGuards(new BanGuard(jwt));
 }
 
 async function bootstrap() {
@@ -16,7 +19,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
-  connectPermissionGuard(app);
+  connectGuards(app);
   await app.listen(3000);
 }
 

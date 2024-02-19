@@ -1,11 +1,81 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
-import { UserCreateDto, UserRegistrationBotDto } from './types/user.types';
+import {
+  BanUserDto,
+  GetUserDto,
+  PardonUserDto,
+  UpdateUserDto,
+  UserCreateDto,
+  UserRegistrationBotDto,
+} from './types/user.types';
+import { JwtService } from '@nestjs/jwt';
+import { PayloadTokenDto } from '../token/types/token.types';
+import ErrorMessages from '../modules/errors/ErrorMessages';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel(User) private userRepository: typeof User) {}
+  constructor(
+    @InjectModel(User) private userRepository: typeof User,
+    private jwtService: JwtService,
+  ) {}
+
+  private getId(token: string) {
+    const { id } = this.jwtService.decode<PayloadTokenDto>(token);
+    if (!id)
+      return new HttpException(ErrorMessages.UN_AUTH(), HttpStatus.FORBIDDEN);
+    return id;
+  }
+
+  private transformGetUser({
+    email,
+    inn,
+    lastname,
+    surname,
+    name,
+    permissions,
+  }: User): GetUserDto {
+    return {
+      email,
+      inn,
+      lastname,
+      surname,
+      name,
+      permissions: permissions.map((perm) => perm.value),
+    };
+  }
+
+  async getMe(token: string): Promise<GetUserDto> {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({
+      where: { id },
+      include: {
+        all: true,
+      },
+    });
+    return this.transformGetUser(user);
+  }
+
+  async updateUser(token: string, dto: UpdateUserDto) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    return await this.userRepository.update(dto, { where: { id } });
+  }
+
+  async banUser({ description, userId: id }: BanUserDto) {
+    return await this.userRepository.update(
+      { banReason: description || 'Без причины', isBan: true },
+      { where: { id } },
+    );
+  }
+
+  async pardonUser({ userId: id }: PardonUserDto) {
+    return await this.userRepository.update(
+      { banReason: '', isBan: false },
+      { where: { id } },
+    );
+  }
 
   async updateProperty(updateValues: Partial<UserCreateDto>, id: number) {
     return await this.userRepository.update(updateValues, { where: { id } });

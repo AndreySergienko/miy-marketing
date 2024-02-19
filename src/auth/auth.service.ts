@@ -10,15 +10,14 @@ import Mailer from '../modules/extensions/nodemailer/Mailer';
 import { PermissionService } from '../permission/permission.service';
 import { dayLater, fifthMinuteLater } from '../utils/date';
 import { generatePassword } from '../utils/password';
-import { User } from '../user/models/user.model';
-import { SECRET_TOKEN } from './auth.constants';
+import { TokenService } from '../token/token.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private permissionService: PermissionService,
-    private jwtService: JwtService,
+    private tokenService: TokenService,
   ) {}
 
   async registration(registrationDto: RegistrationDto) {
@@ -158,18 +157,7 @@ export class AuthService {
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
     // TODO notification
-    return this.generateToken(candidate);
-  }
-
-  private generateToken({ email, id, permissions }: User) {
-    return {
-      token: this.jwtService.sign(
-        { email, id, permissions },
-        {
-          secret: SECRET_TOKEN,
-        },
-      ),
-    };
+    return await this.tokenService.generateToken(candidate);
   }
 
   async resetPassword(chatId: number) {

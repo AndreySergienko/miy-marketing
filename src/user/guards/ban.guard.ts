@@ -8,25 +8,20 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import ErrorMessages from '../../modules/errors/ErrorMessages';
-import { SECRET_TOKEN } from '../auth.constants';
+import { PayloadTokenDto } from '../../token/types/token.types';
 
 @Injectable()
-export class JwtAuthGuard implements CanActivate {
+export class BanGuard implements CanActivate {
   constructor(private jwtService: JwtService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     try {
       const authorization = req.headers.authorization;
-      const [bearer, token] = authorization.split(' ');
-
-      if (bearer !== 'Bearer' || !token) {
-        throw new UnauthorizedException(ErrorMessages.UN_AUTH());
-      }
-
-      req.user = await this.jwtService.verifyAsync(token, {
-        secret: SECRET_TOKEN,
-      });
+      const token = authorization.split(' ');
+      const { id } = this.jwtService.decode<PayloadTokenDto>(token[1]);
+      if (!id) throw new UnauthorizedException(ErrorMessages.UN_AUTH());
+      // TODO бан сервис и проверка на блокировку
       return true;
     } catch (e) {
       throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);

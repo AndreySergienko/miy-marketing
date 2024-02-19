@@ -6,15 +6,18 @@ import { UserModule } from '../user/user.module';
 import { PassportModule } from '@nestjs/passport';
 import { PermissionModule } from '../permission/permission.module';
 import { configSecretToken } from './auth.constants';
+import { TokenModule } from '../token/token.module';
+import { TokenService } from '../token/token.service';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [AuthService, TokenService],
   exports: [AuthService],
   imports: [
     PermissionModule,
     UserModule,
     PassportModule,
+    TokenModule,
     JwtModule.register(configSecretToken),
   ],
 })
