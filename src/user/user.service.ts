@@ -12,12 +12,14 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { PayloadTokenDto } from '../token/types/token.types';
 import ErrorMessages from '../modules/errors/ErrorMessages';
+import { NodemailerService } from '../nodemailer/nodemailer.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     private jwtService: JwtService,
+    private nodemailerService: NodemailerService,
   ) {}
 
   private getId(token: string) {
@@ -60,6 +62,10 @@ export class UserService {
   async updateUser(token: string, dto: UpdateUserDto) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (user.email !== dto.email) {
+      await this.nodemailerService.sendActivateMail(user.id, dto.email);
+    }
     return await this.userRepository.update(dto, { where: { id } });
   }
 
@@ -99,6 +105,13 @@ export class UserService {
     return await this.userRepository.findOne({ where: { id } });
   }
 
+  async getUserByIdIncludeAll(id: number) {
+    return await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+  }
+
   async getUserByChatId(chatId: number) {
     return await this.userRepository.findOne({ where: { chatId } });
   }
@@ -112,12 +125,5 @@ export class UserService {
       where: { email },
       include: { all: true },
     });
-  }
-
-  async updateMailSending(chatId: number, time: number, mailCode: string) {
-    return await this.userRepository.update(
-      { mailTimeSend: time, mailCode },
-      { where: { chatId } },
-    );
   }
 }

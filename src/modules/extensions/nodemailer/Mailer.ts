@@ -54,4 +54,8 @@ export default class Mailer {
       'Код подтверждения',
     );
   }
+
+  async sendNewPassword(to: string, password: string) {
+    await this.sendMessage(to, `Ваш пароль ${password}`, 'Новый пароль');
+  }
 }

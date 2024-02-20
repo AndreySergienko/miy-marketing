@@ -18,9 +18,7 @@ export interface UserModelAttrs {
   email?: string;
   uniqueBotId: string;
   chatId: number;
-  mailTimeSend?: number;
   isValidEmail?: boolean;
-  mailCode?: string;
   ban?: boolean;
   banReason?: string;
   isNotification?: boolean;

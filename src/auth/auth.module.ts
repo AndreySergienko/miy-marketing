@@ -8,6 +8,7 @@ import { PermissionModule } from '../permission/permission.module';
 import { configSecretToken } from './auth.constants';
 import { TokenModule } from '../token/token.module';
 import { TokenService } from '../token/token.service';
+import { NodemailerModule } from '../nodemailer/nodemailer.module';
 
 @Module({
   controllers: [AuthController],
@@ -18,6 +19,7 @@ import { TokenService } from '../token/token.service';
     UserModule,
     PassportModule,
     TokenModule,
+    NodemailerModule,
     JwtModule.register(configSecretToken),
   ],
 })

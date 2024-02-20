@@ -4,10 +4,12 @@ import {
   Table,
   Model,
   BelongsToMany,
+  HasOne,
 } from 'sequelize-typescript';
 import { UserModelAttrs } from '../types/user.types';
 import { Permission } from '../../permission/models/persmissions.model';
 import { UserPermission } from '../../permission/models/user-permission.model';
+import { Mail } from '../../nodemailer/model/nodemailer.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -46,16 +48,6 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
   surname: string;
 
-  // Время до повторной отправки
-  @Column({ type: DataType.BIGINT, unique: false, allowNull: true })
-  mailTimeSend: number;
-
-  @Column({ type: DataType.STRING, unique: true, allowNull: true })
-  mailCode: string;
-
-  @Column({ type: DataType.INTEGER, defaultValue: 0 })
-  counterSend: number;
-
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isBan: boolean;
 
@@ -68,6 +60,9 @@ export class User extends Model<User, UserModelAttrs> {
 
   @BelongsToMany(() => Permission, () => UserPermission)
   permissions: Permission[];
+
+  @HasOne(() => Mail)
+  mail: Mail;
 
   // TODO набор сообщений для рекламы
   // TODO набор подключенных каналов

@@ -11,6 +11,8 @@ import { User } from './user/models/user.model';
 import { UserPermission } from './permission/models/user-permission.model';
 import { Permission } from './permission/models/persmissions.model';
 import { PermissionModule } from './permission/permission.module';
+import { NodemailerModule } from './nodemailer/nodemailer.module';
+import { Mail } from './nodemailer/model/nodemailer.model';
 
 @Module({
   imports: [
@@ -18,12 +20,13 @@ import { PermissionModule } from './permission/permission.module';
       envFilePath: `.envs/.${process.env.STAND}.env`,
     }),
     SequelizeModule.forRoot(
-      new SqlDatabase().connect([Bot, User, Permission, UserPermission]),
+      new SqlDatabase().connect([Bot, User, Permission, UserPermission, Mail]),
     ),
     BotModule,
     UserModule,
     AuthModule,
     PermissionModule,
+    NodemailerModule,
   ],
 
   controllers: [],
