@@ -13,6 +13,10 @@ import { Permission } from './permission/models/persmissions.model';
 import { PermissionModule } from './permission/permission.module';
 import { NodemailerModule } from './nodemailer/nodemailer.module';
 import { Mail } from './nodemailer/model/nodemailer.model';
+import { StatusModule } from './status/status.module';
+import { Status } from './status/models/status.model';
+import { CategoriesModule } from './categories/categories.module';
+import { Categories } from './categories/models/categories.model';
 
 @Module({
   imports: [
@@ -20,13 +24,23 @@ import { Mail } from './nodemailer/model/nodemailer.model';
       envFilePath: `.envs/.${process.env.STAND}.env`,
     }),
     SequelizeModule.forRoot(
-      new SqlDatabase().connect([Bot, User, Permission, UserPermission, Mail]),
+      new SqlDatabase().connect([
+        Bot,
+        User,
+        Permission,
+        UserPermission,
+        Mail,
+        Status,
+        Categories,
+      ]),
     ),
     BotModule,
     UserModule,
     AuthModule,
     PermissionModule,
     NodemailerModule,
+    StatusModule,
+    CategoriesModule,
   ],
 
   controllers: [],
