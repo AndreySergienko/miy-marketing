@@ -10,7 +10,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "cross-env STAND=local nest start --watch",
-    "start:dev:worker": "cross-env nest start --watch --config nest-cli-worker.json",
+    "start:dev:worker": "cross-env STAND=local nest start --watch --config nest-cli-worker.json",
     "dev": "npm run start:dev && npm run start:dev:worker",
     "start:debug": "nest start --debug --watch",
     "start:prod": "cross-env STAND=prod node dist/main/worker.js",

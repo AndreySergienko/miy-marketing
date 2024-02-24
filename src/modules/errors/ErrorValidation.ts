@@ -11,6 +11,12 @@ export default class ErrorValidation {
     };
   }
 
+  static IS_BOOLEAN() {
+    return {
+      message: 'Поле должно быть булевским значением',
+    };
+  }
+
   static IS_EMAIL() {
     return {
       message: 'Некорректный формат e-mail',

@@ -3,7 +3,7 @@ import { Permission } from './models/persmissions.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { PermissionCreateDto } from './types/permission.types';
 import SuccessMessages from '../modules/errors/SuccessMessages';
-import ErrorMessages from '../modules/errors/ErrorMessages';
+import PermissionProvider from './PermissionProvider';
 
 @Injectable()
 export class PermissionService {
@@ -24,7 +24,11 @@ export class PermissionService {
   }
 
   async getIdsDefaultRoles() {
-    const permissions = await this.permissionRepository.findAll();
+    const permissions = await this.permissionRepository.findAll({
+      where: {
+        id: PermissionProvider.validateUserPermissions,
+      },
+    });
     return permissions.map((permission) => permission.id);
   }
 

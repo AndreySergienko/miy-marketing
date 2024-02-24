@@ -5,6 +5,7 @@ import {
   BanUserDto,
   GetUserDto,
   PardonUserDto,
+  UpdateEmailDto,
   UpdateUserDto,
   UserCreateDto,
   UserRegistrationBotDto,
@@ -13,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { PayloadTokenDto } from '../token/types/token.types';
 import ErrorMessages from '../modules/errors/ErrorMessages';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
+import SuccessMessages from '../modules/errors/SuccessMessages';
 
 @Injectable()
 export class UserService {
@@ -59,12 +61,24 @@ export class UserService {
     return this.transformGetUser(user);
   }
 
+  async updateEmail(token: string, { email }: UpdateEmailDto) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (user.email !== email) {
+      await this.nodemailerService.sendActivateMail(user.id, email);
+      await user.$set('permissions', []);
+    }
+    return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
+  }
+
   async updateUser(token: string, dto: UpdateUserDto) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
     if (user.email !== dto.email) {
       await this.nodemailerService.sendActivateMail(user.id, dto.email);
+      await user.$set('permissions', []);
     }
     return await this.userRepository.update(dto, { where: { id } });
   }

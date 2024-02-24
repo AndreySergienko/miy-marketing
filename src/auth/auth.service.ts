@@ -112,12 +112,6 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (!candidate.isValidEmail) {
-      throw new HttpException(
-        ErrorMessages.MAIL_IS_NOT_VALIDATE(),
-        HttpStatus.FORBIDDEN,
-      );
-    }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
     // TODO notification

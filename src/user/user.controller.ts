@@ -1,14 +1,12 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Req,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Perms } from '../auth/decorators/permission-auth.decorator';
-import { BanUserDto, PardonUserDto, UpdateUserDto } from './types/user.types';
+import {
+  BanUserDto,
+  PardonUserDto,
+  UpdateEmailDto,
+  UpdateUserDto,
+} from './types/user.types';
 
 @Controller('user')
 export class UserController {
@@ -26,6 +24,16 @@ export class UserController {
     return await this.userService.pardonUser(dto);
   }
 
+  @Post('update/email')
+  async updateEmail(@Req() req: Request, @Body() dto: UpdateEmailDto) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    const token = req.headers.authorization;
+    const tokenSplit = token.split(' ');
+    return this.userService.updateEmail(tokenSplit[1], dto);
+  }
+
+  @Perms('CAN_USER_UPDATE')
   @Post('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

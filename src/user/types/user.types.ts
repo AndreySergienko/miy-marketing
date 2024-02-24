@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmail,
   IsEmpty,
   IsNumber,
@@ -63,6 +64,9 @@ export class UpdateUserDto {
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
   public readonly surname: string;
+
+  @IsBoolean(ErrorValidation.IS_BOOLEAN())
+  public readonly isNotification: boolean;
 }
 
 export class BanUserDto {
@@ -72,6 +76,11 @@ export class BanUserDto {
 
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   userId: number;
+}
+
+export class UpdateEmailDto {
+  @IsEmail({}, ErrorValidation.IS_EMAIL())
+  email: string;
 }
 
 export class PardonUserDto {

@@ -17,7 +17,10 @@ export class BotService implements OnModuleInit {
     @InjectModel(Bot) private botRepository: typeof Bot,
     private authService: AuthService,
   ) {
-    global.bot = new TelegramBot(process.env.TOKEN_BOT, { polling: true });
+    // Если уже есть, то не создавать экземпляр
+    global.bot = !global.bot
+      ? new TelegramBot(process.env.TOKEN_BOT, { polling: true })
+      : global.bot;
   }
 
   async startBot() {
