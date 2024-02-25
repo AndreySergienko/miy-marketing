@@ -17,6 +17,9 @@ import { StatusModule } from './status/status.module';
 import { Status } from './status/models/status.model';
 import { CategoriesModule } from './categories/categories.module';
 import { Categories } from './categories/models/categories.model';
+import { ChannelsModule } from './channels/channels.module';
+import { Channel } from './channels/models/channels.model';
+import { UserChannel } from './channels/models/user-channel.model';
 
 @Module({
   imports: [
@@ -32,6 +35,8 @@ import { Categories } from './categories/models/categories.model';
         Mail,
         Status,
         Categories,
+        Channel,
+        UserChannel,
       ]),
     ),
     BotModule,
@@ -41,6 +46,7 @@ import { Categories } from './categories/models/categories.model';
     NodemailerModule,
     StatusModule,
     CategoriesModule,
+    ChannelsModule,
   ],
 
   controllers: [],

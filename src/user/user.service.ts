@@ -24,7 +24,7 @@ export class UserService {
     private nodemailerService: NodemailerService,
   ) {}
 
-  private getId(token: string) {
+  public getId(token: string) {
     const { id } = this.jwtService.decode<PayloadTokenDto>(token);
     if (!id)
       return new HttpException(ErrorMessages.UN_AUTH(), HttpStatus.FORBIDDEN);

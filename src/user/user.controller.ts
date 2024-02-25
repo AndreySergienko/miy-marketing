@@ -7,6 +7,7 @@ import {
   UpdateEmailDto,
   UpdateUserDto,
 } from './types/user.types';
+import { Request } from 'express';
 
 @Controller('user')
 export class UserController {
@@ -26,8 +27,6 @@ export class UserController {
 
   @Post('update/email')
   async updateEmail(@Req() req: Request, @Body() dto: UpdateEmailDto) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     const token = req.headers.authorization;
     const tokenSplit = token.split(' ');
     return this.userService.updateEmail(tokenSplit[1], dto);
@@ -36,8 +35,6 @@ export class UserController {
   @Perms('CAN_USER_UPDATE')
   @Post('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     const token = req.headers.authorization;
     const tokenSplit = token.split(' ');
     return await this.userService.updateUser(tokenSplit[1], dto);
@@ -45,8 +42,6 @@ export class UserController {
 
   @Get('me')
   async getMe(@Req() req: Request) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
     const token = req.headers.authorization;
     const tokenSplit = token.split(' ');
     return await this.userService.getMe(tokenSplit[1]);

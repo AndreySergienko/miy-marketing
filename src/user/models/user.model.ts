@@ -10,6 +10,8 @@ import { UserModelAttrs } from '../types/user.types';
 import { Permission } from '../../permission/models/persmissions.model';
 import { UserPermission } from '../../permission/models/user-permission.model';
 import { Mail } from '../../nodemailer/model/nodemailer.model';
+import { Channel } from '../../channels/models/channels.model';
+import { UserChannel } from '../../channels/models/user-channel.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -64,6 +66,6 @@ export class User extends Model<User, UserModelAttrs> {
   @HasOne(() => Mail)
   mail: Mail;
 
-  // TODO набор сообщений для рекламы
-  // TODO набор подключенных каналов
+  @BelongsToMany(() => Channel, () => UserChannel)
+  channels: Channel[];
 }

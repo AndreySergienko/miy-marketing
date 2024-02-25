@@ -6,10 +6,10 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.model';
-import { Permission } from './persmissions.model';
+import { Channel } from './channels.model';
 
-@Table({ tableName: 'user-permission', createdAt: false, updatedAt: false })
-export class UserPermission extends Model<UserPermission> {
+@Table({ tableName: 'user-channel', createdAt: false, updatedAt: false })
+export class UserChannel extends Model<UserChannel> {
   @Column({
     type: DataType.INTEGER,
     unique: true,
@@ -18,9 +18,9 @@ export class UserPermission extends Model<UserPermission> {
   })
   id: number;
 
-  @ForeignKey(() => Permission)
+  @ForeignKey(() => Channel)
   @Column({ type: DataType.INTEGER })
-  permissionId: number;
+  channelId: number;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
