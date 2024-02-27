@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Perms } from '../auth/decorators/permission-auth.decorator';
 import {
@@ -25,7 +25,8 @@ export class UserController {
     return await this.userService.pardonUser(dto);
   }
 
-  @Post('update/email')
+  @Perms('CAN_USER_UPDATE')
+  @Put('update/email')
   async updateEmail(@Req() req: Request, @Body() dto: UpdateEmailDto) {
     const token = req.headers.authorization;
     const tokenSplit = token.split(' ');
@@ -33,7 +34,7 @@ export class UserController {
   }
 
   @Perms('CAN_USER_UPDATE')
-  @Post('update')
+  @Put('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
     const token = req.headers.authorization;
     const tokenSplit = token.split(' ');

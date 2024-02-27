@@ -67,9 +67,13 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id } });
     if (user.email !== email) {
       await this.nodemailerService.sendActivateMail(user.id, email);
-      await user.$set('permissions', []);
+      // await user.$set('permissions', []);
+      return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
     }
-    return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
+    throw new HttpException(
+      ErrorMessages.MAIL_IS_EQUAL(),
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   async updateUser(token: string, dto: UpdateUserDto) {

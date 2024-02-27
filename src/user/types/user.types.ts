@@ -23,6 +23,7 @@ export interface UserModelAttrs {
   ban?: boolean;
   banReason?: string;
   isNotification?: boolean;
+  lastUpdateEmail?: number;
 }
 
 export class UserRegistrationBotDto {

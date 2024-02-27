@@ -48,22 +48,25 @@ export class AuthService {
       isValidEmail: false,
     });
 
-    return SuccessMessages.SUCCESS_REGISTERED();
+    return {
+      id: userBot.id,
+      msg: SuccessMessages.SUCCESS_REGISTERED(),
+    };
   }
 
-  async repeatSendMail(chatId: number) {
-    const user = await this.userService.getUserByChatId(chatId);
-    if (!user) return;
+  async repeatSendMail(userId: number) {
+    const user = await this.userService.getUserById(userId);
+    if (!user || user.isValidEmail) return;
+    console.log(user);
 
-    await this.nodemailerService.sendActivateMail(user.id, user.email);
+    await this.nodemailerService.sendActivateMail(userId, user.email);
     return SuccessMessages.REPEAT_MAIL();
   }
 
   async validateSendMail({ userId, mailCode }: ConfirmEmailDto) {
     const user = await this.userService.getUserByIdIncludeAll(userId);
     if (!user) return;
-
-    if (mailCode !== user.mail.hash) {
+    if (!user.mail || mailCode !== user.mail.hash) {
       throw new HttpException(
         ErrorMessages.INCORRECT_CODE(),
         HttpStatus.BAD_REQUEST,
@@ -79,6 +82,7 @@ export class AuthService {
     const permissions = await this.permissionService.getIdsDefaultRoles();
     await this.nodemailerService.deleteMail(userId);
     await user.$set('permissions', permissions);
+    await user.$set('lastUpdateEmail', Date.now());
     return SuccessMessages.ACTIVATE_EMAIL();
   }
 

@@ -5,6 +5,10 @@ export default class ErrorMessages {
     return createError('Почта не подтверждена');
   }
 
+  static MAIL_IS_EQUAL() {
+    return createError('Смените адрес');
+  }
+
   static USER_IS_NOT_DEFINED() {
     return createError('Пользователь не найден');
   }
@@ -22,7 +26,7 @@ export default class ErrorMessages {
   }
 
   static INCORRECT_CODE() {
-    return createError('Неправильный код');
+    return createError('Письмо неактивно');
   }
 
   static PERMISSION_HAS_DEFINED(permission: string) {

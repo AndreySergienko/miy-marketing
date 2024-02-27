@@ -56,6 +56,9 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   banReason: string;
 
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  lastUpdateEmail: number;
+
   // Уведомлять ли админа тг канала перед публикацией
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isNotification: boolean;

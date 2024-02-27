@@ -16,6 +16,8 @@ export default class Mailer {
         refreshToken: process.env.MAIL_REFRESH_TOKEN,
       },
     });
+
+    this.verify();
   }
 
   private verify() {

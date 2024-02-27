@@ -1,5 +1,10 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
+import {
+  ConfirmEmailDto,
+  LoginDto,
+  RegistrationDto,
+  RepeatEmailDto,
+} from './types/auth.types';
 import { AuthService } from './auth.service';
 import { ConfirmEmail } from './auth.decorator';
 import { Public } from './decorators/public-auth.decorator';
@@ -16,8 +21,8 @@ export class AuthController {
 
   @Public()
   @Post('repeat-mail')
-  async repeatSendMail(@Body() chatId: number) {
-    return await this.authService.repeatSendMail(chatId);
+  async repeatSendMail(@Body() { userId }: RepeatEmailDto) {
+    return await this.authService.repeatSendMail(userId);
   }
 
   @Public()
