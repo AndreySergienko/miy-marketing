@@ -1,25 +1,41 @@
+import { createError, createSuccess } from './createError';
+
 export default class SuccessMessages {
   static SUCCESS_REGISTERED() {
-    return 'Пользователь успешно зарегистрирован. Подтвердите email';
+    return createSuccess(
+      'Пользователь успешно зарегистрирован. Подтвердите email',
+    );
+  }
+
+  static SUCCESS_UPDATE_USER() {
+    return createSuccess('Пользователь успешно изменён');
+  }
+
+  static SUCCESS_UPDATE_USER_EMAIL() {
+    return createSuccess(
+      'Пользователь успешно создан. Подтвердите email. Ваш функционал ограничен',
+    );
   }
 
   static PLEASE_CHECK_YOUR_EMAIL() {
-    return 'Пожалуйста, проверьте почтовый ящик, письмо отправлено. Временно, ваш функционал ограничен';
+    return createSuccess(
+      'Пожалуйста, проверьте почтовый ящик, письмо отправлено. Временно, ваш функционал ограничен',
+    );
   }
 
   static REPEAT_MAIL() {
-    return 'Письмо повторно отправлено';
+    return createSuccess('Письмо повторно отправлено');
   }
 
   static ACTIVATE_EMAIL() {
-    return 'Почта подтверждена';
+    return createSuccess('Почта подтверждена');
   }
 
   static CREATE_PERMISSION(permission: string) {
-    return `Права "${permission}" успешно созданы`;
+    return createError(`Права "${permission}" успешно созданы`);
   }
 
   static SEND_PASSWORD_RESET() {
-    return 'Новый пароль отправлен на email';
+    return createSuccess('Новый пароль отправлен на email');
   }
 }

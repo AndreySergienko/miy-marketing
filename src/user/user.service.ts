@@ -68,19 +68,27 @@ export class UserService {
     if (user.email !== email) {
       await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
+      return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
     }
-    return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
+    throw new HttpException(
+      ErrorMessages.MAIL_IS_EQUAL(),
+      HttpStatus.BAD_REQUEST,
+    );
   }
 
   async updateUser(token: string, dto: UpdateUserDto) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
-    if (user.email !== dto.email) {
+    const isChangeEmail = user.email !== dto.email;
+    if (isChangeEmail) {
       await this.nodemailerService.sendActivateMail(user.id, dto.email);
       await user.$set('permissions', []);
     }
-    return await this.userRepository.update(dto, { where: { id } });
+    await this.userRepository.update(dto, { where: { id } });
+    return isChangeEmail
+      ? SuccessMessages.SUCCESS_UPDATE_USER()
+      : SuccessMessages.SUCCESS_UPDATE_USER_EMAIL();
   }
 
   async banUser({ description, userId: id }: BanUserDto) {

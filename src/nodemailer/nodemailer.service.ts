@@ -15,13 +15,10 @@ export class NodemailerService {
     await this.mailRepository.destroy({ where: { userId } });
   }
 
-  public async validateMail(userId: number) {
-    const mail = await this.getMailByUserId(userId);
-    if (!mail) {
-      throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);
-    }
+  public async validateMail(mail: Mail) {
     const now = Date.now();
-    const isSending = now > mail.timeSend;
+
+    const isSending = +mail.timeSend > +now;
     if (isSending)
       throw new HttpException(
         ErrorMessages.A_LOT_OF_SEND_MAIL(),
@@ -31,16 +28,27 @@ export class NodemailerService {
     const isBlockOneDayMessage = mail.counterSend === 2;
 
     if (isBlockOneDayMessage) {
-      await mail.$set('timeSend', dayLater());
-      await mail.$set('counterSend', 0);
+      const day = dayLater();
+      await this.mailRepository.update(
+        {
+          timeSend: day,
+          counterSend: 0,
+        },
+        { where: { id: mail.id } },
+      );
       throw new HttpException(
         ErrorMessages.A_LOT_OF_SEND_MAIL(),
         HttpStatus.FORBIDDEN,
       );
     }
-    await mail.$set('timeSend', fifthMinuteLater());
-    await mail.$set('counterSend', mail.counterSend++);
-    return mail;
+    const fifthMinute = fifthMinuteLater();
+    await this.mailRepository.update(
+      {
+        timeSend: fifthMinute,
+        counterSend: ++mail.counterSend,
+      },
+      { where: { id: mail.id } },
+    );
   }
 
   public async createMail(createMailDto: CreateMailDto) {
@@ -52,7 +60,7 @@ export class NodemailerService {
       );
     }
 
-    await this.mailRepository.create({
+    return await this.mailRepository.create({
       ...createMailDto,
       counterSend: 0,
       timeSend: fifthMinuteLater(),
@@ -60,14 +68,22 @@ export class NodemailerService {
   }
 
   public async sendActivateMail(userId: number, email: string) {
-    const mail = await this.validateMail(userId);
+    const mail = await this.getMailByUserId(userId);
+    if (mail) await this.validateMail(mail);
 
     const mailer = new Mailer();
     const hash = uuidv4();
     const authenticationLink = userId + '/' + hash;
-
     await mailer.sendVerificationMail(email, authenticationLink);
-    await mail.$set('hash', hash);
+    if (mail)
+      await this.mailRepository.update({ hash }, { where: { id: mail.id } });
+    else
+      await this.mailRepository.create({
+        userId,
+        hash,
+        counterSend: 0,
+        timeSend: fifthMinuteLater(),
+      });
   }
 
   public async sendRegistrationActivateMail(userId: number, email: string) {

@@ -73,3 +73,8 @@ export class ConfirmEmailDto {
   )
   public readonly mailCode: string;
 }
+
+export class RepeatEmailDto {
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  userId: number;
+}
