@@ -1,11 +1,26 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
+import { JwtModule } from '@nestjs/jwt';
+import { UserModule } from '../user/user.module';
+import { PassportModule } from '@nestjs/passport';
+import { PermissionModule } from '../permission/permission.module';
+import { configSecretToken } from './auth.constants';
+import { TokenModule } from '../token/token.module';
+import { TokenService } from '../token/token.service';
+import { NodemailerModule } from '../nodemailer/nodemailer.module';
 
-@Global()
 @Module({
-  controllers: [],
-  providers: [AuthService],
-  exports: [],
-  imports: [],
+  controllers: [AuthController],
+  providers: [AuthService, TokenService],
+  exports: [AuthService],
+  imports: [
+    PermissionModule,
+    UserModule,
+    PassportModule,
+    TokenModule,
+    NodemailerModule,
+    JwtModule.register(configSecretToken),
+  ],
 })
 export class AuthModule {}

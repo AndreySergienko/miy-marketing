@@ -1,12 +1,40 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
+import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
+import { AuthService } from './auth.service';
+import { ConfirmEmail } from './auth.decorator';
+import { Public } from './decorators/public-auth.decorator';
 
-@Controller()
+@Controller('auth')
 export class AuthController {
-  async registration() {}
+  constructor(private authService: AuthService) {}
 
-  async login() {}
+  @Public()
+  @Post('registration')
+  async registration(@Body() registrationDto: RegistrationDto) {
+    return await this.authService.registration(registrationDto);
+  }
 
-  async logout() {}
+  @Public()
+  @Post('repeat-mail')
+  async repeatSendMail(@Body() chatId: number) {
+    return await this.authService.repeatSendMail(chatId);
+  }
 
-  async resetPassword() {}
+  @Public()
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return await this.authService.login(loginDto);
+  }
+
+  @Public()
+  @Get('logout')
+  async logout() {
+    await this.authService.logout();
+  }
+
+  @Public()
+  @Get('confirm-email/:userId/:mailCode')
+  async confirmEmail(@ConfirmEmail() confirmEmailDto: ConfirmEmailDto) {
+    return await this.authService.validateSendMail(confirmEmailDto);
+  }
 }
