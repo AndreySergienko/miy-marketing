@@ -71,18 +71,19 @@ export class NodemailerService {
     const mail = await this.getMailByUserId(userId);
     if (mail) await this.validateMail(mail);
 
-    // const mailer = new Mailer();
-    // const hash = uuidv4();
-    // const authenticationLink = userId + '/' + hash;
-    // await mailer.sendVerificationMail(email, authenticationLink);
-    // if (mail) await mail.$set('hash', hash);
-    // else
-    //   await this.mailRepository.create({
-    //     userId,
-    //     hash,
-    //     counterSend: 0,
-    //     timeSend: fifthMinuteLater(),
-    //   });
+    const mailer = new Mailer();
+    const hash = uuidv4();
+    const authenticationLink = userId + '/' + hash;
+    await mailer.sendVerificationMail(email, authenticationLink);
+    if (mail)
+      await this.mailRepository.update({ hash }, { where: { id: mail.id } });
+    else
+      await this.mailRepository.create({
+        userId,
+        hash,
+        counterSend: 0,
+        timeSend: fifthMinuteLater(),
+      });
   }
 
   public async sendRegistrationActivateMail(userId: number, email: string) {

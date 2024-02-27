@@ -41,9 +41,7 @@ export class UserCreateDto implements UserModelAttrs {
   surname: string;
   uniqueBotId: string;
   isValidEmail: boolean;
-  mailTimeSend?: number;
-  mailCode?: string;
-  counterSend?: number;
+  lastUpdateEmail?: number;
 }
 
 export class UpdateUserDto {

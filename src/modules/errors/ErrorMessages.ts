@@ -25,6 +25,10 @@ export default class ErrorMessages {
     return createError('Письмо уже отправлено, повторите попытку позже');
   }
 
+  static INCORRECT_SEND_MAIL() {
+    return createError('Отправка письма не возможна');
+  }
+
   static INCORRECT_CODE() {
     return createError('Письмо неактивно');
   }

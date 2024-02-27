@@ -50,14 +50,17 @@ export class AuthService {
 
     return {
       id: userBot.id,
-      msg: SuccessMessages.SUCCESS_REGISTERED(),
+      ...SuccessMessages.SUCCESS_REGISTERED(),
     };
   }
 
   async repeatSendMail(userId: number) {
     const user = await this.userService.getUserById(userId);
-    if (!user || user.isValidEmail) return;
-    console.log(user);
+    if (!user || user.isValidEmail)
+      throw new HttpException(
+        ErrorMessages.INCORRECT_SEND_MAIL(),
+        HttpStatus.BAD_REQUEST,
+      );
 
     await this.nodemailerService.sendActivateMail(userId, user.email);
     return SuccessMessages.REPEAT_MAIL();
@@ -65,24 +68,27 @@ export class AuthService {
 
   async validateSendMail({ userId, mailCode }: ConfirmEmailDto) {
     const user = await this.userService.getUserByIdIncludeAll(userId);
-    if (!user) return;
-    if (!user.mail || mailCode !== user.mail.hash) {
+
+    if (!user || !user.mail) return;
+    if (mailCode !== user.mail.hash) {
       throw new HttpException(
         ErrorMessages.INCORRECT_CODE(),
         HttpStatus.BAD_REQUEST,
       );
     }
 
+    const permissions = await this.permissionService.getIdsDefaultRoles();
+    await this.nodemailerService.deleteMail(userId);
+
     await this.userService.updateProperty(
       {
         isValidEmail: true,
+        lastUpdateEmail: Date.now(),
       },
       user.id,
     );
-    const permissions = await this.permissionService.getIdsDefaultRoles();
-    await this.nodemailerService.deleteMail(userId);
+
     await user.$set('permissions', permissions);
-    await user.$set('lastUpdateEmail', Date.now());
     return SuccessMessages.ACTIVATE_EMAIL();
   }
 
