@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
-import { ChannelCreateDto } from './types/types';
+import { ChannelCreateDto, RegistrationChannelDto } from './types/types';
 import ErrorChannelMessages from '../modules/errors/ErrorChannelMessages';
 import TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../user/user.service';
@@ -52,7 +52,7 @@ export class ChannelsService {
     };
   }
 
-  public async registrationChannel() {
+  public async registrationChannel(dto: RegistrationChannelDto) {
     // все данные + категория + цена + допустимые слоты и присваиваем статус
   }
 

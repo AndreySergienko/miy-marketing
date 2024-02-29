@@ -17,6 +17,12 @@ export default class ErrorValidation {
     };
   }
 
+  static IS_ARRAY() {
+    return {
+      message: 'Поле должно быть массивом',
+    };
+  }
+
   static IS_EMAIL() {
     return {
       message: 'Некорректный формат e-mail',

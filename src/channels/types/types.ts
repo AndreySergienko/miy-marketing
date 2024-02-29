@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 
 export interface ChannelsModelAttrs {
@@ -19,7 +19,24 @@ export class ChannelCreateDto implements ChannelsModelAttrs {
   description?: string;
 }
 
-export class checkConnectChannelDto {
+export class CheckConnectChannelDto {
   @IsString(ErrorValidation.IS_STRING())
   channelName: string;
+}
+
+export class RegistrationChannelDto {
+  @IsString(ErrorValidation.IS_STRING())
+  name: string;
+  @IsString(ErrorValidation.IS_STRING())
+  link: string;
+  @IsString(ErrorValidation.IS_STRING())
+  description: string;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  categoriesId: number;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  price: number;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  day: number;
+  @IsArray(ErrorValidation.IS_ARRAY())
+  slots: number[];
 }
