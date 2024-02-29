@@ -5,3 +5,9 @@ export function createError(message: string): IResponseErrorCreateMsg {
     message,
   };
 }
+
+export function createSuccess(message: string): IResponseErrorCreateMsg {
+  return {
+    message,
+  };
+}
