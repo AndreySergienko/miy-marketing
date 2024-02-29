@@ -20,6 +20,7 @@ import { Categories } from './categories/models/categories.model';
 import { ChannelsModule } from './channels/channels.module';
 import { Channel } from './channels/models/channels.model';
 import { UserChannel } from './channels/models/user-channel.model';
+import { CategoriesChannel } from './categories/models/categories-channel.model';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UserChannel } from './channels/models/user-channel.model';
         Mail,
         Status,
         Categories,
+        CategoriesChannel,
         Channel,
         UserChannel,
       ]),

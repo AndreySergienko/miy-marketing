@@ -1,5 +1,6 @@
-import { Column, DataType, Table, Model } from 'sequelize-typescript';
+import { Column, DataType, Table, Model, HasMany } from 'sequelize-typescript';
 import type { StatusModelAttrs } from '../types/types';
+import { Channel } from '../../channels/models/channels.model';
 
 @Table({ tableName: 'status', createdAt: false, updatedAt: false })
 export class Status extends Model<Status, StatusModelAttrs> {
@@ -16,4 +17,7 @@ export class Status extends Model<Status, StatusModelAttrs> {
 
   @Column({ type: DataType.STRING })
   description: string;
+
+  @HasMany(() => Channel)
+  channels: Channel[];
 }

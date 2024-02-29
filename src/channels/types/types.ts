@@ -15,6 +15,8 @@ export class ChannelCreateDto implements ChannelsModelAttrs {
   name: string;
   subscribers: number;
   isCanPostMessage: boolean;
+  link?: string;
+  description?: string;
 }
 
 export class checkConnectChannelDto {

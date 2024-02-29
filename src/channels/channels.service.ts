@@ -3,14 +3,18 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
 import { ChannelCreateDto } from './types/types';
 import ErrorChannelMessages from '../modules/errors/ErrorChannelMessages';
+import TelegramBot from 'node-telegram-bot-api';
+import { UserService } from '../user/user.service';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    private userService: UserService,
   ) {}
 
   public async checkConnectChannel(userId: number, chatName: string) {
+    const user = await this.userService.getUserById(userId);
     const channel = await this.findOneByChatName(chatName);
     if (!channel)
       throw new HttpException(
@@ -27,25 +31,30 @@ export class ChannelsService {
     const administrators = await global.bot.getChatAdministrators(
       channel.chatId,
     );
-    console.log(administrators);
 
-    // const adminChatIds = administrators.map((user: User) => user.id);
-    // if (!administrators.includes(userId))
-    //   throw new HttpException(
-    //     ErrorChannelMessages.USER_FORBIDDEN(),
-    //     HttpStatus.FORBIDDEN,
-    //   );
-    return channel;
+    const isAdmin = administrators.find(
+      (chatMember: TelegramBot.ChatMember) =>
+        +chatMember.user.id === +user.chatId,
+    );
+
+    if (!isAdmin)
+      throw new HttpException(
+        ErrorChannelMessages.USER_FORBIDDEN(),
+        HttpStatus.FORBIDDEN,
+      );
+
+    await channel.$set('users', [userId]);
+    return {
+      name: channel.name,
+      subscribers: channel.subscribers,
+      description: channel.description,
+      link: channel.link,
+    };
   }
 
-  // public async registrationChannel(
-  //   link: string,
-  //   description: string,
-  //   chatId: number,
-  //   userId: number,
-  // ) {
-  //   const channel = await this.checkConnectChannel(userId, chatId);
-  // }
+  public async registrationChannel() {
+    // все данные + категория + цена + допустимые слоты и присваиваем статус
+  }
 
   public async createChannel(channel: ChannelCreateDto) {
     return await this.channelRepository.create(channel);
@@ -72,9 +81,14 @@ export class ChannelsService {
     });
   }
 
-  public async updateChannel({ name, chatId, subscribers }: ChannelCreateDto) {
+  public async updateChannel({
+    name,
+    chatId,
+    subscribers,
+    isCanPostMessage,
+  }: ChannelCreateDto) {
     return await this.channelRepository.update(
-      { name, subscribers },
+      { name, subscribers, isCanPostMessage },
       { where: { chatId } },
     );
   }

@@ -1,5 +1,13 @@
-import { Column, DataType, Table, Model } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  Table,
+  Model,
+  BelongsToMany,
+} from 'sequelize-typescript';
 import { CategoriesModelAttrs } from '../types/types';
+import { Channel } from '../../channels/models/channels.model';
+import { CategoriesChannel } from './categories-channel.model';
 
 @Table({ tableName: 'categories', createdAt: false, updatedAt: false })
 export class Categories extends Model<Categories, CategoriesModelAttrs> {
@@ -16,4 +24,7 @@ export class Categories extends Model<Categories, CategoriesModelAttrs> {
 
   @Column({ type: DataType.STRING })
   description: string;
+
+  @BelongsToMany(() => Channel, () => CategoriesChannel)
+  channel: Channel[];
 }

@@ -11,7 +11,7 @@ export class ChannelsController {
     private userService: UserService,
   ) {}
 
-  @Post('check-channel')
+  @Post('check')
   async checkConnectChannel(
     @Req() req: Request,
     @Body()

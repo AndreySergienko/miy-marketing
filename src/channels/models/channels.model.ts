@@ -4,10 +4,15 @@ import {
   Table,
   Model,
   BelongsToMany,
+  BelongsTo,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { ChannelsModelAttrs } from '../types/types';
 import { User } from '../../user/models/user.model';
 import { UserChannel } from './user-channel.model';
+import { Categories } from '../../categories/models/categories.model';
+import { CategoriesChannel } from '../../categories/models/categories-channel.model';
+import { Status } from '../../status/models/status.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -37,13 +42,20 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
+  // Вынести в дальнейшем в заказ
+  @Column({ type: DataType.INTEGER })
+  price: number;
+
   @BelongsToMany(() => User, () => UserChannel)
   users: User[];
-  // @Column({ type: DataType.INTEGER })
-  // price: number;
 
-  // @BelongsToMany(() => Categories, () => UserPermission)
-  // categories: Categories[];
+  @BelongsToMany(() => Categories, () => CategoriesChannel)
+  categories: Categories[];
 
-  // Статус канала должен быть валиден
+  @ForeignKey(() => Status)
+  @Column({ type: DataType.INTEGER })
+  statusId: number;
+
+  @BelongsTo(() => Status)
+  status: Status;
 }

@@ -1,0 +1,54 @@
+   // global.bot.on('contact', (e) => {
+      //   console.log('contact', e);
+      // });
+      // global.bot.on('delete_chat_photo', (e) => {
+      //   console.log('delete_chat_photo', e);
+      // });
+      // global.bot.on('document', (e) => {
+      //   console.log('document', e);
+      // });
+      // global.bot.on('game', (e) => {
+      //   console.log('game', e);
+      // });
+      // global.bot.on('group_chat_created', (e) => {
+      //   console.log('group_chat_created', e);
+      // });
+      // global.bot.on('invoice', (e) => {
+      //   console.log('invoice', e);
+      // });
+      // global.bot.on('left_chat_member', (e) => {
+      //   console.log('left_chat_member', e);
+      // });
+      // global.bot.on('location', (e) => {
+      //   console.log('location', e);
+      // });
+      // global.bot.on('migrate_from_chat_id', (e) => {
+      //   console.log('migrate_from_chat_id', e);
+      // });
+      // global.bot.on('migrate_to_chat_id', (e) => {
+      //   console.log('migrate_to_chat_id', e);
+      // });
+      // global.bot.on('new_chat_members', (e) => {
+      //   console.log('new_chat_members', e);
+      // });
+      // global.bot.on('passport_data', (e) => {
+      //   console.log('passport_data', e);
+      // });
+      // global.bot.on('photo', (e) => {
+      //   console.log('photo', e);
+      // });
+      // global.bot.on('pinned_message', (e) => {
+      //   console.log('pinned_message', e);
+      // });
+      // global.bot.on('sticker', (e) => {
+      //   console.log('sticker', e);
+      // });
+      // global.bot.on('chosen_inline_result', (e) => {
+      //   console.log('chosen_inline_result', e);
+      // });
+      //
+      // global.bot.on('channel_post', (t) => {
+      //   console.log('channel_post', t);
+      // });
+      // global.bot.on('pre_checkout_query', (t) => console.log('t', t));
+      // global.bot.on('chat_join_request', (t) => console.log('t', t));

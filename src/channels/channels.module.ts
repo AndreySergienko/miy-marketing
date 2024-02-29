@@ -6,10 +6,18 @@ import { UserChannel } from './models/user-channel.model';
 import { Channel } from './models/channels.model';
 import { User } from '../user/models/user.model';
 import { UserModule } from '../user/user.module';
+import { Categories } from '../categories/models/categories.model';
+import { Status } from '../status/models/status.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Channel, UserChannel, User]),
+    SequelizeModule.forFeature([
+      Channel,
+      UserChannel,
+      User,
+      Categories,
+      Status,
+    ]),
     UserModule,
   ],
   providers: [ChannelsService],
