@@ -6,13 +6,15 @@ import {
   BelongsToMany,
   BelongsTo,
   ForeignKey,
+  HasMany,
 } from 'sequelize-typescript';
-import { ChannelsModelAttrs } from '../types/types';
+import type { ChannelsModelAttrs } from '../types/types';
 import { User } from '../../user/models/user.model';
 import { UserChannel } from './user-channel.model';
 import { Categories } from '../../categories/models/categories.model';
 import { CategoriesChannel } from '../../categories/models/categories-channel.model';
 import { Status } from '../../status/models/status.model';
+import { Slots } from '../../slots/models/slots.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -36,15 +38,18 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isCanPostMessage: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: true })
+  @Column({ type: DataType.STRING, allowNull: true, validate: { isUrl: true } })
   link: string;
 
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
   // Вынести в дальнейшем в заказ
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
+
+  @Column({ type: DataType.BIGINT, allowNull: true })
+  day: number;
 
   @BelongsToMany(() => User, () => UserChannel)
   users: User[];
@@ -58,4 +63,7 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
 
   @BelongsTo(() => Status)
   status: Status;
+
+  @HasMany(() => Slots)
+  slots: Slots[];
 }

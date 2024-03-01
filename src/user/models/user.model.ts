@@ -29,7 +29,12 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.STRING, unique: true })
   uniqueBotId: string;
 
-  @Column({ type: DataType.STRING, unique: true, allowNull: true })
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+    allowNull: true,
+    validate: { isEmail: true },
+  })
   email: string;
 
   @Column({ type: DataType.BOOLEAN, allowNull: true })

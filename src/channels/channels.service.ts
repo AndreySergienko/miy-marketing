@@ -5,6 +5,8 @@ import { ChannelCreateDto, RegistrationChannelDto } from './types/types';
 import ErrorChannelMessages from '../modules/errors/ErrorChannelMessages';
 import TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../user/user.service';
+import { User } from '../user/models/user.model';
+import SuccessMessages from '../modules/errors/SuccessMessages';
 
 @Injectable()
 export class ChannelsService {
@@ -52,7 +54,55 @@ export class ChannelsService {
     };
   }
 
-  public async registrationChannel(dto: RegistrationChannelDto) {
+  public async registrationChannel(
+    {
+      categoriesId,
+      description,
+      link,
+      name,
+      day,
+      price,
+    }: RegistrationChannelDto,
+    userId: number,
+  ) {
+    const channel = await this.findOneByChatName(name);
+    if (!channel)
+      throw new HttpException(
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const isAdmin = channel.users.find((user: User) => +user.id === +userId);
+
+    if (!isAdmin)
+      throw new HttpException(
+        ErrorChannelMessages.USER_FORBIDDEN(),
+        HttpStatus.FORBIDDEN,
+      );
+
+    await channel.$set('categories', [categoriesId]);
+    const id = channel.id;
+    await this.channelRepository.update(
+      {
+        description,
+        link,
+        price,
+        day,
+      },
+      {
+        where: { id },
+      },
+    );
+    const statusSendValidation = 1;
+    await channel.$set('status', statusSendValidation);
+    const updatedChannel = await this.channelRepository.findOne({
+      where: { id },
+    });
+
+    return {
+      ...SuccessMessages.SUCCESS_REGISTRATION_CHANNEL(),
+      channel: updatedChannel,
+    };
     // все данные + категория + цена + допустимые слоты и присваиваем статус
   }
 

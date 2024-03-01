@@ -8,6 +8,8 @@ export interface ChannelsModelAttrs {
   isCanPostMessage: boolean;
   description?: string;
   link?: string;
+  day?: number;
+  price?: number;
 }
 
 export class ChannelCreateDto implements ChannelsModelAttrs {

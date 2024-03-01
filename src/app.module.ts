@@ -21,6 +21,10 @@ import { ChannelsModule } from './channels/channels.module';
 import { Channel } from './channels/models/channels.model';
 import { UserChannel } from './channels/models/user-channel.model';
 import { CategoriesChannel } from './categories/models/categories-channel.model';
+import { Slots } from './slots/models/slots.model';
+import { SlotsModule } from './slots/slots.module';
+import { PublisherMessagesModule } from './publisher-messages/publisher-messages.module';
+import { PublisherMessages } from './publisher-messages/models/publisher-messages.model';
 
 @Module({
   imports: [
@@ -39,6 +43,8 @@ import { CategoriesChannel } from './categories/models/categories-channel.model'
         CategoriesChannel,
         Channel,
         UserChannel,
+        Slots,
+        PublisherMessages,
       ]),
     ),
     BotModule,
@@ -49,6 +55,8 @@ import { CategoriesChannel } from './categories/models/categories-channel.model'
     StatusModule,
     CategoriesModule,
     ChannelsModule,
+    SlotsModule,
+    PublisherMessagesModule,
   ],
 
   controllers: [],

@@ -8,6 +8,7 @@ import { User } from '../user/models/user.model';
 import { UserModule } from '../user/user.module';
 import { Categories } from '../categories/models/categories.model';
 import { Status } from '../status/models/status.model';
+import { Slots } from '../slots/models/slots.model';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Status } from '../status/models/status.model';
       User,
       Categories,
       Status,
+      Slots,
     ]),
     UserModule,
   ],
