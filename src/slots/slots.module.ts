@@ -11,5 +11,6 @@ import { PublisherMessages } from '../publisher-messages/models/publisher-messag
     SequelizeModule.forFeature([Slots, Channel, Status, PublisherMessages]),
   ],
   providers: [SlotsService],
+  exports: [SlotsService],
 })
 export class SlotsModule {}

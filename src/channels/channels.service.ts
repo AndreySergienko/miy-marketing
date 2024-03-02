@@ -7,12 +7,15 @@ import TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../user/user.service';
 import { User } from '../user/models/user.model';
 import SuccessMessages from '../modules/errors/SuccessMessages';
+import { StatusStore } from '../status/StatusStore';
+import { SlotsService } from '../slots/slots.service';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
     private userService: UserService,
+    private slotService: SlotsService,
   ) {}
 
   public async checkConnectChannel(userId: number, chatName: string) {
@@ -61,6 +64,7 @@ export class ChannelsService {
       link,
       name,
       day,
+      slots,
       price,
     }: RegistrationChannelDto,
     userId: number,
@@ -80,7 +84,7 @@ export class ChannelsService {
         HttpStatus.FORBIDDEN,
       );
 
-    await channel.$set('categories', [categoriesId]);
+    await channel.$set('categories', categoriesId);
     const id = channel.id;
     await this.channelRepository.update(
       {
@@ -93,17 +97,30 @@ export class ChannelsService {
         where: { id },
       },
     );
-    const statusSendValidation = 1;
-    await channel.$set('status', statusSendValidation);
-    const updatedChannel = await this.channelRepository.findOne({
-      where: { id },
-    });
+    const status = StatusStore.CHANNEL_REGISTERED;
+    await channel.$set('status', status);
+    if (slots.length > 12)
+      throw new HttpException(
+        ErrorChannelMessages.MORE_SLOTS(),
+        HttpStatus.BAD_REQUEST,
+      );
 
+    for (let i = 0; i < slots.length; i++) {
+      const currentSlotTimestamp = slots[i];
+      await this.slotService.createSlot(currentSlotTimestamp, id);
+    }
     return {
       ...SuccessMessages.SUCCESS_REGISTRATION_CHANNEL(),
-      channel: updatedChannel,
+      channel: {
+        description,
+        link,
+        price,
+        day,
+        name,
+        status,
+        categoriesId,
+      },
     };
-    // все данные + категория + цена + допустимые слоты и присваиваем статус
   }
 
   public async createChannel(channel: ChannelCreateDto) {

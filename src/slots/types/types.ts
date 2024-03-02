@@ -1,3 +1,3 @@
 export interface SlotsModelAttrs {
-  value: number;
+  timestamp: number;
 }

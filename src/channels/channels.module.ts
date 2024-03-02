@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { Categories } from '../categories/models/categories.model';
 import { Status } from '../status/models/status.model';
 import { Slots } from '../slots/models/slots.model';
+import { SlotsModule } from '../slots/slots.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { Slots } from '../slots/models/slots.model';
       Slots,
     ]),
     UserModule,
+    SlotsModule,
   ],
   providers: [ChannelsService],
   controllers: [ChannelsController],

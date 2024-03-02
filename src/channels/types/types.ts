@@ -33,8 +33,8 @@ export class RegistrationChannelDto {
   link: string;
   @IsString(ErrorValidation.IS_STRING())
   description: string;
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  categoriesId: number;
+  @IsArray(ErrorValidation.IS_ARRAY())
+  categoriesId: number[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   price: number;
   @IsNumber({}, ErrorValidation.IS_NUMBER())

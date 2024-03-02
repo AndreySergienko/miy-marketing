@@ -14,4 +14,8 @@ export default class ErrorChannelMessages {
       'У бота заблокирована возможность отправки сообщений в канале',
     );
   }
+
+  static MORE_SLOTS() {
+    return createError('Слишком много слотов');
+  }
 }

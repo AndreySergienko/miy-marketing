@@ -22,7 +22,7 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   id: number;
 
   @Column({ type: DataType.BIGINT, unique: true })
-  value: number;
+  timestamp: number;
 
   @ForeignKey(() => Channel)
   @Column({ type: DataType.INTEGER })
@@ -37,6 +37,10 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
 
   @BelongsTo(() => Status)
   status: Status;
+
+  @ForeignKey(() => PublisherMessages)
+  @Column({ type: DataType.INTEGER })
+  messageId: number;
 
   @BelongsTo(() => PublisherMessages)
   message: PublisherMessages;
