@@ -23,7 +23,7 @@ export class User extends Model<User, UserModelAttrs> {
   })
   id: number;
 
-  @Column({ type: DataType.INTEGER, unique: true })
+  @Column({ type: DataType.BIGINT, unique: true })
   chatId: number;
 
   @Column({ type: DataType.STRING, unique: true })
