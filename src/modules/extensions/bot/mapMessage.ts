@@ -1,8 +1,8 @@
 import { useSendMessage } from '../../../hooks/useSendMessage';
-import { btnGetToken } from './keyboard/keyboard';
-import { startMessage } from './messages/messages';
 import * as TelegramBot from 'node-telegram-bot-api';
 import { AuthService } from '../../../auth/auth.service';
+import { KeyboardAuthentication } from './keyboard/KeyboardAuthentication';
+import { MessagesAuthentication } from './messages/MessagesAuthentication';
 
 export const mapMessage = new Map([
   [
@@ -10,9 +10,9 @@ export const mapMessage = new Map([
     async ({ chat }: TelegramBot.Message) => {
       await global.bot.sendMessage(
         chat.id,
-        startMessage,
+        MessagesAuthentication.START,
         useSendMessage({
-          inline_keyboard: btnGetToken,
+          inline_keyboard: KeyboardAuthentication.GET_TOKEN,
         }),
       );
     },

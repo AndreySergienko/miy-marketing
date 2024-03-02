@@ -9,6 +9,7 @@ import { User } from '../user/models/user.model';
 import SuccessMessages from '../modules/errors/SuccessMessages';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
+import { BotEvent } from '../bot/BotEvent';
 
 @Injectable()
 export class ChannelsService {
@@ -16,7 +17,19 @@ export class ChannelsService {
     @InjectModel(Channel) private channelRepository: typeof Channel,
     private userService: UserService,
     private slotService: SlotsService,
+    private botEvent: BotEvent,
   ) {}
+
+  public async acceptValidateChannel(id: number) {
+    const channel = await this.channelRepository.findOne({ where: { id } });
+    if (!channel)
+      throw new HttpException(
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    await channel.$set('status', StatusStore.PUBLICATION);
+  }
 
   public async checkConnectChannel(userId: number, chatName: string) {
     const user = await this.userService.getUserById(userId);
@@ -33,7 +46,7 @@ export class ChannelsService {
         HttpStatus.FORBIDDEN,
       );
 
-    const administrators = await global.bot.getChatAdministrators(
+    const administrators = await this.botEvent.getAdministrators(
       channel.chatId,
     );
 
@@ -76,6 +89,12 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
+    if (slots.length > 12)
+      throw new HttpException(
+        ErrorChannelMessages.MORE_SLOTS(),
+        HttpStatus.BAD_REQUEST,
+      );
+
     const isAdmin = channel.users.find((user: User) => +user.id === +userId);
 
     if (!isAdmin)
@@ -99,15 +118,16 @@ export class ChannelsService {
     );
     const status = StatusStore.CHANNEL_REGISTERED;
     await channel.$set('status', status);
-    if (slots.length > 12)
-      throw new HttpException(
-        ErrorChannelMessages.MORE_SLOTS(),
-        HttpStatus.BAD_REQUEST,
-      );
 
     for (let i = 0; i < slots.length; i++) {
       const currentSlotTimestamp = slots[i];
       await this.slotService.createSlot(currentSlotTimestamp, id);
+    }
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await this.botEvent.sendMessageAdminAfterCreateChannel(adminId, channel);
     }
     return {
       ...SuccessMessages.SUCCESS_REGISTRATION_CHANNEL(),

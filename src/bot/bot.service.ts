@@ -5,14 +5,13 @@ import { Bot } from './models/bot.model';
 import * as process from 'process';
 import { mapMessage } from '../modules/extensions/bot/mapMessage';
 import { AuthService } from '../auth/auth.service';
-import { CallbackData } from '../modules/extensions/bot/callback.data';
-import {
-  hasToken,
-  newToken,
-} from '../modules/extensions/bot/messages/messages';
 import { ChatMemberStatus } from 'node-telegram-bot-api';
 import { ChannelsService } from '../channels/channels.service';
 import { ChannelCreateDto } from '../channels/types/types';
+import { MessagesAuthentication } from '../modules/extensions/bot/messages/MessagesAuthentication';
+import { CallbackDataAuthentication } from '../modules/extensions/bot/callback-data/CallbackDataAuthentication';
+import { CallbackDataChannel } from '../modules/extensions/bot/callback-data/CallbackDataChannel';
+import { BotEvent } from './BotEvent';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -20,6 +19,7 @@ export class BotService implements OnModuleInit {
     @InjectModel(Bot) private botRepository: typeof Bot,
     private authService: AuthService,
     private channelsService: ChannelsService,
+    private botEvent: BotEvent,
   ) {
     // Если уже есть, то не создавать экземпляр
     global.bot = !global.bot
@@ -78,14 +78,35 @@ export class BotService implements OnModuleInit {
       'callback_query',
       async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
-          switch (data) {
-            case CallbackData.GET_TOKEN:
+          let code: string;
+          let callbackId: number;
+
+          if (data.includes(';')) {
+            const partials = data.split(';');
+            code = partials[0];
+            callbackId = +partials[1];
+          } else code = data;
+
+          switch (code) {
+            case CallbackDataAuthentication.GET_TOKEN:
               const { id, isAlready } =
                 await this.authService.registrationInBot(from.id);
               const sendToken = async (cb: (id: string) => string) =>
                 await global.bot.sendMessage(from.id, cb(String(id)));
-              isAlready ? await sendToken(hasToken) : await sendToken(newToken);
+              isAlready
+                ? await sendToken(MessagesAuthentication.HAS_TOKEN)
+                : await sendToken(MessagesAuthentication.NEW_TOKEN);
 
+              break;
+
+            case CallbackDataChannel.ACCEPT_HANDLER:
+              await this.channelsService.acceptValidateChannel(callbackId);
+              break;
+            case CallbackDataChannel.CANCEL_HANDLER:
+              await this.botEvent.sendMessageAdminFailChannel();
+              break;
+            case CallbackDataChannel.CHANGE_DESCRIPTION_HANDLER:
+              // Отправка другого месседжа с кнопкой
               break;
           }
 

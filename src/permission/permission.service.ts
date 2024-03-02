@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Permission } from './models/persmissions.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { PermissionCreateDto } from './types/permission.types';
 import SuccessMessages from '../modules/errors/SuccessMessages';
-import PermissionProvider from './PermissionProvider';
+import PermissionStore from './PermissionStore';
+import ErrorMessages from '../modules/errors/ErrorMessages';
 
 @Injectable()
 export class PermissionService {
@@ -17,7 +18,10 @@ export class PermissionService {
       where: { value },
     });
     if (permission) {
-      // throw new Error(ErrorMessages.PERMISSION_HAS_DEFINED(value));
+      throw new HttpException(
+        ErrorMessages.PERMISSION_HAS_DEFINED(value),
+        HttpStatus.BAD_REQUEST,
+      );
     }
     await this.permissionRepository.create(dto);
     return SuccessMessages.CREATE_PERMISSION(value);
@@ -26,13 +30,9 @@ export class PermissionService {
   async getIdsDefaultRoles() {
     const permissions = await this.permissionRepository.findAll({
       where: {
-        id: PermissionProvider.validateUserPermissions,
+        id: PermissionStore.validateUserPermissions,
       },
     });
     return permissions.map((permission) => permission.id);
   }
-
-  update() {}
-
-  delete() {}
 }

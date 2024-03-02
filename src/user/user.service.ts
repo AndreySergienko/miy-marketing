@@ -15,6 +15,7 @@ import { PayloadTokenDto } from '../token/types/token.types';
 import ErrorMessages from '../modules/errors/ErrorMessages';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
 import SuccessMessages from '../modules/errors/SuccessMessages';
+import PermissionStore from '../permission/PermissionStore';
 
 @Injectable()
 export class UserService {
@@ -147,5 +148,16 @@ export class UserService {
       where: { email },
       include: { all: true },
     });
+  }
+
+  async getAllAdmins() {
+    return await this.userRepository.findAll({
+      where: { permissions: PermissionStore.adminRoles },
+    });
+  }
+
+  async getAllAdminsChatIds() {
+    const users = await this.getAllAdmins();
+    return users.map((user: User) => user.chatId);
   }
 }
