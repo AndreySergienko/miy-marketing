@@ -9,7 +9,7 @@ export class StatusStore {
     return 2;
   }
 
-  // Канал опубликован
+  // Канал опубликован, слоты имеют статус свободный
   static get PUBLICATION() {
     return 3;
   }
@@ -27,5 +27,15 @@ export class StatusStore {
   // Не активный слот
   static get DE_ACTIVE() {
     return 6;
+  }
+
+  // Статус свободного слота
+  static get FREE() {
+    return 7;
+  }
+
+  // Статус в ожидании - применимо для слотов
+  static get AWAIT() {
+    return 8;
   }
 }

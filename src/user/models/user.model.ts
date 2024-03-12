@@ -33,7 +33,6 @@ export class User extends Model<User, UserModelAttrs> {
     type: DataType.STRING,
     unique: true,
     allowNull: true,
-    validate: { isEmail: true },
   })
   email: string;
 
@@ -63,6 +62,9 @@ export class User extends Model<User, UserModelAttrs> {
 
   @Column({ type: DataType.BIGINT, allowNull: true })
   lastUpdateEmail: number;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  lastActiveBot: string;
 
   // Уведомлять ли админа тг канала перед публикацией
   @Column({ type: DataType.BOOLEAN, defaultValue: false })

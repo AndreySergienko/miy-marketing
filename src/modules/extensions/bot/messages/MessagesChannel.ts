@@ -1,3 +1,8 @@
+import {
+  IValidationCancelChannelDto,
+  IValidationChannelDto,
+} from '../../../../channels/types/types';
+
 export interface MessageChannelRegistrationDto {
   name: string;
   description: string;
@@ -14,12 +19,24 @@ export class MessagesChannel {
     return 'Опубликовать';
   }
 
-  static get BTN_CANCEL() {
-    return 'Отклонить';
+  static get REASON_CANCEL_CHANNEL() {
+    return 'Опишите причину один сообщением почему не удалось пройти проверку';
   }
 
-  static get BTN_CHANGE_DESCRIPTION() {
-    return 'Изменить описание';
+  static ACCEPT_REGISTRATION({ name, day }: IValidationChannelDto) {
+    return `Канал опубликован в списке ${name}, на день ${day}`;
+  }
+
+  static CANCEL_REGISTRATION({
+    name,
+    day,
+    reason,
+  }: IValidationCancelChannelDto) {
+    return `Регистрация канала: ${name} слота на день: ${day} по причине ${reason}`;
+  }
+
+  static get BTN_CANCEL() {
+    return 'Отклонить';
   }
 
   static REGISTRATION({
@@ -34,7 +51,8 @@ export class MessagesChannel {
   }: MessageChannelRegistrationDto) {
     return `Ув. администраторы
 
-Запрос на регистрацию канала: ${name}
+Запрос на регистрацию канала:
+Наименование: <b>${name}</b>
 Описание: ${description}
 Подписчики: ${subscribers}
 Ссылка: ${link}

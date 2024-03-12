@@ -11,8 +11,14 @@ export class SlotsService {
     const slot = await this.slotsRepository.create({
       timestamp,
     });
-    await slot.$set('statusId', StatusStore.DE_ACTIVE);
-    await slot.$set('channelId', channelId);
+    await slot.$set('status', StatusStore.DE_ACTIVE);
+    await slot.$set('channel', channelId);
+  }
+
+  async removeSlots(channelId: number) {
+    return await this.slotsRepository.destroy({
+      where: { channelId, statusId: StatusStore.DE_ACTIVE },
+    });
   }
 
   async findSlotByChannelId(channelId: number) {

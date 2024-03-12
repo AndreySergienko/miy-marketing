@@ -25,6 +25,7 @@ import { Slots } from './slots/models/slots.model';
 import { SlotsModule } from './slots/slots.module';
 import { PublisherMessagesModule } from './publisher-messages/publisher-messages.module';
 import { PublisherMessages } from './publisher-messages/models/publisher-messages.model';
+import { FormatChannel } from './channels/models/format-channel.model';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { PublisherMessages } from './publisher-messages/models/publisher-message
         UserChannel,
         Slots,
         PublisherMessages,
+        FormatChannel,
       ]),
     ),
     BotModule,

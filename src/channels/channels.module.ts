@@ -10,6 +10,7 @@ import { Categories } from '../categories/models/categories.model';
 import { Status } from '../status/models/status.model';
 import { Slots } from '../slots/models/slots.model';
 import { SlotsModule } from '../slots/slots.module';
+import { FormatChannel } from './models/format-channel.model';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { SlotsModule } from '../slots/slots.module';
       Categories,
       Status,
       Slots,
+      FormatChannel,
     ]),
     UserModule,
     SlotsModule,

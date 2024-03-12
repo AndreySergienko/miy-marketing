@@ -7,6 +7,10 @@ import {
   convertTimestampToTimeMoscow,
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
+import type {
+  IValidationCancelChannelDto,
+  IValidationChannelDto,
+} from '../channels/types/types';
 
 @Injectable()
 export class BotEvent {
@@ -14,7 +18,32 @@ export class BotEvent {
     return await global.bot.getChatAdministrators(chatId);
   }
 
-  async sendMessageAdminFailChannel() {}
+  async sendReasonCancelChannel(chatId: number) {
+    return await global.bot.sendMessage(
+      chatId,
+      MessagesChannel.REASON_CANCEL_CHANNEL,
+    );
+  }
+
+  async sendMessageAcceptChannel(chatId: number, dto: IValidationChannelDto) {
+    return await global.bot.sendMessage(
+      chatId,
+      MessagesChannel.ACCEPT_REGISTRATION(dto),
+    );
+  }
+
+  async sendMessageCancelChannel(
+    chatId: number,
+    dto: IValidationCancelChannelDto,
+  ) {
+    return await global.bot.sendMessage(
+      chatId,
+      MessagesChannel.CANCEL_REGISTRATION(dto),
+      useSendMessage({
+        inline_keyboard: [],
+      }),
+    );
+  }
 
   async sendMessageAdminAfterCreateChannel(
     chatId: number,
@@ -29,10 +58,10 @@ export class BotEvent {
       slots,
     }: Channel,
   ) {
-    const full_day = convertUtcDateToFullDateMoscow(day);
+    const full_day = convertUtcDateToFullDateMoscow(+day);
     const categoriesNames = categories.map((category) => category.value);
     const slotDate = slots.map((slot) =>
-      convertTimestampToTimeMoscow(slot.timestamp),
+      convertTimestampToTimeMoscow(+slot.timestamp),
     );
 
     return await global.bot.sendMessage(

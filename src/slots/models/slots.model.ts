@@ -21,11 +21,11 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   })
   id: number;
 
-  @Column({ type: DataType.BIGINT, unique: true })
+  @Column({ type: DataType.BIGINT })
   timestamp: number;
 
   @ForeignKey(() => Channel)
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.BIGINT })
   channelId: number;
 
   @BelongsTo(() => Channel)

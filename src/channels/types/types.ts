@@ -41,4 +41,15 @@ export class RegistrationChannelDto {
   day: number;
   @IsArray(ErrorValidation.IS_ARRAY())
   slots: number[];
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  formatChannel: number;
+}
+
+export interface IValidationChannelDto {
+  name: string;
+  day: string;
+}
+
+export interface IValidationCancelChannelDto extends IValidationChannelDto {
+  reason: string;
 }

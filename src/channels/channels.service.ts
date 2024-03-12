@@ -1,7 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
-import { ChannelCreateDto, RegistrationChannelDto } from './types/types';
+import {
+  ChannelCreateDto,
+  IValidationCancelChannelDto,
+  IValidationChannelDto,
+  RegistrationChannelDto,
+} from './types/types';
 import ErrorChannelMessages from '../modules/errors/ErrorChannelMessages';
 import TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../user/user.service';
@@ -10,6 +15,7 @@ import SuccessMessages from '../modules/errors/SuccessMessages';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
+import { convertUtcDateToFullDateMoscow } from '../utils/date';
 
 @Injectable()
 export class ChannelsService {
@@ -21,14 +27,85 @@ export class ChannelsService {
   ) {}
 
   public async acceptValidateChannel(id: number) {
+    const channel = await this.channelRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+
+    if (!channel)
+      throw new HttpException(
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
+        HttpStatus.BAD_REQUEST,
+      );
+    if (channel.status.id === StatusStore.PUBLICATION) {
+      throw new HttpException(
+        ErrorChannelMessages.CHANNEL_IS_PUBLICATION,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    await channel.$set('status', StatusStore.PUBLICATION);
+
+    const dto: IValidationChannelDto = {
+      name: channel.name,
+      day: convertUtcDateToFullDateMoscow(channel.day),
+    };
+
+    await this.sendMessageAfterUpdateStatusChannel<IValidationChannelDto>(
+      dto,
+      'sendMessageAcceptChannel',
+      channel,
+    );
+  }
+
+  public async cancelValidateChannel(id: number, reason: string) {
     const channel = await this.channelRepository.findOne({ where: { id } });
     if (!channel)
       throw new HttpException(
         ErrorChannelMessages.CHANNEL_NOT_FOUND(),
         HttpStatus.BAD_REQUEST,
       );
+    await channel.$set('status', StatusStore.CANCELED);
+    await this.slotService.removeSlots(channel.id);
 
-    await channel.$set('status', StatusStore.PUBLICATION);
+    const dto: IValidationCancelChannelDto = {
+      name: channel.name,
+      day: convertUtcDateToFullDateMoscow(channel.day),
+      reason,
+    };
+
+    await this.sendMessageAfterUpdateStatusChannel<IValidationCancelChannelDto>(
+      dto,
+      'sendMessageCancelChannel',
+      channel,
+    );
+  }
+
+  private async getAdminsChatId(channel: Channel) {
+    const adminsApp = await this.userService.getAllAdminsChatIds();
+    return {
+      chatAdmins: channel.users.map((user) => user.chatId),
+      adminsApp,
+      mainAdminApp: adminsApp[0],
+    };
+  }
+
+  private async sendMessageAfterUpdateStatusChannel<T>(
+    dto: T,
+    keyEvent: keyof BotEvent,
+    channel: Channel,
+  ) {
+    const { chatAdmins, mainAdminApp } = await this.getAdminsChatId(channel);
+    for (let i = 0; i < chatAdmins.length; i++) {
+      const adminChannel = chatAdmins[i];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-expect-error
+      await this.botEvent[keyEvent](adminChannel, dto);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    await this.botEvent[keyEvent](mainAdminApp, dto);
   }
 
   public async checkConnectChannel(userId: number, chatName: string) {
@@ -79,10 +156,21 @@ export class ChannelsService {
       day,
       slots,
       price,
+      formatChannel,
     }: RegistrationChannelDto,
     userId: number,
   ) {
+    const candidate = await this.channelRepository.findOne({
+      where: { name, day },
+    });
+    if (candidate)
+      throw new HttpException(
+        ErrorChannelMessages.CREATED,
+        HttpStatus.BAD_REQUEST,
+      );
     const channel = await this.findOneByChatName(name);
+    const admins = await this.userService.getAllAdminsChatIds();
+
     if (!channel)
       throw new HttpException(
         ErrorChannelMessages.CHANNEL_NOT_FOUND(),
@@ -118,17 +206,25 @@ export class ChannelsService {
     );
     const status = StatusStore.CHANNEL_REGISTERED;
     await channel.$set('status', status);
+    await channel.$set('formatChannel', formatChannel);
 
     for (let i = 0; i < slots.length; i++) {
       const currentSlotTimestamp = slots[i];
       await this.slotService.createSlot(currentSlotTimestamp, id);
     }
 
-    const admins = await this.userService.getAllAdminsChatIds();
+    const updatedChannel = await this.channelRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
-      await this.botEvent.sendMessageAdminAfterCreateChannel(adminId, channel);
+      await this.botEvent.sendMessageAdminAfterCreateChannel(
+        adminId,
+        updatedChannel,
+      );
     }
+
     return {
       ...SuccessMessages.SUCCESS_REGISTRATION_CHANNEL(),
       channel: {

@@ -7,19 +7,19 @@ export class CallbackDataChannel {
     return 'cancel';
   }
 
-  static get CHANGE_DESCRIPTION_HANDLER() {
-    return 'changeDescription';
+  static CANCEL_REASON(channelId: number) {
+    return `${CallbackDataChannel.CANCEL_HANDLER}:${channelId}`;
+  }
+
+  static get CANCEL_REASON_HANDLER() {
+    return 'cancelReason';
   }
 
   static ACCEPT(channelId: number) {
-    return `accept:${channelId}`;
+    return `${CallbackDataChannel.ACCEPT_HANDLER}:${channelId}`;
   }
 
   static CANCEL(channelId: number) {
-    return `cancel:${channelId}`;
-  }
-
-  static CHANGE_DESCRIPTION(channelId: number) {
-    return `changeDescription:${channelId}`;
+    return `${CallbackDataChannel.CANCEL_HANDLER}:${channelId}`;
   }
 }

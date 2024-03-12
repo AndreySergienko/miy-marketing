@@ -35,11 +35,13 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const hashPassword = await bcrypt.hash(password, 7);
     await this.nodemailerService.sendRegistrationActivateMail(
       userBot.id,
       registrationDto.email,
     );
+    console.log('TestNode');
 
     await this.userService.updateAllFiledUserById({
       ...registrationDto,

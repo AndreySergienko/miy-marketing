@@ -15,12 +15,14 @@ import { PayloadTokenDto } from '../token/types/token.types';
 import ErrorMessages from '../modules/errors/ErrorMessages';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
 import SuccessMessages from '../modules/errors/SuccessMessages';
+import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
+    @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
   ) {}
@@ -48,6 +50,17 @@ export class UserService {
       name,
       permissions: permissions.map((perm) => perm.value),
     };
+  }
+
+  async updateLastBotActive(chatId: number, lastActiveBot: string) {
+    return await this.userRepository.update(
+      { lastActiveBot },
+      { where: { chatId } },
+    );
+  }
+
+  async findUserByChatId(chatId: number) {
+    return await this.userRepository.findOne({ where: { chatId } });
   }
 
   async getMe(token: string): Promise<GetUserDto> {
@@ -151,8 +164,12 @@ export class UserService {
   }
 
   async getAllAdmins() {
+    const admins = await this.userPermissions.findAll({
+      where: { permissionId: PermissionStore.adminRoles },
+    });
+    const ids = admins.map((userPerms: UserPermission) => userPerms.userId);
     return await this.userRepository.findAll({
-      where: { permissions: PermissionStore.adminRoles },
+      where: { id: ids },
     });
   }
 

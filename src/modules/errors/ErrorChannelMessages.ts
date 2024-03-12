@@ -5,8 +5,16 @@ export default class ErrorChannelMessages {
     return createError('Бот не подключен к данному каналу');
   }
 
+  static CHANNEL_IS_PUBLICATION() {
+    return createError('Канал уже опубликован');
+  }
+
   static USER_FORBIDDEN() {
     return createError('У вас нет прав для управления данным каналом');
+  }
+
+  static CREATED() {
+    return createError('Канал на данную дату уже создан');
   }
 
   static CHANNEL_IS_NOT_PERMISSION() {
