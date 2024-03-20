@@ -8,7 +8,7 @@ export class CallbackDataChannel {
   }
 
   static CANCEL_REASON(channelId: number) {
-    return `${CallbackDataChannel.CANCEL_HANDLER}:${channelId}`;
+    return `${CallbackDataChannel.CANCEL_REASON_HANDLER}:${channelId}`;
   }
 
   static get CANCEL_REASON_HANDLER() {

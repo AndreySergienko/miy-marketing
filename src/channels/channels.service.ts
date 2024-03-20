@@ -26,29 +26,33 @@ export class ChannelsService {
     private botEvent: BotEvent,
   ) {}
 
-  public async acceptValidateChannel(id: number) {
+  public async acceptValidateChannel(chatId: number, adminId: number) {
     const channel = await this.channelRepository.findOne({
-      where: { id },
+      where: { chatId },
       include: { all: true },
     });
 
-    if (!channel)
-      throw new HttpException(
-        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
-        HttpStatus.BAD_REQUEST,
+    if (!channel) {
+      await global.bot.sendMessage(
+        adminId,
+        ErrorChannelMessages.CHANNEL_NOT_FOUND().message,
       );
-    if (channel.status.id === StatusStore.PUBLICATION) {
-      throw new HttpException(
-        ErrorChannelMessages.CHANNEL_IS_PUBLICATION,
-        HttpStatus.BAD_REQUEST,
+      return;
+    }
+
+    if (channel.statusId === StatusStore.PUBLICATION) {
+      await global.bot.sendMessage(
+        adminId,
+        ErrorChannelMessages.CHANNEL_IS_PUBLICATION().message,
       );
+      return;
     }
 
     await channel.$set('status', StatusStore.PUBLICATION);
 
     const dto: IValidationChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDateMoscow(channel.day),
+      day: convertUtcDateToFullDateMoscow(+channel.day),
     };
 
     await this.sendMessageAfterUpdateStatusChannel<IValidationChannelDto>(
@@ -58,19 +62,28 @@ export class ChannelsService {
     );
   }
 
-  public async cancelValidateChannel(id: number, reason: string) {
-    const channel = await this.channelRepository.findOne({ where: { id } });
-    if (!channel)
-      throw new HttpException(
-        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
-        HttpStatus.BAD_REQUEST,
+  public async cancelValidateChannel(
+    chatId: number,
+    reason: string,
+    adminId: number,
+  ) {
+    const channel = await this.channelRepository.findOne({
+      where: { chatId },
+      include: { all: true },
+    });
+    if (!channel) {
+      await global.bot.sendMessage(
+        adminId,
+        ErrorChannelMessages.CHANNEL_NOT_FOUND().message,
       );
+      return;
+    }
     await channel.$set('status', StatusStore.CANCELED);
     await this.slotService.removeSlots(channel.id);
 
     const dto: IValidationCancelChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDateMoscow(channel.day),
+      day: convertUtcDateToFullDateMoscow(+channel.day),
       reason,
     };
 
@@ -165,7 +178,7 @@ export class ChannelsService {
     });
     if (candidate)
       throw new HttpException(
-        ErrorChannelMessages.CREATED,
+        ErrorChannelMessages.CREATED(),
         HttpStatus.BAD_REQUEST,
       );
     const channel = await this.findOneByChatName(name);

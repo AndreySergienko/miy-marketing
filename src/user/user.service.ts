@@ -72,6 +72,11 @@ export class UserService {
         all: true,
       },
     });
+    if (!user)
+      throw new HttpException(
+        ErrorMessages.USER_IS_NOT_DEFINED(),
+        HttpStatus.FORBIDDEN,
+      );
     return this.transformGetUser(user);
   }
 
@@ -94,6 +99,7 @@ export class UserService {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return;
     const isChangeEmail = user.email !== dto.email;
     if (isChangeEmail) {
       await this.nodemailerService.sendActivateMail(user.id, dto.email);

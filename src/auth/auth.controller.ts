@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import {
   ConfirmEmailDto,
   LoginDto,
@@ -8,6 +8,8 @@ import {
 import { AuthService } from './auth.service';
 import { ConfirmEmail } from './auth.decorator';
 import { Public } from './decorators/public-auth.decorator';
+import * as process from 'process';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -39,7 +41,11 @@ export class AuthController {
 
   @Public()
   @Get('confirm-email/:userId/:mailCode')
-  async confirmEmail(@ConfirmEmail() confirmEmailDto: ConfirmEmailDto) {
-    return await this.authService.validateSendMail(confirmEmailDto);
+  async confirmEmail(
+    @Res() response: Response,
+    @ConfirmEmail() confirmEmailDto: ConfirmEmailDto,
+  ) {
+    await this.authService.validateSendMail(confirmEmailDto);
+    response.redirect(process.env.FRONT_URL);
   }
 }

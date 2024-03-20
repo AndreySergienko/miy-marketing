@@ -46,8 +46,9 @@ export class BotEvent {
   }
 
   async sendMessageAdminAfterCreateChannel(
-    chatId: number,
+    adminId: number,
     {
+      chatId,
       name,
       day,
       description,
@@ -56,6 +57,7 @@ export class BotEvent {
       subscribers,
       categories,
       slots,
+      formatChannel,
     }: Channel,
   ) {
     const full_day = convertUtcDateToFullDateMoscow(+day);
@@ -65,7 +67,7 @@ export class BotEvent {
     );
 
     return await global.bot.sendMessage(
-      chatId,
+      adminId,
       MessagesChannel.REGISTRATION({
         name,
         day: full_day,
@@ -75,6 +77,7 @@ export class BotEvent {
         subscribers,
         categories: categoriesNames,
         slots: slotDate,
+        format: formatChannel.value,
       }),
       useSendMessage({
         inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),

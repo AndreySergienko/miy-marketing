@@ -4,6 +4,7 @@ export default class PermissionStore {
   }
 
   static get adminRoles() {
-    return [7];
+    // TODO временно 6
+    return 6;
   }
 }

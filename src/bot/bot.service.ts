@@ -44,6 +44,11 @@ export class BotService implements OnModuleInit {
             const subscribers = await global.bot.getChatMemberCount(chatId);
             const name = chat.title;
             const infoChat = await global.bot.getChat(chatId);
+            // Для получении фотографии
+            // const photo = await global.bot.getFile(infoChat.photo.big_file_id);
+            // const downloadPhoto = await global.bot.downloadFile(
+            //   photo.file_path,
+            // );
             const dto: ChannelCreateDto = {
               name,
               subscribers,
@@ -75,7 +80,7 @@ export class BotService implements OnModuleInit {
       async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
           const { code, channelId } = this.getCodeAndCallbackId(data);
-          await this.botRequestService[code](from, channelId);
+          await this.botRequestService[code]({ from, channelId });
           await global.bot.answerCallbackQuery(id);
         } catch (e) {
           console.log(e);
@@ -85,25 +90,27 @@ export class BotService implements OnModuleInit {
 
     // watch msg thread
     global.bot.on('message', async (message: TelegramBot.Message) => {
-      const user = await this.userService.findUserByChatId(message.chat.id);
-      // Есть ли последнее событие юзера в классе обработчике
-      if (
-        user &&
-        user.lastActiveBot &&
-        this.botRequestService[user.lastActiveBot]
-      ) {
-        const { code, channelId } = this.getCodeAndCallbackId(
-          user.lastActiveBot,
-        );
-        await this.botRequestService[code]({
-          from: message.from,
-          channelId,
-        });
-        return;
-      }
+      try {
+        const user = await this.userService.findUserByChatId(message.chat.id);
+        // Есть ли последнее событие юзера в классе обработчике
+        if (user && user.lastActiveBot) {
+          const { code, channelId } = this.getCodeAndCallbackId(
+            user.lastActiveBot,
+          );
 
-      if (mapMessage.has(message.text)) {
-        await mapMessage.get(message.text)(message, this.authService);
+          await this.botRequestService[code]({
+            from: message.from,
+            channelId,
+            reason: message.text,
+          });
+          return;
+        }
+
+        if (mapMessage.has(message.text)) {
+          await mapMessage.get(message.text)(message, this.authService);
+        }
+      } catch (e) {
+        console.log(e);
       }
     });
   }
@@ -112,8 +119,8 @@ export class BotService implements OnModuleInit {
     let code: string;
     let channelId: number;
 
-    if (data.includes(';')) {
-      const partials = data.split(';');
+    if (data.includes(':')) {
+      const partials = data.split(':');
       code = partials[0];
       channelId = +partials[1];
     } else code = data;

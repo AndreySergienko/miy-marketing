@@ -17,15 +17,22 @@ export class BotRequestService {
     private botEvent: BotEvent,
   ) {}
 
-  async [CallbackDataChannel.ACCEPT_HANDLER]({ channelId }: IBotRequestDto) {
-    await this.channelsService.acceptValidateChannel(channelId);
+  async [CallbackDataChannel.ACCEPT_HANDLER]({
+    from,
+    channelId,
+  }: IBotRequestDto) {
+    await this.channelsService.acceptValidateChannel(channelId, from.id);
+    await this.userService.updateLastBotActive(from.id, '');
   }
 
-  async [CallbackDataChannel.CANCEL_REASON_HANDLER]({ from }: IBotRequestDto) {
+  async [CallbackDataChannel.CANCEL_REASON_HANDLER]({
+    from,
+    channelId,
+  }: IBotRequestDto) {
     await this.botEvent.sendReasonCancelChannel(from.id);
     await this.userService.updateLastBotActive(
       from.id,
-      CallbackDataChannel.CANCEL_REASON_HANDLER,
+      `${CallbackDataChannel.CANCEL_HANDLER}:${channelId}`,
     );
   }
 
@@ -34,7 +41,11 @@ export class BotRequestService {
     from,
     reason,
   }: IBotRequestDto) {
-    await this.channelsService.cancelValidateChannel(channelId, reason);
+    await this.channelsService.cancelValidateChannel(
+      channelId,
+      reason,
+      from.id,
+    );
     await this.userService.updateLastBotActive(from.id, '');
   }
 

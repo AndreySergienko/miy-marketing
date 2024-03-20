@@ -11,6 +11,7 @@ export interface MessageChannelRegistrationDto {
   price: number;
   day: string;
   slots: string[];
+  format: string;
   categories: string[];
 }
 
@@ -48,6 +49,7 @@ export class MessagesChannel {
     day,
     slots,
     categories,
+    format,
   }: MessageChannelRegistrationDto) {
     return `Ув. администраторы
 
@@ -58,6 +60,7 @@ export class MessagesChannel {
 Ссылка: ${link}
 Цена за слот: ${price}
 Дата публикации: ${day}
+Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
 Категории: [${categories}]`;
   }
