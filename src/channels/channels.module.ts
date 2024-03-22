@@ -11,6 +11,7 @@ import { Status } from '../status/models/status.model';
 import { Slots } from '../slots/models/slots.model';
 import { SlotsModule } from '../slots/slots.module';
 import { FormatChannel } from './models/format-channel.model';
+import { CategoriesChannel } from '../categories/models/categories-channel.model';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { FormatChannel } from './models/format-channel.model';
       Status,
       Slots,
       FormatChannel,
+      CategoriesChannel,
     ]),
     UserModule,
     SlotsModule,

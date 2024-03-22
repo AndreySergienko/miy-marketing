@@ -16,15 +16,49 @@ import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
 import { convertUtcDateToFullDateMoscow } from '../utils/date';
+import type { IQueryFilterAndPagination } from '../database/pagination.types';
+import { pagination } from '../database/pagination';
+import { Op } from 'sequelize';
+import { CategoriesChannel } from '../categories/models/categories-channel.model';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    @InjectModel(CategoriesChannel)
+    private categoriesChannelRepository: typeof CategoriesChannel,
     private userService: UserService,
     private slotService: SlotsService,
     private botEvent: BotEvent,
   ) {}
+
+  public async getAll({
+    page = '1',
+    size = '10',
+    categories,
+  }: IQueryFilterAndPagination) {
+    let where = {};
+    if (categories) {
+      const categoriesValue = categories.split(',').map((id) => +id);
+      where = {
+        categoriesId: {
+          [Op.or]: categoriesValue,
+        },
+      };
+    }
+    const categoriesChannels = await this.categoriesChannelRepository.findAll({
+      ...pagination({ page, size }),
+      where,
+    });
+    const channelIds = categoriesChannels.map(
+      (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
+    );
+    return await this.channelRepository.findAll({
+      where: {
+        id: channelIds,
+      },
+    });
+  }
 
   public async acceptValidateChannel(chatId: number, adminId: number) {
     const channel = await this.channelRepository.findOne({

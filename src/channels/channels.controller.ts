@@ -1,8 +1,9 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, Get, Query } from '@nestjs/common';
 import { CheckConnectChannelDto, RegistrationChannelDto } from './types/types';
 import { ChannelsService } from './channels.service';
 import { UserService } from '../user/user.service';
 import { Request } from 'express';
+import type { IQueryFilterAndPagination } from '../database/pagination.types';
 
 @Controller('channels')
 export class ChannelsController {
@@ -22,6 +23,11 @@ export class ChannelsController {
     const userId = this.userService.getId(tokenSplit[1]);
     if (typeof userId !== 'number') return;
     return await this.channelService.checkConnectChannel(userId, channelName);
+  }
+
+  @Get('all')
+  async getAll(@Query() query: IQueryFilterAndPagination) {
+    return await this.channelService.getAll(query);
   }
 
   @Post('registration')
