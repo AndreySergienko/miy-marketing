@@ -37,13 +37,11 @@ export class ChannelsService {
     size = '10',
     categories,
   }: IQueryFilterAndPagination) {
-    let where = {};
+    const where: Record<string, unknown> = {};
     if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
-      where = {
-        categoriesId: {
-          [Op.or]: categoriesValue,
-        },
+      where.categoriesId = {
+        [Op.or]: categoriesValue,
       };
     }
     const categoriesChannels = await this.categoriesChannelRepository.findAll({
@@ -53,9 +51,13 @@ export class ChannelsService {
     const channelIds = categoriesChannels.map(
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
+    const currentDay = Date.now() + 1000 * 60;
     return await this.channelRepository.findAll({
       where: {
         id: channelIds,
+        day: {
+          [Op.gt]: currentDay,
+        },
       },
     });
   }
