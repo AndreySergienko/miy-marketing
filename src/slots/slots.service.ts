@@ -21,10 +21,14 @@ export class SlotsService {
     });
   }
 
-  async findSlotByChannelId(channelId: number) {
-    return await this.slotsRepository.findOne({
+  async findAllSlotByChannelId(channelId: number) {
+    return await this.slotsRepository.findAll({
       where: { channelId },
       include: { all: true },
     });
+  }
+
+  async findOneBySlotId(id: number) {
+    return await this.slotsRepository.findOne({ where: { id } });
   }
 }

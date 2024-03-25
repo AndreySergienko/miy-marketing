@@ -14,6 +14,16 @@ import type {
 
 @Injectable()
 export class BotEvent {
+  async sendMessageBuyAdvertising(chatId: number, dto) {
+    return await global.bot.sendMessage(
+      chatId,
+      MessagesChannel.BUY_ADVERTISING(dto),
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.BUY_ADVERTISING(),
+      }),
+    );
+  }
+
   async getAdministrators(chatId: number) {
     return await global.bot.getChatAdministrators(chatId);
   }

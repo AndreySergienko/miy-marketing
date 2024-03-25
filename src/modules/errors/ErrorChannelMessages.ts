@@ -1,6 +1,18 @@
 import { createError } from './createError';
 
 export default class ErrorChannelMessages {
+  static DATE_INCORRECT() {
+    return createError('Некорректная дата регистрации канала');
+  }
+
+  static SLOT_IS_PUBLICATION() {
+    return createError('Слот уже опубликован');
+  }
+
+  static SLOT_NOT_FOUND() {
+    return createError('Слот на данную дату не найден');
+  }
+
   static CHANNEL_NOT_FOUND() {
     return createError('Бот не подключен к данному каналу');
   }

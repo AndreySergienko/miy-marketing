@@ -40,6 +40,21 @@ export class MessagesChannel {
     return 'Отклонить';
   }
 
+  static get BTN_BUY_ADVERTISING() {
+    return 'Купить';
+  }
+
+  static BUY_ADVERTISING({ name, subscribers, price, format, date }) {
+    return `
+    Ув. пользователь
+
+Вы хотите купить рекламный пост в канале: ${name}
+Подписчики: ${subscribers}
+Формат рекламы: ${format}
+Цена: ${price}
+Дата публикации: ${date}`;
+  }
+
   static REGISTRATION({
     name,
     description,

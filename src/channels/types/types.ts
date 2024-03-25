@@ -53,3 +53,12 @@ export interface IValidationChannelDto {
 export interface IValidationCancelChannelDto extends IValidationChannelDto {
   reason: string;
 }
+
+export class BuyChannelDto {
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  timestamp: number;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  channelId: number;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  slotId: number;
+}

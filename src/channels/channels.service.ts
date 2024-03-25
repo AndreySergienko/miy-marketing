@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
 import {
+  BuyChannelDto,
   ChannelCreateDto,
   IValidationCancelChannelDto,
   IValidationChannelDto,
@@ -32,6 +33,37 @@ export class ChannelsService {
     private botEvent: BotEvent,
   ) {}
 
+  public async buyAdvertising(dto: BuyChannelDto) {
+    const channel = await this.channelRepository.findOne({
+      where: { id: dto.channelId },
+    });
+    if (!channel)
+      throw new HttpException(
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
+        HttpStatus.BAD_REQUEST,
+      );
+    const slot = await this.slotService.findOneBySlotId(dto.slotId);
+    if (!slot)
+      throw new HttpException(
+        ErrorChannelMessages.SLOT_NOT_FOUND(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    if (slot.statusId !== StatusStore.ACTIVE)
+      throw new HttpException(
+        ErrorChannelMessages.SLOT_IS_PUBLICATION(),
+        HttpStatus.FORBIDDEN,
+      );
+
+    if (+slot.channelId !== +dto.channelId)
+      throw new HttpException(
+        ErrorChannelMessages.USER_FORBIDDEN(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    await this.botEvent.sendMessageBuyAdvertising();
+  }
+
   public async getAll({
     page = '1',
     size = '10',
@@ -52,7 +84,7 @@ export class ChannelsService {
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
     const currentDay = Date.now() + 1000 * 60;
-    return await this.channelRepository.findAll({
+    const channels = await this.channelRepository.findAll({
       where: {
         id: channelIds,
         day: {
@@ -60,6 +92,18 @@ export class ChannelsService {
         },
       },
     });
+    const list = [];
+
+    for (let i = 0; i < channels.length; i++) {
+      const channel = channels[i];
+      const slots = await this.slotService.findAllSlotByChannelId(channel.id);
+      list.push({
+        slots,
+        channel,
+      });
+    }
+
+    return list;
   }
 
   public async acceptValidateChannel(chatId: number, adminId: number) {
@@ -209,6 +253,12 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
+    if (day < Date.now())
+      throw new HttpException(
+        ErrorChannelMessages.DATE_INCORRECT(),
+        HttpStatus.BAD_REQUEST,
+      );
+
     const candidate = await this.channelRepository.findOne({
       where: { name, day },
     });

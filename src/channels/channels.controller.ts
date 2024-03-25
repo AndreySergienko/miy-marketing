@@ -1,5 +1,9 @@
 import { Body, Controller, Post, Req, Get, Query } from '@nestjs/common';
-import { CheckConnectChannelDto, RegistrationChannelDto } from './types/types';
+import {
+  BuyChannelDto,
+  CheckConnectChannelDto,
+  RegistrationChannelDto,
+} from './types/types';
 import { ChannelsService } from './channels.service';
 import { UserService } from '../user/user.service';
 import { Request } from 'express';
@@ -40,5 +44,10 @@ export class ChannelsController {
     const userId = this.userService.getId(tokenSplit[1]);
     if (typeof userId !== 'number') return;
     return await this.channelService.registrationChannel(dto, userId);
+  }
+
+  @Post('buy')
+  async buyAdvertising(@Body() dto: BuyChannelDto) {
+    return await this.channelService.buyAdvertising(dto);
   }
 }

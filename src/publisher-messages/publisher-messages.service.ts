@@ -1,4 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class PublisherMessagesService {}
+export class PublisherMessagesService {
+  // Получение канала
+  async createMessage() {}
+}
