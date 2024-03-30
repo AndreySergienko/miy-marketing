@@ -49,7 +49,8 @@ export class ChannelsService {
         ErrorChannelMessages.DATE_SLOT_INCORRECT(),
         HttpStatus.BAD_REQUEST,
       );
-    if (slot.statusId !== StatusStore.ACTIVE)
+
+    if (slot.statusId !== StatusStore.PUBLIC)
       throw new HttpException(
         ErrorChannelMessages.SLOT_IS_PUBLICATION(),
         HttpStatus.FORBIDDEN,
@@ -132,7 +133,7 @@ export class ChannelsService {
       return;
     }
 
-    if (channel.statusId === StatusStore.PUBLICATION) {
+    if (channel.statusId === StatusStore.PUBLIC) {
       await global.bot.sendMessage(
         adminId,
         ErrorChannelMessages.CHANNEL_IS_PUBLICATION().message,
@@ -140,7 +141,7 @@ export class ChannelsService {
       return;
     }
 
-    await channel.$set('status', StatusStore.PUBLICATION);
+    await channel.$set('status', StatusStore.PUBLIC);
 
     const dto: IValidationChannelDto = {
       name: channel.name,
@@ -170,7 +171,7 @@ export class ChannelsService {
       );
       return;
     }
-    await channel.$set('status', StatusStore.CANCELED);
+    await channel.$set('status', StatusStore.CANCEL);
     await this.slotService.removeSlots(channel.id);
 
     const dto: IValidationCancelChannelDto = {
@@ -315,7 +316,7 @@ export class ChannelsService {
         where: { id },
       },
     );
-    const status = StatusStore.CHANNEL_REGISTERED;
+    const status = StatusStore.AWAIT;
     await channel.$set('status', status);
     await channel.$set('formatChannel', formatChannel);
 
@@ -364,13 +365,6 @@ export class ChannelsService {
   public async findOneByChatName(name: string) {
     return await this.channelRepository.findOne({
       where: { name },
-      include: { all: true },
-    });
-  }
-
-  public async findOneByChatUserId(userId: number) {
-    return await this.channelRepository.findOne({
-      where: { users: [userId] },
       include: { all: true },
     });
   }
