@@ -7,6 +7,8 @@ import { UserService } from '../user/user.service';
 import { ChannelsService } from '../channels/channels.service';
 import { BotEvent } from './BotEvent';
 import type { IBotRequestDto } from './types/bot.types';
+import TelegramBot from 'node-telegram-bot-api';
+import { SlotsService } from '../slots/slots.service';
 
 @Injectable()
 export class BotRequestService {
@@ -14,6 +16,7 @@ export class BotRequestService {
     private authService: AuthService,
     private userService: UserService,
     private channelsService: ChannelsService,
+    private slotService: SlotsService,
     private botEvent: BotEvent,
   ) {}
 
@@ -49,7 +52,19 @@ export class BotRequestService {
     await this.userService.updateLastBotActive(from.id, '');
   }
 
-  async [CallbackDataChannel.BUY_HANDLER]({ channelId, from }) {}
+  async afterBuyAdvertising(msg: TelegramBot.Message) {
+    const user = await this.userService.findUserByChatId(msg.from.id);
+    if (!user) return;
+    const slot = await this.slotService.findOneBySlotId(
+      +msg.successful_payment.invoice_payload,
+    );
+    if (!slot) return;
+
+    await this.userService.updateLastBotActive(
+      msg.from.id,
+      `${CallbackDataChannel.CANCEL_HANDLER}:1`,
+    );
+  }
 
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {
     const { id, isAlready } = await this.authService.registrationInBot(from.id);

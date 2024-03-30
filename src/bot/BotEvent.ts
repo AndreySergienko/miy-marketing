@@ -27,7 +27,7 @@ export class BotEvent {
       [
         {
           label: 'Покупка',
-          amount: dto.price,
+          amount: dto.price * 100,
         },
       ],
     );

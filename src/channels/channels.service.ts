@@ -16,7 +16,11 @@ import SuccessMessages from '../modules/errors/SuccessMessages';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
-import { convertUtcDateToFullDateMoscow, dayLater } from '../utils/date';
+import {
+  convertNextDay,
+  convertUtcDateToFullDateMoscow,
+  dayLater,
+} from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
@@ -50,7 +54,7 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId !== StatusStore.PUBLIC)
+    if (slot.statusId !== StatusStore.CREATE)
       throw new HttpException(
         ErrorChannelMessages.SLOT_IS_PUBLICATION(),
         HttpStatus.FORBIDDEN,
@@ -75,6 +79,8 @@ export class ChannelsService {
       format: channel.formatChannel.value,
       slotId: dto.slotId,
     });
+
+    return SuccessMessages.SLOT_IN_BOT;
   }
 
   public async getAll({
@@ -266,7 +272,7 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    if (day < Date.now())
+    if (convertNextDay(Date.now()) < day)
       throw new HttpException(
         ErrorChannelMessages.DATE_INCORRECT(),
         HttpStatus.BAD_REQUEST,
@@ -292,6 +298,18 @@ export class ChannelsService {
     if (slots.length > 12)
       throw new HttpException(
         ErrorChannelMessages.MORE_SLOTS(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const slotsDateValid = slots.every(
+      (timestamp) =>
+        new Date(day).setHours(0, 0, 0, 0) <
+        new Date(timestamp).setHours(0, 0, 0, 0),
+    );
+
+    if (!slotsDateValid)
+      throw new HttpException(
+        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
         HttpStatus.BAD_REQUEST,
       );
 
