@@ -14,17 +14,17 @@ import ErrorMessages from '../../modules/errors/ErrorMessages';
 import { SECRET_TOKEN } from '../auth.constants';
 import type { Permission } from '../../permission/models/persmissions.model';
 import { PUBLIC_KEY } from '../decorators/public-auth.decorator';
+import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
     private reflector: Reflector,
+    private userService: UserService,
   ) {}
 
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     try {
       const isPublic = this.reflector.getAllAndOverride<boolean>(PUBLIC_KEY, [
@@ -47,12 +47,23 @@ export class PermissionGuard implements CanActivate {
       const user = this.jwtService.verify(token, {
         secret: SECRET_TOKEN,
       });
+
+      if (!user.id) return;
+
+      const userDb = await this.userService.findOneById(user.id);
       req.user = user;
-      return !requiredPermissions
-        ? true
-        : user.permissions.some((permission: Permission) =>
-            requiredPermissions.includes(permission.id),
-          );
+      const isSome = userDb.permissions.some((permission: Permission) =>
+        requiredPermissions.includes(permission.id),
+      );
+
+      if (!requiredPermissions) return true;
+      if (!isSome)
+        throw new HttpException(
+          ErrorMessages.FORBIDDEN(),
+          HttpStatus.FORBIDDEN,
+        );
+
+      return true;
     } catch (e) {
       throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);
     }

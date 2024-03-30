@@ -90,7 +90,6 @@ export class AuthService {
     );
 
     await user.$set('permissions', permissions);
-    return SuccessMessages.ACTIVATE_EMAIL();
   }
 
   async registrationInBot(chatId: number) {
@@ -116,8 +115,7 @@ export class AuthService {
 
   async login({ email, password }: LoginDto) {
     const candidate =
-      await this.userService.getUserByEmailIncludePermission(email);
-    console.log(candidate);
+      await this.userService.findUserByEmailIncludePermission(email);
     if (!candidate) {
       throw new HttpException(
         ErrorMessages.USER_IS_NOT_DEFINED(),

@@ -125,7 +125,10 @@ export class UserService {
   }
 
   public async findOneById(id: number) {
-    return await this.userRepository.findOne({ where: { id } });
+    return await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
   }
 
   public async getUserByEmail(email: string) {
@@ -151,7 +154,7 @@ export class UserService {
     return await this.userRepository.findOne({ where: { uniqueBotId } });
   }
 
-  public async getUserByEmailIncludePermission(email: string) {
+  public async findUserByEmailIncludePermission(email: string) {
     return await this.userRepository.findOne({
       where: { email },
       include: { all: true },
