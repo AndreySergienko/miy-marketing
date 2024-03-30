@@ -117,6 +117,7 @@ export class AuthService {
   async login({ email, password }: LoginDto) {
     const candidate =
       await this.userService.getUserByEmailIncludePermission(email);
+    console.log(candidate);
     if (!candidate) {
       throw new HttpException(
         ErrorMessages.USER_IS_NOT_DEFINED(),
@@ -125,7 +126,7 @@ export class AuthService {
     }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
-    // TODO notification
+
     return await this.tokenService.generateToken(candidate);
   }
 
