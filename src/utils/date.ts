@@ -10,3 +10,4 @@ export const convertTimestampToTimeMoscow = (timestamp: number) =>
   new Date(timestamp).toLocaleTimeString('ru-RU', {
     timeZone: 'Europe/Moscow',
   });
+

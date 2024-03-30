@@ -1,4 +1,5 @@
 import {
+  IBuyChannelMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
@@ -44,7 +45,13 @@ export class MessagesChannel {
     return 'Купить';
   }
 
-  static BUY_ADVERTISING({ name, subscribers, price, format, date }) {
+  static BUY_ADVERTISING({
+    name,
+    subscribers,
+    price,
+    format,
+    date,
+  }: IBuyChannelMessage) {
     return `
     Ув. пользователь
 

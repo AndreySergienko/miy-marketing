@@ -16,7 +16,7 @@ import SuccessMessages from '../modules/errors/SuccessMessages';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
-import { convertUtcDateToFullDateMoscow } from '../utils/date';
+import { convertUtcDateToFullDateMoscow, dayLater } from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
@@ -33,15 +33,10 @@ export class ChannelsService {
     private botEvent: BotEvent,
   ) {}
 
-  public async buyAdvertising(dto: BuyChannelDto) {
-    const channel = await this.channelRepository.findOne({
-      where: { id: dto.channelId },
-    });
-    if (!channel)
-      throw new HttpException(
-        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
-        HttpStatus.BAD_REQUEST,
-      );
+  public async buyAdvertising(dto: BuyChannelDto, userId: number) {
+    const user = await this.userService.findOneById(userId);
+    if (!user) return;
+
     const slot = await this.slotService.findOneBySlotId(dto.slotId);
     if (!slot)
       throw new HttpException(
@@ -49,19 +44,36 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
+    if (slot.timestamp < dayLater())
+      throw new HttpException(
+        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
+        HttpStatus.BAD_REQUEST,
+      );
     if (slot.statusId !== StatusStore.ACTIVE)
       throw new HttpException(
         ErrorChannelMessages.SLOT_IS_PUBLICATION(),
         HttpStatus.FORBIDDEN,
       );
 
-    if (+slot.channelId !== +dto.channelId)
+    const channel = await this.channelRepository.findOne({
+      where: { id: slot.channelId },
+      include: { all: true },
+    });
+
+    if (!channel)
       throw new HttpException(
-        ErrorChannelMessages.USER_FORBIDDEN(),
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
         HttpStatus.BAD_REQUEST,
       );
 
-    await this.botEvent.sendMessageBuyAdvertising();
+    await this.botEvent.sendInvoiceBuyAdvertising(user.chatId, {
+      name: channel.name,
+      subscribers: channel.subscribers,
+      price: channel.price,
+      date: slot.timestamp,
+      format: channel.formatChannel.value,
+      slotId: dto.slotId,
+    });
   }
 
   public async getAll({

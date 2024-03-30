@@ -41,7 +41,6 @@ export class AuthService {
       userBot.id,
       registrationDto.email,
     );
-    console.log('TestNode');
 
     await this.userService.updateAllFiledUserById({
       ...registrationDto,

@@ -49,6 +49,8 @@ export class BotRequestService {
     await this.userService.updateLastBotActive(from.id, '');
   }
 
+  async [CallbackDataChannel.BUY_HANDLER]({ channelId, from }) {}
+
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {
     const { id, isAlready } = await this.authService.registrationInBot(from.id);
     const sendToken = async (cb: (id: string) => string) =>

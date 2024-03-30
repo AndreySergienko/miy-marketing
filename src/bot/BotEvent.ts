@@ -8,19 +8,28 @@ import {
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
+  IBuyChannelMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../channels/types/types';
+import * as process from 'process';
 
 @Injectable()
 export class BotEvent {
-  async sendMessageBuyAdvertising(chatId: number, dto) {
-    return await global.bot.sendMessage(
+  async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
+    return await global.bot.sendInvoice(
       chatId,
+      'Купить рекламу в канале',
       MessagesChannel.BUY_ADVERTISING(dto),
-      useSendMessage({
-        inline_keyboard: KeyboardChannel.BUY_ADVERTISING(),
-      }),
+      `${dto.slotId}`,
+      process.env.PAYMENT_TOKEN,
+      'RUB',
+      [
+        {
+          label: 'Покупка',
+          amount: dto.price,
+        },
+      ],
     );
   }
 

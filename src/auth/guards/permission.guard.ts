@@ -31,18 +31,15 @@ export class PermissionGuard implements CanActivate {
         context.getHandler(),
         context.getClass(),
       ]);
-
       if (isPublic) return true;
 
       const requiredPermissions = this.reflector.getAllAndOverride(
         PERMISSION_KEY,
         [context.getHandler(), context.getClass()],
       );
-      if (!requiredPermissions) return true;
-
       const authorization = req.headers.authorization;
-      const [bearer, token] = authorization.split(' ');
 
+      const [bearer, token] = authorization.split(' ');
       if (bearer !== 'Bearer' || !token) {
         throw new UnauthorizedException(ErrorMessages.UN_AUTH());
       }
@@ -51,9 +48,11 @@ export class PermissionGuard implements CanActivate {
         secret: SECRET_TOKEN,
       });
       req.user = user;
-      return user.permissions.some((permission: Permission) =>
-        requiredPermissions.includes(permission.value),
-      );
+      return !requiredPermissions
+        ? true
+        : user.permissions.some((permission: Permission) =>
+            requiredPermissions.includes(permission.id),
+          );
     } catch (e) {
       throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);
     }

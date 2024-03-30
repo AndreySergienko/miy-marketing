@@ -88,6 +88,13 @@ export class BotService implements OnModuleInit {
       },
     );
 
+    global.bot.on(
+      'pre_checkout_query',
+      async (query: TelegramBot.PreCheckoutQuery) => {
+        // Найти оплату по id, изменить статус и отправить сообщение с просьбой отправить сообщение на валидацию
+      },
+    );
+
     // watch msg thread
     global.bot.on('message', async (message: TelegramBot.Message) => {
       try {
