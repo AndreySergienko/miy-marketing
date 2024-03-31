@@ -6,11 +6,27 @@ import { UserChannel } from './models/user-channel.model';
 import { Channel } from './models/channels.model';
 import { User } from '../user/models/user.model';
 import { UserModule } from '../user/user.module';
+import { Categories } from '../categories/models/categories.model';
+import { Status } from '../status/models/status.model';
+import { Slots } from '../slots/models/slots.model';
+import { SlotsModule } from '../slots/slots.module';
+import { FormatChannel } from './models/format-channel.model';
+import { CategoriesChannel } from '../categories/models/categories-channel.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Channel, UserChannel, User]),
+    SequelizeModule.forFeature([
+      Channel,
+      UserChannel,
+      User,
+      Categories,
+      Status,
+      Slots,
+      FormatChannel,
+      CategoriesChannel,
+    ]),
     UserModule,
+    SlotsModule,
   ],
   providers: [ChannelsService],
   controllers: [ChannelsController],

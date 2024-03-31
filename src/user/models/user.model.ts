@@ -23,13 +23,17 @@ export class User extends Model<User, UserModelAttrs> {
   })
   id: number;
 
-  @Column({ type: DataType.INTEGER, unique: true })
+  @Column({ type: DataType.BIGINT, unique: true })
   chatId: number;
 
   @Column({ type: DataType.STRING, unique: true })
   uniqueBotId: string;
 
-  @Column({ type: DataType.STRING, unique: true, allowNull: true })
+  @Column({
+    type: DataType.STRING,
+    unique: true,
+    allowNull: true,
+  })
   email: string;
 
   @Column({ type: DataType.BOOLEAN, allowNull: true })
@@ -58,6 +62,9 @@ export class User extends Model<User, UserModelAttrs> {
 
   @Column({ type: DataType.BIGINT, allowNull: true })
   lastUpdateEmail: number;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  lastActiveBot: string;
 
   // Уведомлять ли админа тг канала перед публикацией
   @Column({ type: DataType.BOOLEAN, defaultValue: false })

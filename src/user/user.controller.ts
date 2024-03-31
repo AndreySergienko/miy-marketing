@@ -7,44 +7,39 @@ import {
   UpdateEmailDto,
   UpdateUserDto,
 } from './types/user.types';
-import { Request } from 'express';
+import PermissionStore from '../permission/PermissionStore';
+import { getToken } from '../token/token.utils';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Perms('CAN_BAN')
+  @Perms(PermissionStore.CAN_BAN)
   @Post('ban')
   async ban(@Body() dto: BanUserDto) {
     return await this.userService.banUser(dto);
   }
 
-  @Perms('CAN_PARDON')
+  @Perms(PermissionStore.CAN_PARDON)
   @Post('pardon')
   async pardon(@Body() dto: PardonUserDto) {
     return await this.userService.pardonUser(dto);
   }
 
-  @Perms('CAN_USER_UPDATE')
+  @Perms(PermissionStore.CAN_USER_UPDATE)
   @Put('update/email')
   async updateEmail(@Req() req: Request, @Body() dto: UpdateEmailDto) {
-    const token = req.headers.authorization;
-    const tokenSplit = token.split(' ');
-    return this.userService.updateEmail(tokenSplit[1], dto);
+    return this.userService.updateEmail(getToken(req), dto);
   }
 
-  @Perms('CAN_USER_UPDATE')
+  @Perms(PermissionStore.CAN_USER_UPDATE)
   @Put('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
-    const token = req.headers.authorization;
-    const tokenSplit = token.split(' ');
-    return await this.userService.updateUser(tokenSplit[1], dto);
+    return await this.userService.updateUser(getToken(req), dto);
   }
 
   @Get('me')
   async getMe(@Req() req: Request) {
-    const token = req.headers.authorization;
-    const tokenSplit = token.split(' ');
-    return await this.userService.getMe(tokenSplit[1]);
+    return await this.userService.getMe(getToken(req));
   }
 }

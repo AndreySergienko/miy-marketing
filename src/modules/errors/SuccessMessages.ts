@@ -1,6 +1,14 @@
 import { createError, createSuccess } from './createError';
 
 export default class SuccessMessages {
+  static SUCCESS_REGISTRATION_CHANNEL() {
+    return createSuccess('Канал создан и отправлен на модерация');
+  }
+
+  static get SLOT_IN_BOT() {
+    return createSuccess('Оплата успешно отправлена вам в телеграмм боте');
+  }
+
   static SUCCESS_REGISTERED() {
     return createSuccess(
       'Пользователь успешно зарегистрирован. Подтвердите email',

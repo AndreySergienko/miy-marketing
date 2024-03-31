@@ -20,6 +20,16 @@ import { Categories } from './categories/models/categories.model';
 import { ChannelsModule } from './channels/channels.module';
 import { Channel } from './channels/models/channels.model';
 import { UserChannel } from './channels/models/user-channel.model';
+import { CategoriesChannel } from './categories/models/categories-channel.model';
+import { Slots } from './slots/models/slots.model';
+import { SlotsModule } from './slots/slots.module';
+import { PublisherMessagesModule } from './publisher-messages/publisher-messages.module';
+import { PublisherMessages } from './publisher-messages/models/publisher-messages.model';
+import { FormatChannel } from './channels/models/format-channel.model';
+import { PaymentsModule } from './payments/payments.module';
+import { Payment } from './payments/models/payment.model';
+import { SlotPayment } from './payments/models/slot-payment.model';
+import { UserPayment } from './payments/models/user-payment.model';
 
 @Module({
   imports: [
@@ -35,8 +45,15 @@ import { UserChannel } from './channels/models/user-channel.model';
         Mail,
         Status,
         Categories,
+        CategoriesChannel,
         Channel,
         UserChannel,
+        Slots,
+        PublisherMessages,
+        FormatChannel,
+        Payment,
+        SlotPayment,
+        UserPayment,
       ]),
     ),
     BotModule,
@@ -47,6 +64,9 @@ import { UserChannel } from './channels/models/user-channel.model';
     StatusModule,
     CategoriesModule,
     ChannelsModule,
+    SlotsModule,
+    PublisherMessagesModule,
+    PaymentsModule,
   ],
 
   controllers: [],

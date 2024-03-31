@@ -35,6 +35,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
+
     const hashPassword = await bcrypt.hash(password, 7);
     await this.nodemailerService.sendRegistrationActivateMail(
       userBot.id,
@@ -89,7 +90,6 @@ export class AuthService {
     );
 
     await user.$set('permissions', permissions);
-    return SuccessMessages.ACTIVATE_EMAIL();
   }
 
   async registrationInBot(chatId: number) {
@@ -115,7 +115,7 @@ export class AuthService {
 
   async login({ email, password }: LoginDto) {
     const candidate =
-      await this.userService.getUserByEmailIncludePermission(email);
+      await this.userService.findUserByEmailIncludePermission(email);
     if (!candidate) {
       throw new HttpException(
         ErrorMessages.USER_IS_NOT_DEFINED(),
@@ -124,7 +124,7 @@ export class AuthService {
     }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
-    // TODO notification
+
     return await this.tokenService.generateToken(candidate);
   }
 
