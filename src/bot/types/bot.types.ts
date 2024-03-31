@@ -7,7 +7,7 @@ export interface BotModelAttrs {
 }
 
 export interface IBotRequestDto {
-  channelId: number;
+  id: number;
   from: User;
-  reason?: string;
+  text?: string;
 }

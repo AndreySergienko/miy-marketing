@@ -7,16 +7,28 @@ export class CallbackDataChannel {
     return 'cancel';
   }
 
-  static get BUY_HANDLER() {
-    return 'buy';
+  static get VALIDATE_MESSAGE_HANDLER() {
+    return 'validate';
   }
 
   static get CANCEL_REASON_HANDLER() {
     return 'cancelReason';
   }
 
-  static BUY(slotId: number) {
-    return `${CallbackDataChannel.BUY_HANDLER}:${slotId}`;
+  static get CONFIRM_SEND_MESSAGE_HANDLER() {
+    return 'confirmSendMessage';
+  }
+
+  static get CHANGE_SEND_MESSAGE_HANDLER() {
+    return 'change';
+  }
+
+  static CHANGE_SEND_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CHANGE_SEND_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static CONFIRM_SEND_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CONFIRM_SEND_MESSAGE_HANDLER}: ${slotId}`;
   }
 
   static CANCEL_REASON(channelId: number) {

@@ -45,8 +45,24 @@ export class MessagesChannel {
     return 'Отклонить';
   }
 
-  static get BTN_BUY_ADVERTISING() {
-    return 'Купить';
+  static get BTN_CHANGE() {
+    return 'Изменить';
+  }
+
+  static get BTN_SEND() {
+    return 'Отправить';
+  }
+
+  static get SEND_MESSAGE_VERIFICATION() {
+    return 'Пожалуйста, отправьте рекламный текст одним сообщением';
+  }
+
+  static CONFIRM_SEND_MESSAGE_VERIFICATION(msg: string) {
+    return `Подтвердите корректность вашего сообщения: ${msg}`;
+  }
+
+  static get SUCCESS_SEND_TO_MODERATE() {
+    return 'Ваше письмо успешно отправлено на модерацию';
   }
 
   static BUY_ADVERTISING({

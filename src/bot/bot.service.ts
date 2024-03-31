@@ -91,12 +91,20 @@ export class BotService implements OnModuleInit {
     global.bot.on(
       'pre_checkout_query',
       async (query: TelegramBot.PreCheckoutQuery) => {
-        await global.bot.answerPreCheckoutQuery(query.id, true);
+        try {
+          await this.botRequestService.checkBuyAdvertising(query);
+        } catch (e) {
+          console.log(e);
+        }
       },
     );
 
     global.bot.on('successful_payment', async (msg: TelegramBot.Message) => {
-      await this.botRequestService.afterBuyAdvertising(msg);
+      try {
+        await this.botRequestService.afterBuyAdvertising(msg);
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     // watch msg thread
@@ -112,7 +120,7 @@ export class BotService implements OnModuleInit {
           await this.botRequestService[code]({
             from: message.from,
             channelId,
-            reason: message.text,
+            text: message.text,
           });
           return;
         }

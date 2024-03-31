@@ -8,6 +8,7 @@ import { BotEvent } from './BotEvent';
 import { UserModule } from '../user/user.module';
 import { BotRequestService } from './bot-request.service';
 import { SlotsModule } from '../slots/slots.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Global()
 @Module({
@@ -20,6 +21,7 @@ import { SlotsModule } from '../slots/slots.module';
     ChannelsModule,
     UserModule,
     SlotsModule,
+    PaymentsModule,
   ],
 })
 export class BotModule {}

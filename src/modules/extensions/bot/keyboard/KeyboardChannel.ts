@@ -3,12 +3,16 @@ import { CallbackDataChannel } from '../callback-data/CallbackDataChannel';
 import { TInlineKeyboard } from '../types';
 
 export class KeyboardChannel {
-  static BUY_ADVERTISING(slotId: number) {
+  static SEND_VALIDATE_USER_MESSAGE(slotId: number) {
     return [
       [
         {
-          text: MessagesChannel.BTN_BUY_ADVERTISING,
-          callback_data: CallbackDataChannel.BUY(slotId),
+          text: MessagesChannel.BTN_SEND,
+          callback_data: CallbackDataChannel.CONFIRM_SEND_MESSAGE(slotId),
+        },
+        {
+          text: MessagesChannel.BTN_CHANGE,
+          callback_data: CallbackDataChannel.CHANGE_SEND_MESSAGE(slotId),
         },
       ],
     ];

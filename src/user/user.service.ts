@@ -41,6 +41,13 @@ export class UserService {
     );
   }
 
+  public async clearLastBotActive(chatId: number) {
+    return await this.userRepository.update(
+      { lastActiveBot: '' },
+      { where: { chatId } },
+    );
+  }
+
   public async getMe(token: string): Promise<GetUserDto> {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
