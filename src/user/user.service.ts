@@ -34,36 +34,14 @@ export class UserService {
     return id;
   }
 
-  private transformGetUser({
-    email,
-    inn,
-    lastname,
-    surname,
-    name,
-    permissions,
-  }: User): GetUserDto {
-    return {
-      email,
-      inn,
-      lastname,
-      surname,
-      name,
-      permissions: permissions.map((perm) => perm.value),
-    };
-  }
-
-  async updateLastBotActive(chatId: number, lastActiveBot: string) {
+  public async updateLastBotActive(chatId: number, lastActiveBot: string) {
     return await this.userRepository.update(
       { lastActiveBot },
       { where: { chatId } },
     );
   }
 
-  async findUserByChatId(chatId: number) {
-    return await this.userRepository.findOne({ where: { chatId } });
-  }
-
-  async getMe(token: string): Promise<GetUserDto> {
+  public async getMe(token: string): Promise<GetUserDto> {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({
@@ -95,7 +73,7 @@ export class UserService {
     );
   }
 
-  async updateUser(token: string, dto: UpdateUserDto) {
+  public async updateUser(token: string, dto: UpdateUserDto) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
@@ -111,67 +89,81 @@ export class UserService {
       : SuccessMessages.SUCCESS_UPDATE_USER_EMAIL();
   }
 
-  async banUser({ description, userId: id }: BanUserDto) {
+  public async banUser({ description, userId: id }: BanUserDto) {
     return await this.userRepository.update(
       { banReason: description || 'Без причины', isBan: true },
       { where: { id } },
     );
   }
 
-  async pardonUser({ userId: id }: PardonUserDto) {
+  public async pardonUser({ userId: id }: PardonUserDto) {
     return await this.userRepository.update(
       { banReason: '', isBan: false },
       { where: { id } },
     );
   }
 
-  async updateProperty(updateValues: Partial<UserCreateDto>, id: number) {
+  public async updateProperty(
+    updateValues: Partial<UserCreateDto>,
+    id: number,
+  ) {
     return await this.userRepository.update(updateValues, { where: { id } });
   }
 
-  async createUser({ uniqueBotId, chatId }: UserRegistrationBotDto) {
+  public async createUser({ uniqueBotId, chatId }: UserRegistrationBotDto) {
     return await this.userRepository.create({ uniqueBotId, chatId });
   }
 
-  async updateAllFiledUserById(user: UserCreateDto) {
+  public async updateAllFiledUserById(user: UserCreateDto) {
     return await this.userRepository.update(user, {
       where: { uniqueBotId: user.uniqueBotId },
     });
   }
 
-  async getUserByEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email } });
+  public async findUserByChatId(chatId: number) {
+    return await this.userRepository.findOne({ where: { chatId } });
   }
 
-  async getUserById(id: number) {
-    return await this.userRepository.findOne({ where: { id } });
-  }
-
-  async getUserByIdIncludeAll(id: number) {
+  public async findOneById(id: number) {
     return await this.userRepository.findOne({
       where: { id },
       include: { all: true },
     });
   }
 
-  async getUserByChatId(chatId: number) {
+  public async getUserByEmail(email: string) {
+    return await this.userRepository.findOne({ where: { email } });
+  }
+
+  public async getUserById(id: number) {
+    return await this.userRepository.findOne({ where: { id } });
+  }
+
+  public async getUserByIdIncludeAll(id: number) {
+    return await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+  }
+
+  public async getUserByChatId(chatId: number) {
     return await this.userRepository.findOne({ where: { chatId } });
   }
 
-  async getUserByUniqueBotId(uniqueBotId: string) {
+  public async getUserByUniqueBotId(uniqueBotId: string) {
     return await this.userRepository.findOne({ where: { uniqueBotId } });
   }
 
-  async getUserByEmailIncludePermission(email: string) {
+  public async findUserByEmailIncludePermission(email: string) {
     return await this.userRepository.findOne({
       where: { email },
       include: { all: true },
     });
   }
 
-  async getAllAdmins() {
+  public async getAllAdmins() {
     const admins = await this.userPermissions.findAll({
-      where: { permissionId: PermissionStore.adminRoles },
+      where: { permissionId: PermissionStore.ADMIN_PERMISSIONS },
     });
     const ids = admins.map((userPerms: UserPermission) => userPerms.userId);
     return await this.userRepository.findAll({
@@ -179,8 +171,26 @@ export class UserService {
     });
   }
 
-  async getAllAdminsChatIds() {
+  public async getAllAdminsChatIds() {
     const users = await this.getAllAdmins();
     return users.map((user: User) => user.chatId);
+  }
+
+  private transformGetUser({
+    email,
+    inn,
+    lastname,
+    surname,
+    name,
+    permissions,
+  }: User): GetUserDto {
+    return {
+      email,
+      inn,
+      lastname,
+      surname,
+      name,
+      permissions: permissions.map((perm) => perm.value),
+    };
   }
 }

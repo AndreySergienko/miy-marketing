@@ -30,7 +30,7 @@ export class PermissionService {
   async getIdsDefaultRoles() {
     const permissions = await this.permissionRepository.findAll({
       where: {
-        id: PermissionStore.validateUserPermissions,
+        id: PermissionStore.USER_PERMISSIONS,
       },
     });
     return permissions.map((permission) => permission.id);

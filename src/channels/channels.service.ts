@@ -16,7 +16,11 @@ import SuccessMessages from '../modules/errors/SuccessMessages';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
-import { convertUtcDateToFullDateMoscow } from '../utils/date';
+import {
+  convertNextDay,
+  convertUtcDateToFullDateMoscow,
+  dayLater,
+} from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
@@ -33,15 +37,10 @@ export class ChannelsService {
     private botEvent: BotEvent,
   ) {}
 
-  public async buyAdvertising(dto: BuyChannelDto) {
-    const channel = await this.channelRepository.findOne({
-      where: { id: dto.channelId },
-    });
-    if (!channel)
-      throw new HttpException(
-        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
-        HttpStatus.BAD_REQUEST,
-      );
+  public async buyAdvertising(dto: BuyChannelDto, userId: number) {
+    const user = await this.userService.findOneById(userId);
+    if (!user) return;
+
     const slot = await this.slotService.findOneBySlotId(dto.slotId);
     if (!slot)
       throw new HttpException(
@@ -49,19 +48,39 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId !== StatusStore.ACTIVE)
+    if (slot.timestamp < dayLater())
+      throw new HttpException(
+        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
+        HttpStatus.BAD_REQUEST,
+      );
+
+    if (slot.statusId !== StatusStore.CREATE)
       throw new HttpException(
         ErrorChannelMessages.SLOT_IS_PUBLICATION(),
         HttpStatus.FORBIDDEN,
       );
 
-    if (+slot.channelId !== +dto.channelId)
+    const channel = await this.channelRepository.findOne({
+      where: { id: slot.channelId },
+      include: { all: true },
+    });
+
+    if (!channel)
       throw new HttpException(
-        ErrorChannelMessages.USER_FORBIDDEN(),
+        ErrorChannelMessages.CHANNEL_NOT_FOUND(),
         HttpStatus.BAD_REQUEST,
       );
 
-    await this.botEvent.sendMessageBuyAdvertising();
+    await this.botEvent.sendInvoiceBuyAdvertising(user.chatId, {
+      name: channel.name,
+      subscribers: channel.subscribers,
+      price: channel.price,
+      date: slot.timestamp,
+      format: channel.formatChannel.value,
+      slotId: dto.slotId,
+    });
+
+    return SuccessMessages.SLOT_IN_BOT;
   }
 
   public async getAll({
@@ -120,7 +139,7 @@ export class ChannelsService {
       return;
     }
 
-    if (channel.statusId === StatusStore.PUBLICATION) {
+    if (channel.statusId === StatusStore.PUBLIC) {
       await global.bot.sendMessage(
         adminId,
         ErrorChannelMessages.CHANNEL_IS_PUBLICATION().message,
@@ -128,7 +147,7 @@ export class ChannelsService {
       return;
     }
 
-    await channel.$set('status', StatusStore.PUBLICATION);
+    await channel.$set('status', StatusStore.PUBLIC);
 
     const dto: IValidationChannelDto = {
       name: channel.name,
@@ -158,7 +177,7 @@ export class ChannelsService {
       );
       return;
     }
-    await channel.$set('status', StatusStore.CANCELED);
+    await channel.$set('status', StatusStore.CANCEL);
     await this.slotService.removeSlots(channel.id);
 
     const dto: IValidationCancelChannelDto = {
@@ -253,7 +272,7 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    if (day < Date.now())
+    if (convertNextDay(Date.now()) < day)
       throw new HttpException(
         ErrorChannelMessages.DATE_INCORRECT(),
         HttpStatus.BAD_REQUEST,
@@ -282,6 +301,18 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
+    const slotsDateValid = slots.every(
+      (timestamp) =>
+        new Date(day).setHours(0, 0, 0, 0) <
+        new Date(timestamp).setHours(0, 0, 0, 0),
+    );
+
+    if (!slotsDateValid)
+      throw new HttpException(
+        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
+        HttpStatus.BAD_REQUEST,
+      );
+
     const isAdmin = channel.users.find((user: User) => +user.id === +userId);
 
     if (!isAdmin)
@@ -303,7 +334,7 @@ export class ChannelsService {
         where: { id },
       },
     );
-    const status = StatusStore.CHANNEL_REGISTERED;
+    const status = StatusStore.AWAIT;
     await channel.$set('status', status);
     await channel.$set('formatChannel', formatChannel);
 
@@ -352,13 +383,6 @@ export class ChannelsService {
   public async findOneByChatName(name: string) {
     return await this.channelRepository.findOne({
       where: { name },
-      include: { all: true },
-    });
-  }
-
-  public async findOneByChatUserId(userId: number) {
-    return await this.channelRepository.findOne({
-      where: { users: [userId] },
       include: { all: true },
     });
   }

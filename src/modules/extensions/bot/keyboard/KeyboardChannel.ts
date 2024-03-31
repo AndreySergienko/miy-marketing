@@ -3,8 +3,15 @@ import { CallbackDataChannel } from '../callback-data/CallbackDataChannel';
 import { TInlineKeyboard } from '../types';
 
 export class KeyboardChannel {
-  static BUY_ADVERTISING() {
-    return [[{ text: MessagesChannel.BTN_BUY_ADVERTISING }]];
+  static BUY_ADVERTISING(slotId: number) {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_BUY_ADVERTISING,
+          callback_data: CallbackDataChannel.BUY(slotId),
+        },
+      ],
+    ];
   }
 
   static AFTER_CREATE_CHANNEL(channelId: number): TInlineKeyboard {

@@ -88,6 +88,17 @@ export class BotService implements OnModuleInit {
       },
     );
 
+    global.bot.on(
+      'pre_checkout_query',
+      async (query: TelegramBot.PreCheckoutQuery) => {
+        await global.bot.answerPreCheckoutQuery(query.id, true);
+      },
+    );
+
+    global.bot.on('successful_payment', async (msg: TelegramBot.Message) => {
+      await this.botRequestService.afterBuyAdvertising(msg);
+    });
+
     // watch msg thread
     global.bot.on('message', async (message: TelegramBot.Message) => {
       try {

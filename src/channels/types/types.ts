@@ -56,9 +56,14 @@ export interface IValidationCancelChannelDto extends IValidationChannelDto {
 
 export class BuyChannelDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
-  timestamp: number;
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  channelId: number;
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  slotId: number;
+}
+
+export interface IBuyChannelMessage {
+  name: string;
+  subscribers: number;
+  price: number;
+  format: string;
+  date: number;
   slotId: number;
 }

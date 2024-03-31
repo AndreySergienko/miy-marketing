@@ -1,7 +1,12 @@
 import {
+  IBuyChannelMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
+import {
+  convertTimestampToTimeMoscow,
+  convertUtcDateToFullDateMoscow,
+} from '../../../../utils/date';
 
 export interface MessageChannelRegistrationDto {
   name: string;
@@ -44,7 +49,15 @@ export class MessagesChannel {
     return 'Купить';
   }
 
-  static BUY_ADVERTISING({ name, subscribers, price, format, date }) {
+  static BUY_ADVERTISING({
+    name,
+    subscribers,
+    price,
+    format,
+    date,
+  }: IBuyChannelMessage) {
+    const dateRu = convertUtcDateToFullDateMoscow(date);
+    const timeRu = convertTimestampToTimeMoscow(date);
     return `
     Ув. пользователь
 
@@ -52,7 +65,9 @@ export class MessagesChannel {
 Подписчики: ${subscribers}
 Формат рекламы: ${format}
 Цена: ${price}
-Дата публикации: ${date}`;
+Дата публикации: ${dateRu}
+Время: ${timeRu}
+`;
   }
 
   static REGISTRATION({
