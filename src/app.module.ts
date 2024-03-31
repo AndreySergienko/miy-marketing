@@ -26,6 +26,10 @@ import { SlotsModule } from './slots/slots.module';
 import { PublisherMessagesModule } from './publisher-messages/publisher-messages.module';
 import { PublisherMessages } from './publisher-messages/models/publisher-messages.model';
 import { FormatChannel } from './channels/models/format-channel.model';
+import { PaymentsModule } from './payments/payments.module';
+import { Payment } from './payments/models/payment.model';
+import { SlotPayment } from './payments/models/slot-payment.model';
+import { UserPayment } from './payments/models/user-payment.model';
 
 @Module({
   imports: [
@@ -47,6 +51,9 @@ import { FormatChannel } from './channels/models/format-channel.model';
         Slots,
         PublisherMessages,
         FormatChannel,
+        Payment,
+        SlotPayment,
+        UserPayment,
       ]),
     ),
     BotModule,
@@ -59,6 +66,7 @@ import { FormatChannel } from './channels/models/format-channel.model';
     ChannelsModule,
     SlotsModule,
     PublisherMessagesModule,
+    PaymentsModule,
   ],
 
   controllers: [],
