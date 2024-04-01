@@ -28,7 +28,6 @@ import { PublisherMessages } from './publisher-messages/models/publisher-message
 import { FormatChannel } from './channels/models/format-channel.model';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
-import { SlotPayment } from './payments/models/slot-payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
 
 @Module({
@@ -52,7 +51,6 @@ import { UserPayment } from './payments/models/user-payment.model';
         PublisherMessages,
         FormatChannel,
         Payment,
-        SlotPayment,
         UserPayment,
       ]),
     ),

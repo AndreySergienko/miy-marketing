@@ -4,12 +4,12 @@ import {
   Table,
   Model,
   BelongsToMany,
+  HasOne,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.model';
 import { Slots } from '../../slots/models/slots.model';
-import { SlotPayment } from './slot-payment.model';
-import { UserPayment } from './user-payment.model';
 import type { PaymentModelAttrs } from '../types/types';
+import { UserPayment } from './user-payment.model';
 
 @Table({ tableName: 'payment', updatedAt: false })
 export class Payment extends Model<Payment, PaymentModelAttrs> {
@@ -24,11 +24,9 @@ export class Payment extends Model<Payment, PaymentModelAttrs> {
   @Column({ type: DataType.INTEGER })
   price: number;
 
-  @BelongsToMany(() => Slots, () => UserPayment)
-  @Column({ type: DataType.INTEGER })
+  @HasOne(() => Slots)
   slot: Slots;
 
-  @BelongsToMany(() => User, () => SlotPayment)
-  @Column({ type: DataType.INTEGER })
+  @BelongsToMany(() => User, () => UserPayment)
   user: User;
 }

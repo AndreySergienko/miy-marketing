@@ -10,6 +10,7 @@ import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
 import { Status } from '../../status/models/status.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
+import { Payment } from '../../payments/models/payment.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -44,4 +45,11 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
 
   @BelongsTo(() => PublisherMessages)
   message: PublisherMessages;
+
+  @ForeignKey(() => Payment)
+  @Column({ type: DataType.INTEGER })
+  paymentId: number;
+
+  @BelongsTo(() => Payment)
+  payment: Payment;
 }
