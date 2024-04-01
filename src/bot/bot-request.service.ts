@@ -14,6 +14,7 @@ import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChan
 import { StatusStore } from '../status/StatusStore';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChannel';
+import { PublisherMessagesService } from '../publisher-messages/publisher-messages.service';
 
 @Injectable()
 export class BotRequestService {
@@ -24,6 +25,7 @@ export class BotRequestService {
     private slotService: SlotsService,
     private botEvent: BotEvent,
     private paymentsService: PaymentsService,
+    private publisherMessages: PublisherMessagesService,
   ) {}
 
   async [CallbackDataChannel.ACCEPT_HANDLER]({
@@ -129,14 +131,50 @@ export class BotRequestService {
 
   async [CallbackDataChannel.CONFIRM_SEND_MESSAGE_HANDLER]({
     from,
+    text,
+    id: slotId,
   }: IBotRequestDto) {
     await this.userService.clearLastBotActive(from.id);
     await global.bot.sendMessage(
       from.id,
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
-    // отправить админам
-    // сохранить письмо
+    await this.publisherMessages.createMessage({
+      message: text,
+      slotId,
+    });
+    // сообщению добавить юзера
+    // сообщение связать со слотом
+
+    const ids = await this.userService.getAllAdminsChatIds();
+    await global.bot.sendMessage(
+      ids[0],
+      MessagesChannel.VALIDATE_MESSAGE(text),
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+      }),
+    );
+  }
+
+  async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({}: IBotRequestDto) {
+    // изменить статус на process slot'a
+  }
+
+  async [CallbackDataChannel.CANCEL_REASON_MESSAGE_HANDLER]({}: IBotRequestDto) {
+    // установить последнюю активность
+    // предложить отправку сообщения
+  }
+
+  async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
+    from,
+    id,
+    text,
+  }: IBotRequestDto) {
+    const slot = await this.slotService.findOneBySlotId(id);
+    await slot.$set('status', StatusStore.PUBLIC);
+    await slot.$set('message', '');
+    // Отправить сообщение покупателю text и mainAdminu в чат, что статус изменён
+    await this.userService.clearLastBotActive(from.id);
   }
 
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {

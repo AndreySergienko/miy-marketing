@@ -7,12 +7,12 @@ export class CallbackDataChannel {
     return 'cancel';
   }
 
-  static get VALIDATE_MESSAGE_HANDLER() {
-    return 'validate';
-  }
-
   static get CANCEL_REASON_HANDLER() {
     return 'cancelReason';
+  }
+
+  static get VALIDATE_MESSAGE_HANDLER() {
+    return 'validate';
   }
 
   static get CONFIRM_SEND_MESSAGE_HANDLER() {
@@ -21,6 +21,30 @@ export class CallbackDataChannel {
 
   static get CHANGE_SEND_MESSAGE_HANDLER() {
     return 'change';
+  }
+
+  static get ACCEPT_MESSAGE_HANDLER() {
+    return 'acceptMessage';
+  }
+
+  static get CANCEL_MESSAGE_HANDLER() {
+    return 'cancelMessage';
+  }
+
+  static get CANCEL_REASON_MESSAGE_HANDLER() {
+    return 'cancelReasonMessage';
+  }
+
+  static ACCEPT_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.ACCEPT_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static CANCEL_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CANCEL_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static CANCEL_REASON_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CANCEL_REASON_MESSAGE_HANDLER}:${slotId}`;
   }
 
   static CHANGE_SEND_MESSAGE(slotId: number) {

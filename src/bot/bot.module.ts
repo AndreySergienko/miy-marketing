@@ -9,6 +9,7 @@ import { UserModule } from '../user/user.module';
 import { BotRequestService } from './bot-request.service';
 import { SlotsModule } from '../slots/slots.module';
 import { PaymentsModule } from '../payments/payments.module';
+import { PublisherMessagesModule } from '../publisher-messages/publisher-messages.module';
 
 @Global()
 @Module({
@@ -22,6 +23,7 @@ import { PaymentsModule } from '../payments/payments.module';
     UserModule,
     SlotsModule,
     PaymentsModule,
+    PublisherMessagesModule,
   ],
 })
 export class BotModule {}

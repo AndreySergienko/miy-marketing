@@ -18,6 +18,21 @@ export class KeyboardChannel {
     ];
   }
 
+  static VALIDATE_MESSAGE(slotId: number) {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_ACCEPT,
+          callback_data: CallbackDataChannel.ACCEPT_MESSAGE(slotId),
+        },
+        {
+          text: MessagesChannel.BTN_CANCEL,
+          callback_data: CallbackDataChannel.CANCEL_REASON_MESSAGE(slotId),
+        },
+      ],
+    ];
+  }
+
   static AFTER_CREATE_CHANNEL(channelId: number): TInlineKeyboard {
     return [
       [

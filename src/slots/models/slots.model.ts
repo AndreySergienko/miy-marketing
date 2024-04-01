@@ -50,6 +50,7 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @Column({ type: DataType.INTEGER })
   paymentId: number;
 
+  // TODO много ко многим, т.к платёж могут повторить
   @BelongsTo(() => Payment)
   payment: Payment;
 }

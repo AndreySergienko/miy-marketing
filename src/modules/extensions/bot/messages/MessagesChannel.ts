@@ -25,6 +25,18 @@ export class MessagesChannel {
     return 'Опубликовать';
   }
 
+  static get BTN_CANCEL() {
+    return 'Отклонить';
+  }
+
+  static get BTN_CHANGE() {
+    return 'Изменить';
+  }
+
+  static get BTN_SEND() {
+    return 'Отправить';
+  }
+
   static get REASON_CANCEL_CHANNEL() {
     return 'Опишите причину один сообщением почему не удалось пройти проверку';
   }
@@ -41,16 +53,8 @@ export class MessagesChannel {
     return `Регистрация канала: ${name} слота на день: ${day} по причине ${reason}`;
   }
 
-  static get BTN_CANCEL() {
-    return 'Отклонить';
-  }
-
-  static get BTN_CHANGE() {
-    return 'Изменить';
-  }
-
-  static get BTN_SEND() {
-    return 'Отправить';
+  static VALIDATE_MESSAGE(msg: string) {
+    return `Сообщение на модерацию для рекламного поста: <br> ${msg}`;
   }
 
   static get SEND_MESSAGE_VERIFICATION() {
