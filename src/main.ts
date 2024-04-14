@@ -17,11 +17,24 @@ function connectGuards(app: INestApplication) {
 }
 
 async function bootstrap() {
-  // TODO настроить корс
   const app = await NestFactory.create(AppModule, { cors: false });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    // allowed headers
+    allowedHeaders: [
+      'Content-Type',
+      'Origin',
+      'X-Requested-With',
+      'Accept',
+      'Authorization',
+    ],
+    exposedHeaders: ['Authorization'],
+  });
   await app.listen(process.env.PORT || 5000);
 }
 
