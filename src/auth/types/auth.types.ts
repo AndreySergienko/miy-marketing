@@ -1,8 +1,8 @@
 import {
+  IsBoolean,
   IsEmail,
   IsNumber,
   IsString,
-  Length,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -60,6 +60,9 @@ export class RegistrationDto {
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))
   public readonly uniqueBotId: string;
+
+  @IsBoolean(ErrorValidation.IS_BOOLEAN())
+  public readonly isNotification: boolean;
 }
 
 export class ConfirmEmailDto {

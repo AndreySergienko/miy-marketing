@@ -18,11 +18,11 @@ function connectGuards(app: INestApplication) {
 
 async function bootstrap() {
   // TODO настроить корс
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: false });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
-  await app.listen(3000);
+  await app.listen(process.env.PORT || 5000);
 }
 
 bootstrap();
