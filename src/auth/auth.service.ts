@@ -28,6 +28,7 @@ export class AuthService {
         HttpStatus.FORBIDDEN,
       );
     }
+
     const candidate = await this.userService.getUserByEmail(email);
     if (candidate) {
       throw new HttpException(
@@ -78,7 +79,6 @@ export class AuthService {
       );
     }
 
-    const permissions = await this.permissionService.getIdsDefaultRoles();
     await this.nodemailerService.deleteMail(userId);
 
     await this.userService.updateProperty(
@@ -89,7 +89,10 @@ export class AuthService {
       user.id,
     );
 
-    await user.$set('permissions', permissions);
+    if (user.card) {
+      const permissions = await this.permissionService.getIdsDefaultRoles();
+      await user.$set('permissions', permissions);
+    }
   }
 
   async registrationInBot(chatId: number) {
@@ -141,6 +144,4 @@ export class AuthService {
     await candidate.$set('password', password);
     return SuccessMessages.SEND_PASSWORD_RESET();
   }
-
-  async logout() {}
 }

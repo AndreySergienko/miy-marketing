@@ -17,14 +17,18 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import SuccessMessages from '../modules/errors/SuccessMessages';
 import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
+import { PermissionService } from '../permission/permission.service';
+import { Card } from '../payments/models/card.model';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
+    @InjectModel(Card) private cardRepository: typeof Card,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
+    private permissionService: PermissionService,
   ) {}
 
   public getId(token: string) {
@@ -80,17 +84,59 @@ export class UserService {
     );
   }
 
-  public async updateUser(token: string, dto: UpdateUserDto) {
+  public async updateUser(
+    token: string,
+    {
+      email,
+      cardDate,
+      cardNumber,
+      cardCvc,
+      inn,
+      fio,
+      isNotification,
+    }: UpdateUserDto,
+  ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return;
-    const isChangeEmail = user.email !== dto.email;
+    const isChangeEmail = user.email !== email;
     if (isChangeEmail) {
-      await this.nodemailerService.sendActivateMail(user.id, dto.email);
+      await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
+    } else {
+      const permissions = await this.permissionService.getIdsDefaultRoles();
+      await user.$set('permissions', permissions);
     }
-    await this.userRepository.update(dto, { where: { id } });
+    await this.userRepository.update(
+      {
+        email,
+        inn,
+        fio,
+        isNotification,
+      },
+      { where: { id } },
+    );
+
+    const updateCard: Partial<Card> = {
+      cvc: cardCvc,
+      number: String(cardNumber),
+      date: cardDate,
+    };
+
+    if (user.card) {
+      await this.cardRepository.update(updateCard, {
+        where: {
+          userId: user.id,
+        },
+      });
+    } else {
+      await this.cardRepository.create(
+        Object.assign(updateCard, {
+          userId: user.id,
+        }),
+      );
+    }
     return isChangeEmail
       ? SuccessMessages.SUCCESS_UPDATE_USER()
       : SuccessMessages.SUCCESS_UPDATE_USER_EMAIL();
@@ -186,18 +232,20 @@ export class UserService {
   private transformGetUser({
     email,
     inn,
-    lastname,
-    surname,
-    name,
+    fio,
     permissions,
+    card,
   }: User): GetUserDto {
     return {
       email,
       inn,
-      lastname,
-      surname,
-      name,
+      fio,
       permissions: permissions.map((perm) => perm.value),
+      card: {
+        cvc: card.cvc,
+        date: card.date,
+        number: card.number,
+      },
     };
   }
 }

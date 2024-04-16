@@ -28,3 +28,10 @@ export function validateINN(value: string) {
 
   return false;
 }
+
+export function validatePassword(string: string) {
+  const regex = new RegExp(
+    '(?=^.{10,}$)(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).*',
+  );
+  return regex.test(string);
+}

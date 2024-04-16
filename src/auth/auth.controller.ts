@@ -10,6 +10,7 @@ import { ConfirmEmail } from './auth.decorator';
 import { Public } from './decorators/public-auth.decorator';
 import * as process from 'process';
 import { Response } from 'express';
+import { AUTH_COOKIE_CONFIG, AUTH_TOKEN } from '../constants/auth.value';
 
 @Controller('auth')
 export class AuthController {
@@ -29,14 +30,15 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  async login(@Body() loginDto: LoginDto) {
-    return await this.authService.login(loginDto);
+  async login(@Body() loginDto: LoginDto, @Res() response: Response) {
+    const { token } = await this.authService.login(loginDto);
+    response.cookie(AUTH_TOKEN, token, AUTH_COOKIE_CONFIG());
   }
 
   @Public()
   @Get('logout')
-  async logout() {
-    await this.authService.logout();
+  async logout(@Res() response: Response) {
+    response.clearCookie(AUTH_TOKEN, AUTH_COOKIE_CONFIG());
   }
 
   @Public()

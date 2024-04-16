@@ -6,6 +6,10 @@ import type { IQueryPagination } from '../database/pagination.types';
 export class PaymentsController {
   constructor(private paymentsService: PaymentsService) {}
 
+  async deleteCard() {
+    return await this.paymentsService;
+  }
+
   @Get('all')
   async getAll(@Query() pagination: IQueryPagination, @Req() req: Request) {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

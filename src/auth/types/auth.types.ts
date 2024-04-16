@@ -14,6 +14,7 @@ import {
   MIN_LENGTH_PASSWORD,
 } from '../../constants/validate.value';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
+import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
 
 export class LoginDto {
   @IsString(ErrorValidation.IS_STRING())
@@ -21,8 +22,15 @@ export class LoginDto {
   public readonly email?: string;
 
   @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_PASSWORD)
-  @MaxLength(MAX_LENGTH_PASSWORD)
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('password', ErrorValidation.IS_PASSWORD())
   public readonly password: string;
 }
 
@@ -36,11 +44,7 @@ export class RegistrationDto {
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly lastname: string;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly name: string;
+  public readonly fio: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(
@@ -51,11 +55,8 @@ export class RegistrationDto {
     MAX_LENGTH_PASSWORD,
     ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
   )
+  @IsPasswordValidate('password', ErrorValidation.IS_PASSWORD())
   public readonly password: string;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly surname: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(LENGTH_CODE, ErrorValidation.MIN_LENGTH(LENGTH_CODE))

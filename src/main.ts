@@ -5,6 +5,8 @@ import { PermissionGuard } from './auth/guards/permission.guard';
 import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
+import * as cookieParser from 'cookie-parser';
+import { AuthTokenGuard } from './auth/guards/auth-token.guard';
 
 // import { BanGuard } from './user/guards/ban.guard';
 
@@ -12,6 +14,7 @@ function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
   const jwt = app.get(JwtService);
   const user = app.get(UserService);
+  app.useGlobalGuards(new AuthTokenGuard(reflector));
   app.useGlobalGuards(new PermissionGuard(jwt, reflector, user));
   // app.useGlobalGuards(new BanGuard(jwt));
 }
@@ -35,6 +38,7 @@ async function bootstrap() {
     ],
     exposedHeaders: ['Authorization'],
   });
+  app.use(cookieParser());
   await app.listen(process.env.PORT || 5000);
 }
 

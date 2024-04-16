@@ -29,6 +29,7 @@ import { FormatChannel } from './channels/models/format-channel.model';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
+import { Card } from './payments/models/card.model';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { UserPayment } from './payments/models/user-payment.model';
         FormatChannel,
         Payment,
         UserPayment,
+        Card,
       ]),
     ),
     BotModule,

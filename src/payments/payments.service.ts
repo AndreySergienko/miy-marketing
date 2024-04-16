@@ -19,6 +19,11 @@ export class PaymentsService {
     await payment.$set('user', userId);
   }
 
+  async cancelPayment() {
+    // TODO вернуть средства на карту
+    console.log('Когда надо сделать вывод');
+  }
+
   async removePayment() {}
 
   async updatePayment() {}
