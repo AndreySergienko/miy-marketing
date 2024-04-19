@@ -26,6 +26,7 @@ import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
+import { setBotApiUrlFile } from '../utils/bot';
 
 @Injectable()
 export class ChannelsService {
@@ -116,6 +117,7 @@ export class ChannelsService {
 
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
+      channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       const slots = await this.slotService.findAllSlotByChannelId(channel.id);
       list.push({
         slots,
