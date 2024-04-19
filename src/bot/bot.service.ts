@@ -45,11 +45,15 @@ export class BotService implements OnModuleInit {
             const name = chat.title;
             const infoChat = await global.bot.getChat(chatId);
             // Для получении фотографии
-            // const photo = await global.bot.getFile(infoChat.photo.big_file_id);
-            // const downloadPhoto = await global.bot.downloadFile(
-            //   photo.file_path,
-            // );
+            let photo: string | undefined;
+            if (infoChat.photo.big_file_id) {
+              const link = await global.bot.getFileLink(
+                infoChat.photo.big_file_id,
+              );
+              photo = link.split('/file/')[1];
+            }
             const dto: ChannelCreateDto = {
+              avatar: photo,
               name,
               subscribers,
               chatId,

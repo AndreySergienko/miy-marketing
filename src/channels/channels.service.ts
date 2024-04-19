@@ -4,6 +4,7 @@ import { Channel } from './models/channels.model';
 import {
   BuyChannelDto,
   ChannelCreateDto,
+  ChannelGetAllRequestDto,
   IValidationCancelChannelDto,
   IValidationChannelDto,
   RegistrationChannelDto,
@@ -111,7 +112,7 @@ export class ChannelsService {
         },
       },
     });
-    const list = [];
+    const list: ChannelGetAllRequestDto[] = [];
 
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];

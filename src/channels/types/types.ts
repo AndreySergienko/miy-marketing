@@ -1,7 +1,10 @@
 import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
+import { Channel } from '../models/channels.model';
+import { Slots } from '../../slots/models/slots.model';
 
 export interface ChannelsModelAttrs {
+  avatar?: string;
   chatId: number;
   subscribers: number;
   name: string;
@@ -13,6 +16,7 @@ export interface ChannelsModelAttrs {
 }
 
 export class ChannelCreateDto implements ChannelsModelAttrs {
+  avatar?: string;
   chatId: number;
   name: string;
   subscribers: number;
@@ -66,4 +70,9 @@ export interface IBuyChannelMessage {
   format: string;
   date: number;
   slotId: number;
+}
+
+export interface ChannelGetAllRequestDto {
+  slots: Slots[];
+  channel: Channel;
 }

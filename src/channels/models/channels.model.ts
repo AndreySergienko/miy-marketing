@@ -45,6 +45,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar: string;
+
   // Вынести в дальнейшем в заказ
   @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
