@@ -8,6 +8,7 @@ import { ChannelsService } from './channels.service';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { Perms } from '../auth/decorators/permission-auth.decorator';
 import PermissionStore from '../permission/PermissionStore';
+import { Public } from '../auth/decorators/public-auth.decorator';
 
 @Controller('channels')
 export class ChannelsController {
@@ -27,6 +28,7 @@ export class ChannelsController {
     return await this.channelService.checkConnectChannel(userId, channelName);
   }
 
+  @Public()
   @Get('all')
   async getAll(@Query() query: IQueryFilterAndPagination) {
     return await this.channelService.getAll(query);

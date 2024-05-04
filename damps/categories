@@ -6,7 +6,7 @@
 6,BUSINESS,Бизнес и стартапы
 7,CRYPTOCURRENCIES,Криптовалюты
 8,TRAVELS,Путишествия
-9,MARKETING,Маркетинг, PR, реклама
+9,MARKETING,Маркетинг
 10,PSYCHOLOGY,Психология
 11,DESIGN,Дизайн
 12,POLITICS,Политика
@@ -45,3 +45,4 @@
 45,EROTICA,Эротика
 46,FOR ADULTS,Для Взрослых
 47,MORE,Другое
+48,PR,Реклама

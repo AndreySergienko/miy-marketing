@@ -9,12 +9,8 @@ import {
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import {
-  CARD_CVC,
-  CARD_DATE,
-  CARD_NUMBER,
-  MIN_LENGTH_NAME,
-} from '../../constants/validate.value';
+import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
+import { CardModelAttrs } from '../../payments/types/types';
 
 export interface UserModelAttrs {
   fio?: string;
@@ -61,20 +57,10 @@ export class UpdateUserDto {
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsString(ErrorValidation.IS_STRING())
   @MinLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
-  @MaxLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
-  public readonly cardNumber: number;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(CARD_DATE, ErrorValidation.MIN_LENGTH(CARD_DATE))
-  @MaxLength(CARD_DATE, ErrorValidation.MIN_LENGTH(CARD_DATE))
-  public readonly cardDate: string;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(CARD_CVC, ErrorValidation.MIN_LENGTH(CARD_CVC))
-  @MaxLength(CARD_CVC, ErrorValidation.MIN_LENGTH(CARD_CVC))
-  public readonly cardCvc: string;
+  @MaxLength(CARD_NUMBER, ErrorValidation.MAX_LENGTH(CARD_NUMBER))
+  public readonly cardNumber: string;
 }
 
 export class BanUserDto {
@@ -101,9 +87,5 @@ export class GetUserDto {
   inn: number;
   fio: string;
   permissions: string[];
-  card: {
-    cvc: string;
-    date: string;
-    number: string;
-  };
+  cardNumber?: string;
 }

@@ -32,7 +32,7 @@ export class AuthTokenGuard implements CanActivate {
       });
 
       if (authCookie) {
-        req.headers['Authorization'] = `Bearer ${valueCookie}`;
+        req.headers['authorization'] = `Bearer ${valueCookie}`;
       }
 
       return true;

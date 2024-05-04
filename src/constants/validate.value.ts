@@ -6,5 +6,3 @@ export const MIN_LENGTH_PERMISSION_NAME = 4;
 export const MAX_LENGTH_PERMISSION_NAME = 30;
 
 export const CARD_NUMBER = 16;
-export const CARD_DATE = 4;
-export const CARD_CVC = 3;

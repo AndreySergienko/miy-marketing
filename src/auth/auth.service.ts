@@ -9,6 +9,7 @@ import { PermissionService } from '../permission/permission.service';
 import { generatePassword } from '../utils/password';
 import { TokenService } from '../token/token.service';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
+import PermissionStore from '../permission/PermissionStore';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,13 @@ export class AuthService {
       );
     }
 
+    if (userBot.inn) {
+      throw new HttpException(
+        ErrorMessages.USER_IS_REGISTERED(),
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const candidate = await this.userService.getUserByEmail(email);
     if (candidate) {
       throw new HttpException(
@@ -37,11 +45,12 @@ export class AuthService {
       );
     }
 
-    const hashPassword = await bcrypt.hash(password, 7);
     await this.nodemailerService.sendRegistrationActivateMail(
       userBot.id,
       registrationDto.email,
     );
+
+    const hashPassword = await bcrypt.hash(password, 7);
 
     await this.userService.updateAllFiledUserById({
       ...registrationDto,
@@ -89,10 +98,16 @@ export class AuthService {
       user.id,
     );
 
-    if (user.card) {
-      const permissions = await this.permissionService.getIdsDefaultRoles();
-      await user.$set('permissions', permissions);
+    const userPermissions =
+      await this.permissionService.getIdsUserPermissions(user);
+    if (user.card?.number) {
+      userPermissions.push(...PermissionStore.USER_CHANNELS_PERMISSIONS);
     }
+    const packedPermissions = this.permissionService.updatePermissions(
+      PermissionStore.USER_PERMISSIONS,
+      userPermissions,
+    );
+    await user.$set('permissions', packedPermissions);
   }
 
   async registrationInBot(chatId: number) {

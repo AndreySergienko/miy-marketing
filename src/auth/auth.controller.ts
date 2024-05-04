@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Req,
+  Res,
+} from '@nestjs/common';
 import {
   ConfirmEmailDto,
   LoginDto,
@@ -9,8 +17,9 @@ import { AuthService } from './auth.service';
 import { ConfirmEmail } from './auth.decorator';
 import { Public } from './decorators/public-auth.decorator';
 import * as process from 'process';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { AUTH_COOKIE_CONFIG, AUTH_TOKEN } from '../constants/auth.value';
+import ErrorMessages from '../modules/errors/ErrorMessages';
 
 @Controller('auth')
 export class AuthController {
@@ -33,12 +42,23 @@ export class AuthController {
   async login(@Body() loginDto: LoginDto, @Res() response: Response) {
     const { token } = await this.authService.login(loginDto);
     response.cookie(AUTH_TOKEN, token, AUTH_COOKIE_CONFIG());
+    response.send({
+      token,
+    });
+    response.status(HttpStatus.OK);
   }
 
   @Public()
   @Get('logout')
-  async logout(@Res() response: Response) {
-    response.clearCookie(AUTH_TOKEN, AUTH_COOKIE_CONFIG());
+  async logout(@Req() request: Request, @Res() response: Response) {
+    if (request.cookies[AUTH_TOKEN]) {
+      response.clearCookie(AUTH_TOKEN, AUTH_COOKIE_CONFIG());
+      response.status(HttpStatus.OK);
+      response.send();
+    } else {
+      response.status(HttpStatus.BAD_GATEWAY);
+      response.send(ErrorMessages.COOKIE_UNDEFINED);
+    }
   }
 
   @Public()

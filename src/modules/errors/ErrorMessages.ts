@@ -5,6 +5,10 @@ export default class ErrorMessages {
     return createError('Почта не подтверждена');
   }
 
+  static get COOKIE_UNDEFINED() {
+    return createError('Куки не найдена');
+  }
+
   static MAIL_IS_EQUAL() {
     return createError('Смените адрес');
   }

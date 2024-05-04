@@ -86,27 +86,19 @@ export class UserService {
 
   public async updateUser(
     token: string,
-    {
-      email,
-      cardDate,
-      cardNumber,
-      cardCvc,
-      inn,
-      fio,
-      isNotification,
-    }: UpdateUserDto,
+    { email, cardNumber, inn, fio, isNotification }: UpdateUserDto,
   ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
     if (!user) return;
     const isChangeEmail = user.email !== email;
     if (isChangeEmail) {
       await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
-    } else {
-      const permissions = await this.permissionService.getIdsDefaultRoles();
-      await user.$set('permissions', permissions);
     }
     await this.userRepository.update(
       {
@@ -119,9 +111,7 @@ export class UserService {
     );
 
     const updateCard: Partial<Card> = {
-      cvc: cardCvc,
-      number: String(cardNumber),
-      date: cardDate,
+      number: cardNumber,
     };
 
     if (user.card) {
@@ -136,10 +126,18 @@ export class UserService {
           userId: user.id,
         }),
       );
+      const userPermissions =
+        await this.permissionService.getIdsUserPermissions(user);
+      const packedPermissions = this.permissionService.updatePermissions(
+        PermissionStore.USER_CHANNELS_PERMISSIONS,
+        userPermissions,
+      );
+      if (!isChangeEmail) await user.$set('permissions', packedPermissions);
     }
+
     return isChangeEmail
-      ? SuccessMessages.SUCCESS_UPDATE_USER()
-      : SuccessMessages.SUCCESS_UPDATE_USER_EMAIL();
+      ? SuccessMessages.SUCCESS_UPDATE_USER_EMAIL()
+      : SuccessMessages.SUCCESS_UPDATE_USER();
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {
@@ -241,11 +239,7 @@ export class UserService {
       inn,
       fio,
       permissions: permissions.map((perm) => perm.value),
-      card: {
-        cvc: card.cvc,
-        date: card.date,
-        number: card.number,
-      },
+      cardNumber: card?.number,
     };
   }
 }

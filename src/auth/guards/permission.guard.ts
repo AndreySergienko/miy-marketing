@@ -6,7 +6,6 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { PERMISSION_KEY } from '../decorators/permission-auth.decorator';
@@ -32,13 +31,11 @@ export class PermissionGuard implements CanActivate {
         context.getClass(),
       ]);
       if (isPublic) return true;
-
       const requiredPermissions = this.reflector.getAllAndOverride(
         PERMISSION_KEY,
         [context.getHandler(), context.getClass()],
       );
       const authorization = req.headers.authorization;
-
       const [bearer, token] = authorization.split(' ');
       if (bearer !== 'Bearer' || !token) {
         throw new UnauthorizedException(ErrorMessages.UN_AUTH());
@@ -52,11 +49,10 @@ export class PermissionGuard implements CanActivate {
 
       const userDb = await this.userService.findOneById(user.id);
       req.user = user;
+      if (!requiredPermissions) return true;
       const isSome = userDb.permissions.some((permission: Permission) =>
         requiredPermissions.includes(permission.id),
       );
-
-      if (!requiredPermissions) return true;
       if (!isSome)
         throw new HttpException(
           ErrorMessages.FORBIDDEN(),
