@@ -1,0 +1,61 @@
+'use strict';
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up(queryInterface) {
+    return queryInterface.bulkInsert('categories', [
+      { value: 'BLOGS', description: 'Блоги' },
+      { value: 'NEWS', description: 'Новости и СМИ' },
+      { value: 'HUMOR', description: 'Юмор и развлечение' },
+      { value: 'TECHNOLOGIES', description: 'Технологии' },
+      { value: 'ECONOMY', description: 'Экономика' },
+      { value: 'BUSINESS', description: 'Бизнес и стартапы' },
+      { value: 'CRYPTOCURRENCIES', description: 'Криптовалюты' },
+      { value: 'TRAVELS', description: 'Путешествия' },
+      { value: 'MARKETING', description: 'Маркетинг' },
+      { value: 'PSYCHOLOGY', description: 'Психология' },
+      { value: 'DESIGN', description: 'Дизайн' },
+      { value: 'POLITICS', description: 'Политика' },
+      { value: 'ART', description: 'Искусство' },
+      { value: 'LAW', description: 'Право' },
+      { value: 'EDUCATION', description: 'Образование' },
+      { value: 'BOOKS', description: 'Книги' },
+      { value: 'LINGUISTICS', description: 'Лингвистика' },
+      { value: 'CAREER', description: 'Карьера' },
+      { value: 'EDUCATIONAL', description: 'Познавательное' },
+      { value: 'GUIDES', description: 'Курсы и гайды' },
+      { value: 'SPORT', description: 'Спорт' },
+      { value: 'BEAUTY', description: 'Мода и красота' },
+      { value: 'MEDICINE', description: 'Медицина' },
+      { value: 'HEALTH', description: 'Здоровье и Фитнес' },
+      { value: 'PICTURES', description: 'Картинки и фото' },
+      { value: 'SOFTWARE', description: 'Софт и приложения' },
+      { value: 'VIDEO', description: 'Видео и фильмы' },
+      { value: 'MUSIC', description: 'Музыка' },
+      { value: 'GAMES', description: 'Игры' },
+      { value: 'FOODS', description: 'Еда и кулинария' },
+      { value: 'QUOTES', description: 'Цитаты' },
+      { value: 'HANDCRAFT', description: 'Рукоделие' },
+      { value: 'FAMILY', description: 'Семья и дети' },
+      { value: 'NATURE', description: 'Природа' },
+      { value: 'BUILDING', description: 'Интерьер и строительство' },
+      { value: 'TELEGRAM', description: 'Telegram' },
+      { value: 'INSTAGRAM', description: 'Инстаграм' },
+      { value: 'SALES', description: 'Продажи' },
+      { value: 'TRANSPORT', description: 'Транспорт' },
+      { value: 'RELIGION', description: 'Религия' },
+      { value: 'ESOTERICISM', description: 'Эзотерика' },
+      { value: 'DARKNET', description: 'Даркнет' },
+      { value: 'BOOKMAKING', description: 'Букмекерство' },
+      { value: 'SHOCK-CONTENT', description: 'Шок-контент' },
+      { value: 'EROTICA', description: 'Эротика' },
+      { value: 'FOR ADULTS', description: 'Для Взрослых' },
+      { value: 'MORE', description: 'Другое' },
+      { value: 'PR', description: 'Реклама' },
+    ]);
+  },
+
+  async down(queryInterface) {
+    return queryInterface.bulkDelete('categories', null, {});
+  },
+};
