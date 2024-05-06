@@ -55,6 +55,10 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.BIGINT, allowNull: true })
   day: number;
 
+  // Условия для проверки
+  @Column({ type: DataType.STRING, allowNull: true })
+  conditionCheck: string;
+
   @BelongsToMany(() => User, () => UserChannel)
   users: User[];
 

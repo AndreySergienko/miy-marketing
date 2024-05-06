@@ -298,24 +298,6 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slots.length > 12)
-      throw new HttpException(
-        ErrorChannelMessages.MORE_SLOTS(),
-        HttpStatus.BAD_REQUEST,
-      );
-
-    const slotsDateValid = slots.every(
-      (timestamp) =>
-        new Date(day).setHours(0, 0, 0, 0) <
-        new Date(timestamp).setHours(0, 0, 0, 0),
-    );
-
-    if (!slotsDateValid)
-      throw new HttpException(
-        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
-        HttpStatus.BAD_REQUEST,
-      );
-
     const isAdmin = channel.users.find((user: User) => +user.id === +userId);
 
     if (!isAdmin)
@@ -342,8 +324,9 @@ export class ChannelsService {
     await channel.$set('formatChannel', formatChannel);
 
     for (let i = 0; i < slots.length; i++) {
-      const currentSlotTimestamp = slots[i];
-      await this.slotService.createSlot(currentSlotTimestamp, id);
+      const [hours, minutes] = slots[i].split(':');
+      const timestamp = new Date(day).setHours(+hours, +minutes, 0);
+      await this.slotService.createSlot(timestamp, id);
     }
 
     const updatedChannel = await this.channelRepository.findOne({

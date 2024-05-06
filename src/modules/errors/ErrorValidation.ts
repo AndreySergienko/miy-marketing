@@ -15,6 +15,10 @@ export default class ErrorValidation {
     return createError('Некорректный формат inn');
   }
 
+  static IS_SLOT_INCORRECT() {
+    return createError('Некорректная дата слотов');
+  }
+
   static IS_BOOLEAN() {
     return createError('Поле должно быть булевским значением');
   }
