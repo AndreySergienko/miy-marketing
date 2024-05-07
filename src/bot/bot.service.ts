@@ -8,6 +8,7 @@ import { ChannelsService } from '../channels/channels.service';
 import { ChannelCreateDto } from '../channels/types/types';
 import { UserService } from '../user/user.service';
 import { BotRequestService } from './bot-request.service';
+import { StatusStore } from '../status/StatusStore';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -62,7 +63,8 @@ export class BotService implements OnModuleInit {
               description: infoChat.description || '',
             };
             if (!channel) {
-              await this.channelsService.createChannel(dto);
+              const newChannel = await this.channelsService.createChannel(dto);
+              await newChannel.$set('status', StatusStore.CREATE);
             } else {
               await this.channelsService.updateChannel(dto);
             }

@@ -34,6 +34,18 @@ export class ChannelsController {
     return await this.channelService.getAll(query);
   }
 
+  @Get('my')
+  async getMyChannels(
+    @Req() req: Request,
+    @Query() query: IQueryFilterAndPagination,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error;
+    const userId = req.user.id;
+    if (typeof userId !== 'number') return;
+    return await this.channelService.getMyChannels(userId, query);
+  }
+
   @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)
   @Post('registration')
   async registrationChannel(

@@ -27,17 +27,41 @@ import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
 import { setBotApiUrlFile } from '../utils/bot';
+import { UserChannel } from './models/user-channel.model';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(CategoriesChannel)
     private categoriesChannelRepository: typeof CategoriesChannel,
     private userService: UserService,
     private slotService: SlotsService,
     private botEvent: BotEvent,
   ) {}
+
+  public async getMyChannels(
+    userId: number,
+    { size, page }: IQueryFilterAndPagination,
+  ) {
+    const userChannels = await this.userChannelRepository.findAll({
+      ...pagination({ page, size }),
+      where: {
+        userId: userId,
+      },
+    });
+    const channelsIds = userChannels.map((channel) => channel.id);
+    const channels = await this.channelRepository.findAll({
+      where: {
+        id: channelsIds,
+      },
+    });
+    return channels.map((channel) => {
+      channel.avatar = setBotApiUrlFile(channel.avatar);
+      return channel;
+    });
+  }
 
   public async buyAdvertising(dto: BuyChannelDto, userId: number) {
     const user = await this.userService.findOneById(userId);
@@ -85,7 +109,7 @@ export class ChannelsService {
     return SuccessMessages.SLOT_IN_BOT;
   }
 
-  public async getAll({
+  private async getChannels({
     page = '1',
     size = '10',
     categories,
@@ -105,7 +129,7 @@ export class ChannelsService {
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
     const currentDay = Date.now() + 1000 * 60;
-    const channels = await this.channelRepository.findAll({
+    return await this.channelRepository.findAll({
       where: {
         id: channelIds,
         day: {
@@ -113,6 +137,10 @@ export class ChannelsService {
         },
       },
     });
+  }
+
+  public async getAll(query: IQueryFilterAndPagination) {
+    const channels = await this.getChannels(query);
     const list: ChannelGetAllRequestDto[] = [];
 
     for (let i = 0; i < channels.length; i++) {
@@ -259,6 +287,7 @@ export class ChannelsService {
       subscribers: channel.subscribers,
       description: channel.description,
       link: channel.link,
+      avatar: setBotApiUrlFile(channel.avatar),
     };
   }
 
@@ -349,8 +378,9 @@ export class ChannelsService {
         price,
         day,
         name,
-        status,
+        statusId: status,
         categoriesId,
+        avatar: setBotApiUrlFile(channel.avatar),
       },
     };
   }
