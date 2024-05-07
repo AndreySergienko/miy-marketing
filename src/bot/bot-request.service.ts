@@ -168,7 +168,6 @@ export class BotRequestService {
   async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
     from,
     id,
-    text,
   }: IBotRequestDto) {
     const slot = await this.slotService.findOneBySlotId(id);
     await slot.$set('status', StatusStore.PUBLIC);
