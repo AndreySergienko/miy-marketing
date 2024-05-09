@@ -21,16 +21,25 @@ export class AuthService {
   ) {}
 
   async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email } = registrationDto;
-    const userBot = await this.userService.getUserByUniqueBotId(uniqueBotId);
-    if (!userBot) {
+    const { uniqueBotId, password, email, inn } = registrationDto;
+    const isHasUserByInn = await this.userService.findByInn(inn);
+    console.log('REGISTREATION');
+    if (isHasUserByInn) {
       throw new HttpException(
-        ErrorMessages.UNDEFINED_UNIQUE_USER_ID(),
+        ErrorMessages.USER_IS_REGISTERED(),
         HttpStatus.FORBIDDEN,
       );
     }
+    const userBot = await this.userService.getUserByUniqueBotId(uniqueBotId);
+    if (registrationDto.inn)
+      if (!userBot) {
+        throw new HttpException(
+          ErrorMessages.UNDEFINED_UNIQUE_USER_ID(),
+          HttpStatus.FORBIDDEN,
+        );
+      }
 
-    if (userBot.inn) {
+    if (userBot.inn || userBot.card) {
       throw new HttpException(
         ErrorMessages.USER_IS_REGISTERED(),
         HttpStatus.FORBIDDEN,

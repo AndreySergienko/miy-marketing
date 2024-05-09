@@ -31,6 +31,10 @@ export class UserService {
     private permissionService: PermissionService,
   ) {}
 
+  public async findByInn(inn: number) {
+    return await this.userRepository.findOne({ where: { inn } });
+  }
+
   public getId(token: string) {
     const { id } = this.jwtService.decode<PayloadTokenDto>(token);
     if (!id)
