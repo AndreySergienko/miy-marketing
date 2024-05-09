@@ -1,11 +1,11 @@
-import {
+import type {
   IBuyChannelMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
 import {
-  convertTimestampToTimeMoscow,
-  convertUtcDateToFullDateMoscow,
+  convertTimestampToTime,
+  convertUtcDateToFullDate,
 } from '../../../../utils/date';
 
 export interface MessageChannelRegistrationDto {
@@ -18,6 +18,7 @@ export interface MessageChannelRegistrationDto {
   slots: string[];
   format: string;
   categories: string[];
+  conditionCheck?: string;
 }
 
 export class MessagesChannel {
@@ -50,7 +51,7 @@ export class MessagesChannel {
     day,
     reason,
   }: IValidationCancelChannelDto) {
-    return `Регистрация канала: ${name} слота на день: ${day} по причине ${reason}`;
+    return `Отмена публикации канала: ${name} слота на день: ${day} по причине ${reason}`;
   }
 
   static VALIDATE_MESSAGE(msg: string) {
@@ -76,8 +77,8 @@ export class MessagesChannel {
     format,
     date,
   }: IBuyChannelMessage) {
-    const dateRu = convertUtcDateToFullDateMoscow(date);
-    const timeRu = convertTimestampToTimeMoscow(date);
+    const dateRu = convertUtcDateToFullDate(date);
+    const timeRu = convertUtcDateToFullDate(date);
     return `
     Ув. пользователь
 
@@ -100,6 +101,7 @@ export class MessagesChannel {
     slots,
     categories,
     format,
+    conditionCheck,
   }: MessageChannelRegistrationDto) {
     return `Ув. администраторы
 
@@ -112,6 +114,7 @@ export class MessagesChannel {
 Дата публикации: ${day}
 Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
-Категории: [${categories}]`;
+Категории: [${categories}]
+Условия оценки: ${conditionCheck}`;
   }
 }

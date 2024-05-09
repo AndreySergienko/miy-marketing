@@ -32,6 +32,7 @@ export class BotRequestService {
     from,
     id: channelId,
   }: IBotRequestDto) {
+    console.log(channelId);
     await this.channelsService.acceptValidateChannel(channelId, from.id);
     await this.userService.updateLastBotActive(from.id, '');
   }
@@ -172,7 +173,7 @@ export class BotRequestService {
     const slot = await this.slotService.findOneBySlotId(id);
     await slot.$set('status', StatusStore.PUBLIC);
     await slot.$set('message', '');
-    // Отправить сообщение покупателю text и mainAdminu в чат, что статус изменён
+    // Отправить сообщение покупателю text и mainAdmin в чат, что статус изменён
     await this.userService.clearLastBotActive(from.id);
   }
 

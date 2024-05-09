@@ -5,6 +5,12 @@ export default class ErrorChannelMessages {
     return createError('Некорректная дата регистрации канала');
   }
 
+  static DATE_INCORRECT_VALIDATION() {
+    return createError(
+      'Некорректная дата регистрации канала. Статус канала - отменён',
+    );
+  }
+
   static DATE_SLOT_INCORRECT() {
     return createError('Некорректная дата публикации слота');
   }

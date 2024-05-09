@@ -3,6 +3,10 @@ import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { Slots } from '../../slots/models/slots.model';
 import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
+import {
+  MAX_LENGTH_CONDITION,
+  MAX_LENGTH_PASSWORD,
+} from '../../constants/validate.value';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -35,6 +39,10 @@ export class RegistrationChannelDto {
   @IsString(ErrorValidation.IS_STRING())
   name: string;
   @IsString(ErrorValidation.IS_STRING())
+  @MaxLength(
+    MAX_LENGTH_CONDITION,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
+  )
   conditionCheck: string;
   @IsString(ErrorValidation.IS_STRING())
   link: string;

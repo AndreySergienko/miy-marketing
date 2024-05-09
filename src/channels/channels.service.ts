@@ -19,8 +19,9 @@ import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
 import {
   convertNextDay,
-  convertUtcDateToFullDateMoscow,
+  convertUtcDateToFullDate,
   dayLater,
+  getCurrentMoscowTimestamp,
 } from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
@@ -128,10 +129,11 @@ export class ChannelsService {
     const channelIds = categoriesChannels.map(
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
-    const currentDay = Date.now() + 1000 * 60;
+    const currentDay = getCurrentMoscowTimestamp() + 1000 * 60 * 60;
     return await this.channelRepository.findAll({
       where: {
         id: channelIds,
+        statusId: StatusStore.PUBLIC,
         day: {
           [Op.gt]: currentDay,
         },
@@ -170,6 +172,15 @@ export class ChannelsService {
       return;
     }
 
+    if (channel.day < convertNextDay(Date.now())) {
+      await channel.$set('status', StatusStore.CANCEL);
+      await global.bot.sendMessage(
+        adminId,
+        ErrorChannelMessages.DATE_INCORRECT_VALIDATION().message,
+      );
+      return;
+    }
+
     if (channel.statusId === StatusStore.PUBLIC) {
       await global.bot.sendMessage(
         adminId,
@@ -182,7 +193,7 @@ export class ChannelsService {
 
     const dto: IValidationChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDateMoscow(+channel.day),
+      day: convertUtcDateToFullDate(+channel.day),
     };
 
     await this.sendMessageAfterUpdateStatusChannel<IValidationChannelDto>(
@@ -213,7 +224,7 @@ export class ChannelsService {
 
     const dto: IValidationCancelChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDateMoscow(+channel.day),
+      day: convertUtcDateToFullDate(+channel.day),
       reason,
     };
 
@@ -301,6 +312,7 @@ export class ChannelsService {
       slots,
       price,
       formatChannel,
+      conditionCheck,
     }: RegistrationChannelDto,
     userId: number,
   ) {
@@ -343,6 +355,7 @@ export class ChannelsService {
         link,
         price,
         day,
+        conditionCheck,
       },
       {
         where: { id },
@@ -381,6 +394,7 @@ export class ChannelsService {
         statusId: status,
         categoriesId,
         avatar: setBotApiUrlFile(channel.avatar),
+        conditionCheck,
       },
     };
   }

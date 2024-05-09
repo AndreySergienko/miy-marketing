@@ -4,8 +4,8 @@ import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChan
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 import { Channel } from '../channels/models/channels.model';
 import {
-  convertTimestampToTimeMoscow,
-  convertUtcDateToFullDateMoscow,
+  convertTimestampToTime,
+  convertUtcDateToFullDate,
 } from '../utils/date';
 import type {
   IBuyChannelMessage,
@@ -77,12 +77,13 @@ export class BotEvent {
       categories,
       slots,
       formatChannel,
+      conditionCheck,
     }: Channel,
   ) {
-    const full_day = convertUtcDateToFullDateMoscow(+day);
+    const full_day = convertUtcDateToFullDate(+day);
     const categoriesNames = categories.map((category) => category.value);
     const slotDate = slots.map((slot) =>
-      convertTimestampToTimeMoscow(+slot.timestamp),
+      convertTimestampToTime(+slot.timestamp),
     );
 
     return await global.bot.sendMessage(
@@ -97,6 +98,7 @@ export class BotEvent {
         categories: categoriesNames,
         slots: slotDate,
         format: formatChannel.value,
+        conditionCheck,
       }),
       useSendMessage({
         inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),

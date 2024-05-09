@@ -86,7 +86,7 @@ export class BotService implements OnModuleInit {
       async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
           const { code, channelId } = this.getCodeAndCallbackId(data);
-          await this.botRequestService[code]({ from, channelId });
+          await this.botRequestService[code]({ from, id: channelId });
           await global.bot.answerCallbackQuery(id);
         } catch (e) {
           console.log(e);
@@ -125,7 +125,7 @@ export class BotService implements OnModuleInit {
 
           await this.botRequestService[code]({
             from: message.from,
-            channelId,
+            id: channelId,
             text: message.text,
           });
           return;
