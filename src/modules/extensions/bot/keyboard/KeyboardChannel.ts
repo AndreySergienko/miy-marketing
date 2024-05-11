@@ -18,6 +18,7 @@ export class KeyboardChannel {
     ];
   }
 
+  /** Moderate **/
   static VALIDATE_MESSAGE(slotId: number) {
     return [
       [
@@ -28,6 +29,10 @@ export class KeyboardChannel {
         {
           text: MessagesChannel.BTN_CANCEL,
           callback_data: CallbackDataChannel.CANCEL_REASON_MESSAGE(slotId),
+        },
+        {
+          text: MessagesChannel.BTN_CHANGE,
+          callback_data: CallbackDataChannel.CHANGE_VALIDATE_MESSAGE(slotId),
         },
       ],
     ];

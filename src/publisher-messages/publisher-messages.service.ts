@@ -19,7 +19,14 @@ export class PublisherMessagesService {
     return msg;
   }
 
-  public destroy(id) {
+  public destroy(id: number) {
     return this.publisherMessagesRepository.destroy({ where: { id } });
+  }
+
+  public updateMessage(id: number, message: string) {
+    return this.publisherMessagesRepository.update(
+      { message },
+      { where: { id } },
+    );
   }
 }

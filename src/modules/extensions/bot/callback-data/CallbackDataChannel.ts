@@ -35,6 +35,22 @@ export class CallbackDataChannel {
     return 'cancelReasonMessage';
   }
 
+  static get CHANGE_VALIDATE_MESSAGE_HANDLER() {
+    return 'changeValidateMessage';
+  }
+
+  static get AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER() {
+    return 'afterChangeValidateMessage';
+  }
+
+  static AFTER_CHANGE_VALIDATE_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static CHANGE_VALIDATE_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CHANGE_VALIDATE_MESSAGE_HANDLER}:${slotId}`;
+  }
+
   static ACCEPT_MESSAGE(slotId: number) {
     return `${CallbackDataChannel.ACCEPT_MESSAGE_HANDLER}:${slotId}`;
   }

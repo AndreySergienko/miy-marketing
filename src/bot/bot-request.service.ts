@@ -167,7 +167,7 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId === StatusStore.AWAIT) return;
+    if (slot.statusId !== StatusStore.AWAIT) return;
 
     await this.userService.updateLastBotActive(
       from.id,
@@ -275,6 +275,54 @@ export class BotRequestService {
     await this.userService.updateLastBotActive(
       from.id,
       `${CallbackDataChannel.CANCEL_HANDLER}:${slotId}`,
+    );
+  }
+
+  /** MODERATOR
+   * Поправить сообщение, которое пришло на проверку
+   * Срабатывает, когда нажимают изменить
+   * Отправка месседж и ожидание нового сообщения
+   * **/
+  public async [CallbackDataChannel.CHANGE_VALIDATE_MESSAGE_HANDLER]({
+    from,
+    id: slotId,
+  }: IBotRequestDto) {
+    await this.userService.updateLastBotActive(
+      from.id,
+      `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE}:${slotId}`,
+    );
+    await global.bot.sendMessage(
+      from.id,
+      MessagesChannel.SEND_MESSAGE_VERIFICATION,
+    );
+  }
+
+  /** MODERATOR
+   * Показать набор кнопок и снова сообщение на модерацию сообщения, после того, как модератор его поправил
+   * **/
+  public async [CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER]({
+    from,
+    text,
+    id: slotId,
+  }: IBotRequestDto) {
+    const slot = await this.slotService.findOneBySlotId(slotId);
+    if (!slot)
+      throw new HttpException(
+        SlotsErrorMessages.SLOT_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    if (slot.statusId !== StatusStore.AWAIT) return;
+
+    await this.publisherMessages.updateMessage(slot.messageId, text);
+    await this.userService.clearLastBotActive(from.id);
+    const ids = await this.userService.getAllAdminsChatIds();
+    await global.bot.sendMessage(
+      ids[0],
+      MessagesChannel.VALIDATE_MESSAGE(slot.message.message),
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+      }),
     );
   }
 
