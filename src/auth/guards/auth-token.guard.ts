@@ -6,9 +6,9 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import ErrorMessages from '../../modules/errors/ErrorMessages';
 import { PUBLIC_KEY } from '../decorators/public-auth.decorator';
 import { AUTH_TOKEN } from '../../constants/auth.value';
+import UserErrorMessages from '../../user/messages/UserErrorMessages';
 
 @Injectable()
 export class AuthTokenGuard implements CanActivate {
@@ -38,7 +38,10 @@ export class AuthTokenGuard implements CanActivate {
       return true;
     } catch (e) {
       console.log(e);
-      throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        UserErrorMessages.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 }

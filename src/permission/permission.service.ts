@@ -2,9 +2,9 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Permission } from './models/persmissions.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { PermissionCreateDto } from './types/permission.types';
-import SuccessMessages from '../modules/errors/SuccessMessages';
-import ErrorMessages from '../modules/errors/ErrorMessages';
 import { User } from '../user/models/user.model';
+import PermissionsErrorMessages from './messages/PermissionsErrorMessages';
+import PermissionsSuccessMessages from './messages/PermissionsSuccessMessages';
 
 @Injectable()
 export class PermissionService {
@@ -19,12 +19,12 @@ export class PermissionService {
     });
     if (permission) {
       throw new HttpException(
-        ErrorMessages.PERMISSION_HAS_DEFINED(value),
+        PermissionsErrorMessages.PERMISSION_HAS_DEFINED(value),
         HttpStatus.BAD_REQUEST,
       );
     }
     await this.permissionRepository.create(dto);
-    return SuccessMessages.CREATE_PERMISSION(value);
+    return PermissionsSuccessMessages.CREATE_PERMISSION(value);
   }
 
   public async getIdsUserPermissions(user: User) {

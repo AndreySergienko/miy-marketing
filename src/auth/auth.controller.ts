@@ -19,7 +19,7 @@ import { Public } from './decorators/public-auth.decorator';
 import * as process from 'process';
 import { Request, Response } from 'express';
 import { AUTH_COOKIE_CONFIG, AUTH_TOKEN } from '../constants/auth.value';
-import ErrorMessages from '../modules/errors/ErrorMessages';
+import AuthErrorMessages from './messages/AuthErrorMessages';
 
 @Controller('auth')
 export class AuthController {
@@ -57,7 +57,7 @@ export class AuthController {
       response.send();
     } else {
       response.status(HttpStatus.BAD_GATEWAY);
-      response.send(ErrorMessages.COOKIE_UNDEFINED);
+      response.send(AuthErrorMessages.COOKIE_UNDEFINED);
     }
   }
 

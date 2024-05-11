@@ -12,13 +12,13 @@ import {
 } from './types/user.types';
 import { JwtService } from '@nestjs/jwt';
 import { PayloadTokenDto } from '../token/types/token.types';
-import ErrorMessages from '../modules/errors/ErrorMessages';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
-import SuccessMessages from '../modules/errors/SuccessMessages';
 import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
 import { PermissionService } from '../permission/permission.service';
 import { Card } from '../payments/models/card.model';
+import UserErrorMessages from './messages/UserErrorMessages';
+import UserSuccessMessages from './messages/UserSuccessMessages';
 
 @Injectable()
 export class UserService {
@@ -38,7 +38,7 @@ export class UserService {
   public getId(token: string) {
     const { id } = this.jwtService.decode<PayloadTokenDto>(token);
     if (!id)
-      return new HttpException(ErrorMessages.UN_AUTH(), HttpStatus.FORBIDDEN);
+      return new HttpException(UserErrorMessages.UN_AUTH, HttpStatus.FORBIDDEN);
     return id;
   }
 
@@ -67,7 +67,7 @@ export class UserService {
     });
     if (!user)
       throw new HttpException(
-        ErrorMessages.USER_IS_NOT_DEFINED(),
+        UserErrorMessages.USER_IS_NOT_DEFINED,
         HttpStatus.FORBIDDEN,
       );
     return this.transformGetUser(user);
@@ -80,10 +80,10 @@ export class UserService {
     if (user.email !== email) {
       await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
-      return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
+      return UserSuccessMessages.PLEASE_CHECK_YOUR_EMAIL;
     }
     throw new HttpException(
-      ErrorMessages.MAIL_IS_EQUAL(),
+      UserErrorMessages.MAIL_IS_EQUAL,
       HttpStatus.BAD_REQUEST,
     );
   }
@@ -140,8 +140,8 @@ export class UserService {
     }
 
     return isChangeEmail
-      ? SuccessMessages.SUCCESS_UPDATE_USER_EMAIL()
-      : SuccessMessages.SUCCESS_UPDATE_USER();
+      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
+      : UserSuccessMessages.SUCCESS_UPDATE_USER;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {

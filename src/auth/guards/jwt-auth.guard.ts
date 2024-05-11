@@ -7,8 +7,8 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import ErrorMessages from '../../modules/errors/ErrorMessages';
 import { SECRET_TOKEN } from '../auth.constants';
+import UserErrorMessages from '../../user/messages/UserErrorMessages';
 
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
@@ -21,7 +21,7 @@ export class JwtAuthGuard implements CanActivate {
       const [bearer, token] = authorization.split(' ');
 
       if (bearer !== 'Bearer' || !token) {
-        throw new UnauthorizedException(ErrorMessages.UN_AUTH());
+        throw new UnauthorizedException(UserErrorMessages.UN_AUTH);
       }
 
       req.user = await this.jwtService.verifyAsync(token, {
@@ -29,7 +29,10 @@ export class JwtAuthGuard implements CanActivate {
       });
       return true;
     } catch (e) {
-      throw new HttpException(ErrorMessages.FORBIDDEN(), HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        UserErrorMessages.FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 }

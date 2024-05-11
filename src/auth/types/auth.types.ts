@@ -34,6 +34,7 @@ export class LoginDto {
   public readonly password: string;
 }
 
+/** Dto для второго этапа регистрации **/
 export class RegistrationDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;

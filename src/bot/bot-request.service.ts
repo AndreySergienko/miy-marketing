@@ -15,7 +15,8 @@ import { StatusStore } from '../status/StatusStore';
 import { useSendMessage } from '../hooks/useSendMessage';
 import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChannel';
 import { PublisherMessagesService } from '../publisher-messages/publisher-messages.service';
-import ErrorChannelMessages from '../modules/errors/ErrorChannelMessages';
+import BotErrorMessages from './messages/BotErrorMessages';
+import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
 
 @Injectable()
 export class BotRequestService {
@@ -29,16 +30,21 @@ export class BotRequestService {
     private publisherMessages: PublisherMessagesService,
   ) {}
 
-  async [CallbackDataChannel.ACCEPT_HANDLER]({
+  /** Moderator
+   * Допустить канал к публикации
+   * **/
+  public async [CallbackDataChannel.ACCEPT_HANDLER]({
     from,
     id: channelId,
   }: IBotRequestDto) {
-    console.log(channelId);
     await this.channelsService.acceptValidateChannel(channelId, from.id);
     await this.userService.updateLastBotActive(from.id, '');
   }
 
-  async [CallbackDataChannel.CANCEL_REASON_HANDLER]({
+  /** Moderator
+   * Установить причину отказа публикации канала
+   * **/
+  public async [CallbackDataChannel.CANCEL_REASON_HANDLER]({
     from,
     id: channelId,
   }: IBotRequestDto) {
@@ -49,7 +55,10 @@ export class BotRequestService {
     );
   }
 
-  async [CallbackDataChannel.CANCEL_HANDLER]({
+  /** Moderator
+   * Отклонить публикацию канала
+   * **/
+  public async [CallbackDataChannel.CANCEL_HANDLER]({
     id: channelId,
     from,
     text: reason,
@@ -62,23 +71,35 @@ export class BotRequestService {
     await this.userService.clearLastBotActive(from.id);
   }
 
-  async checkBuyAdvertising(query: PreCheckoutQuery) {
+  /** User
+   * Метод инициализации покупки свободного слота
+   * Предварительные запрос на приобритение слота
+   * **/
+  public async checkBuyAdvertising(query: PreCheckoutQuery) {
     let status = false;
     const slot = await this.slotService.findOneBySlotId(+query.invoice_payload);
     if (!slot) {
       await global.bot.answerPreCheckoutQuery(query.id, status, {
-        error_message: 'Что-то пошло не так. Свяжитесь с администрацией',
+        error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
       });
       return;
     }
 
     if (slot.statusId === StatusStore.PUBLIC) status = true;
     await global.bot.answerPreCheckoutQuery(query.id, status, {
-      error_message: 'Что-то пошло не так. Свяжитесь с администрацией',
+      error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
     });
   }
 
-  async afterBuyAdvertising({ from, successful_payment }: TelegramBot.Message) {
+  /** User
+   * Метод срабатывает после успешной оплаты
+   * Добавить сведения о платеже в ЛК
+   * Предложить пользователю отправить сообещний на рекламу
+   * **/
+  public async afterBuyAdvertising({
+    from,
+    successful_payment,
+  }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
     const slot = await this.slotService.findOneBySlotId(
@@ -92,7 +113,7 @@ export class BotRequestService {
       slotId: slot.id,
     });
 
-    // await slot.$set('status', StatusStore.AWAIT);
+    await slot.$set('status', StatusStore.AWAIT);
 
     await global.bot.sendMessage(
       from.id,
@@ -105,8 +126,11 @@ export class BotRequestService {
     );
   }
 
-  /** Сообщения для юзера **/
-  async [CallbackDataChannel.VALIDATE_MESSAGE_HANDLER]({
+  /** User
+   * Метод срабатывает после отправки рекламного сообщения боту
+   * С предложением отправки или изменения его
+   * **/
+  public async [CallbackDataChannel.VALIDATE_MESSAGE_HANDLER]({
     from,
     id: slotId,
     text,
@@ -119,7 +143,6 @@ export class BotRequestService {
       slotId,
       userId: user.id,
     });
-    // await user.$set('messages', [msg.id]);
     await global.bot.sendMessage(
       from.id,
       MessagesChannel.CONFIRM_SEND_MESSAGE_VERIFICATION(text),
@@ -129,14 +152,17 @@ export class BotRequestService {
     );
   }
 
-  async [CallbackDataChannel.CHANGE_SEND_MESSAGE_HANDLER]({
+  /** User
+   * Измениние только что созданного сообщение на другое для отправки на модерацию
+   * **/
+  public async [CallbackDataChannel.CHANGE_SEND_MESSAGE_HANDLER]({
     from,
     id: slotId,
   }: IBotRequestDto) {
     const slot = await this.slotService.findOneBySlotId(slotId);
     if (!slot)
       throw new HttpException(
-        ErrorChannelMessages.SLOT_NOT_FOUND(),
+        SlotsErrorMessages.SLOT_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
 
@@ -153,8 +179,10 @@ export class BotRequestService {
     );
   }
 
-  /** Срабатывает в момент когда пользоватлеь нажимает "Отправить" сообщение на модерацию **/
-  async [CallbackDataChannel.CONFIRM_SEND_MESSAGE_HANDLER]({
+  /** User
+   * Метод срабатывает после отправки рекламного сообщения МОДЕРАТОРУ
+   * **/
+  public async [CallbackDataChannel.CONFIRM_SEND_MESSAGE_HANDLER]({
     from,
     id: slotId,
   }: IBotRequestDto) {
@@ -162,7 +190,7 @@ export class BotRequestService {
 
     if (!slot)
       throw new HttpException(
-        ErrorChannelMessages.SLOT_NOT_FOUND(),
+        SlotsErrorMessages.SLOT_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
 
@@ -184,8 +212,10 @@ export class BotRequestService {
     );
   }
 
-  /** Вызывает модератор после проверки рекламного сообщения **/
-  async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({
+  /** MODERATOR
+   * Метод срабатывает после успешной проверки рекламного сообщения
+   * **/
+  public async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({
     id: slotId,
     from,
   }: IBotRequestDto) {
@@ -233,8 +263,10 @@ export class BotRequestService {
     );
   }
 
-  /** Вызывает модератор после отмены рекламного сообщения **/
-  async [CallbackDataChannel.CANCEL_REASON_MESSAGE_HANDLER]({
+  /** MODERATOR
+   * Необходимо пояснение причины отклонения рекламного сообщения
+   * **/
+  public async [CallbackDataChannel.CANCEL_REASON_MESSAGE_HANDLER]({
     from,
     id: slotId,
   }: IBotRequestDto) {
@@ -245,8 +277,12 @@ export class BotRequestService {
     );
   }
 
-  /** Вызывает модератор после отмены рекламного сообщения **/
-  async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
+  /** MODERATOR
+   * Отклонение рекламного сообщения в процессе модерации
+   * Возврат средств
+   * Публикация слота
+   * **/
+  public async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
     from,
     id,
   }: IBotRequestDto) {
