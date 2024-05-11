@@ -31,13 +31,18 @@ export default class PermissionStore {
     return 8;
   }
 
+  static get USER_CHANNELS_PERMISSIONS() {
+    return [
+      PermissionStore.CAN_CHECK_CHANNEL,
+      PermissionStore.CAN_PUBLIC_CHANNEL,
+    ];
+  }
+
   static get USER_PERMISSIONS() {
     return [
       PermissionStore.CAN_BUY,
-      PermissionStore.CAN_PUBLIC_CHANNEL,
       PermissionStore.CAN_SEND_VALID_MESSAGE,
       PermissionStore.CAN_USER_UPDATE,
-      PermissionStore.CAN_CHECK_CHANNEL,
     ];
   }
 

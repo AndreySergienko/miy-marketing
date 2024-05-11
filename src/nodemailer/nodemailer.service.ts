@@ -1,11 +1,12 @@
 import Mailer from '../modules/extensions/nodemailer/Mailer';
 import { v4 as uuidv4 } from 'uuid';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import ErrorMessages from '../modules/errors/ErrorMessages';
 import { InjectModel } from '@nestjs/sequelize';
 import { Mail } from './model/nodemailer.model';
 import { CreateMailDto } from './types/nodemailer.types';
 import { dayLater, fifthMinuteLater } from '../utils/date';
+import AuthErrorMessages from '../auth/messages/AuthErrorMessages';
+import UserErrorMessages from '../user/messages/UserErrorMessages';
 
 @Injectable()
 export class NodemailerService {
@@ -21,7 +22,7 @@ export class NodemailerService {
     const isSending = +mail.timeSend > +now;
     if (isSending)
       throw new HttpException(
-        ErrorMessages.A_LOT_OF_SEND_MAIL(),
+        AuthErrorMessages.A_LOT_OF_SEND_MAIL,
         HttpStatus.FORBIDDEN,
       );
 
@@ -37,7 +38,7 @@ export class NodemailerService {
         { where: { id: mail.id } },
       );
       throw new HttpException(
-        ErrorMessages.A_LOT_OF_SEND_MAIL(),
+        AuthErrorMessages.A_LOT_OF_SEND_MAIL,
         HttpStatus.FORBIDDEN,
       );
     }
@@ -55,7 +56,7 @@ export class NodemailerService {
     const mail = await this.getMailByUserId(createMailDto.userId);
     if (mail) {
       throw new HttpException(
-        ErrorMessages.A_LOT_OF_SEND_MAIL(),
+        AuthErrorMessages.A_LOT_OF_SEND_MAIL,
         HttpStatus.BAD_REQUEST,
       );
     }
@@ -90,7 +91,7 @@ export class NodemailerService {
     const mail = await this.getMailByUserId(userId);
     if (mail) {
       throw new HttpException(
-        ErrorMessages.USER_IS_REGISTERED(),
+        UserErrorMessages.USER_IS_REGISTERED,
         HttpStatus.BAD_REQUEST,
       );
     }

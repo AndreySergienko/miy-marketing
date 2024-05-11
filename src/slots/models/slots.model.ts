@@ -10,6 +10,7 @@ import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
 import { Status } from '../../status/models/status.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
+import { Payment } from '../../payments/models/payment.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -39,9 +40,17 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   status: Status;
 
   @ForeignKey(() => PublisherMessages)
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   messageId: number;
 
   @BelongsTo(() => PublisherMessages)
   message: PublisherMessages;
+
+  @ForeignKey(() => Payment)
+  @Column({ type: DataType.INTEGER })
+  paymentId: number;
+
+  // TODO много ко многим, т.к платёж могут повторить
+  @BelongsTo(() => Payment)
+  payment: Payment;
 }

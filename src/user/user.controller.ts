@@ -32,7 +32,6 @@ export class UserController {
     return this.userService.updateEmail(getToken(req), dto);
   }
 
-  @Perms(PermissionStore.CAN_USER_UPDATE)
   @Put('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
     return await this.userService.updateUser(getToken(req), dto);

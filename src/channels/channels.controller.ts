@@ -8,6 +8,7 @@ import { ChannelsService } from './channels.service';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { Perms } from '../auth/decorators/permission-auth.decorator';
 import PermissionStore from '../permission/PermissionStore';
+import { Public } from '../auth/decorators/public-auth.decorator';
 
 @Controller('channels')
 export class ChannelsController {
@@ -27,9 +28,22 @@ export class ChannelsController {
     return await this.channelService.checkConnectChannel(userId, channelName);
   }
 
+  @Public()
   @Get('all')
   async getAll(@Query() query: IQueryFilterAndPagination) {
     return await this.channelService.getAll(query);
+  }
+
+  @Get('my')
+  async getMyChannels(
+    @Req() req: Request,
+    @Query() query: IQueryFilterAndPagination,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error;
+    const userId = req.user.id;
+    if (typeof userId !== 'number') return;
+    return await this.channelService.getMyChannels(userId, query);
   }
 
   @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)

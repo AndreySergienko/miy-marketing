@@ -29,6 +29,13 @@ export class SlotsService {
   }
 
   async findOneBySlotId(id: number) {
-    return await this.slotsRepository.findOne({ where: { id } });
+    return await this.slotsRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+  }
+
+  async updateSlotStatusById(slotId: number, statusId: number) {
+    await this.slotsRepository.update({ statusId }, { where: { id: slotId } });
   }
 }

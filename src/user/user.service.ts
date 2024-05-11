@@ -12,31 +12,46 @@ import {
 } from './types/user.types';
 import { JwtService } from '@nestjs/jwt';
 import { PayloadTokenDto } from '../token/types/token.types';
-import ErrorMessages from '../modules/errors/ErrorMessages';
 import { NodemailerService } from '../nodemailer/nodemailer.service';
-import SuccessMessages from '../modules/errors/SuccessMessages';
 import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
+import { PermissionService } from '../permission/permission.service';
+import { Card } from '../payments/models/card.model';
+import UserErrorMessages from './messages/UserErrorMessages';
+import UserSuccessMessages from './messages/UserSuccessMessages';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
+    @InjectModel(Card) private cardRepository: typeof Card,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
+    private permissionService: PermissionService,
   ) {}
+
+  public async findByInn(inn: number) {
+    return await this.userRepository.findOne({ where: { inn } });
+  }
 
   public getId(token: string) {
     const { id } = this.jwtService.decode<PayloadTokenDto>(token);
     if (!id)
-      return new HttpException(ErrorMessages.UN_AUTH(), HttpStatus.FORBIDDEN);
+      return new HttpException(UserErrorMessages.UN_AUTH, HttpStatus.FORBIDDEN);
     return id;
   }
 
   public async updateLastBotActive(chatId: number, lastActiveBot: string) {
     return await this.userRepository.update(
       { lastActiveBot },
+      { where: { chatId } },
+    );
+  }
+
+  public async clearLastBotActive(chatId: number) {
+    return await this.userRepository.update(
+      { lastActiveBot: '' },
       { where: { chatId } },
     );
   }
@@ -52,7 +67,7 @@ export class UserService {
     });
     if (!user)
       throw new HttpException(
-        ErrorMessages.USER_IS_NOT_DEFINED(),
+        UserErrorMessages.USER_IS_NOT_DEFINED,
         HttpStatus.FORBIDDEN,
       );
     return this.transformGetUser(user);
@@ -65,28 +80,68 @@ export class UserService {
     if (user.email !== email) {
       await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
-      return SuccessMessages.PLEASE_CHECK_YOUR_EMAIL();
+      return UserSuccessMessages.PLEASE_CHECK_YOUR_EMAIL;
     }
     throw new HttpException(
-      ErrorMessages.MAIL_IS_EQUAL(),
+      UserErrorMessages.MAIL_IS_EQUAL,
       HttpStatus.BAD_REQUEST,
     );
   }
 
-  public async updateUser(token: string, dto: UpdateUserDto) {
+  public async updateUser(
+    token: string,
+    { email, cardNumber, inn, fio, isNotification }: UpdateUserDto,
+  ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
     if (!user) return;
-    const isChangeEmail = user.email !== dto.email;
+    const isChangeEmail = user.email !== email;
     if (isChangeEmail) {
-      await this.nodemailerService.sendActivateMail(user.id, dto.email);
+      await this.nodemailerService.sendActivateMail(user.id, email);
       await user.$set('permissions', []);
     }
-    await this.userRepository.update(dto, { where: { id } });
+    await this.userRepository.update(
+      {
+        email,
+        inn,
+        fio,
+        isNotification,
+      },
+      { where: { id } },
+    );
+
+    const updateCard: Partial<Card> = {
+      number: cardNumber,
+    };
+
+    if (user.card) {
+      await this.cardRepository.update(updateCard, {
+        where: {
+          userId: user.id,
+        },
+      });
+    } else {
+      await this.cardRepository.create(
+        Object.assign(updateCard, {
+          userId: user.id,
+        }),
+      );
+      const userPermissions =
+        await this.permissionService.getIdsUserPermissions(user);
+      const packedPermissions = this.permissionService.updatePermissions(
+        PermissionStore.USER_CHANNELS_PERMISSIONS,
+        userPermissions,
+      );
+      if (!isChangeEmail) await user.$set('permissions', packedPermissions);
+    }
+
     return isChangeEmail
-      ? SuccessMessages.SUCCESS_UPDATE_USER()
-      : SuccessMessages.SUCCESS_UPDATE_USER_EMAIL();
+      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
+      : UserSuccessMessages.SUCCESS_UPDATE_USER;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {
@@ -163,7 +218,8 @@ export class UserService {
 
   public async getAllAdmins() {
     const admins = await this.userPermissions.findAll({
-      where: { permissionId: PermissionStore.ADMIN_PERMISSIONS },
+      // TODO поменять на ADMIN_PERMISSIONS
+      where: { permissionId: PermissionStore.USER_PERMISSIONS },
     });
     const ids = admins.map((userPerms: UserPermission) => userPerms.userId);
     return await this.userRepository.findAll({
@@ -179,18 +235,16 @@ export class UserService {
   private transformGetUser({
     email,
     inn,
-    lastname,
-    surname,
-    name,
+    fio,
     permissions,
+    card,
   }: User): GetUserDto {
     return {
       email,
       inn,
-      lastname,
-      surname,
-      name,
+      fio,
       permissions: permissions.map((perm) => perm.value),
+      cardNumber: card?.number,
     };
   }
 }

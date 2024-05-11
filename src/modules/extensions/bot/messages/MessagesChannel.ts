@@ -1,11 +1,11 @@
-import {
+import type {
   IBuyChannelMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
 import {
-  convertTimestampToTimeMoscow,
-  convertUtcDateToFullDateMoscow,
+  convertTimestampToTime,
+  convertUtcDateToFullDate,
 } from '../../../../utils/date';
 
 export interface MessageChannelRegistrationDto {
@@ -18,11 +18,32 @@ export interface MessageChannelRegistrationDto {
   slots: string[];
   format: string;
   categories: string[];
+  conditionCheck?: string;
 }
 
 export class MessagesChannel {
+  static SLOT_IS_NOT_ACTIVE_STATUS() {
+    return 'Слот уже опубликован или отклонён';
+  }
+
+  static MESSAGE_IS_VALIDATION(role: string) {
+    return `Сообщение поставлено в очередь на реализацию: ${role}`;
+  }
+
   static get BTN_ACCEPT() {
     return 'Опубликовать';
+  }
+
+  static get BTN_CANCEL() {
+    return 'Отклонить';
+  }
+
+  static get BTN_CHANGE() {
+    return 'Изменить';
+  }
+
+  static get BTN_SEND() {
+    return 'Отправить';
   }
 
   static get REASON_CANCEL_CHANNEL() {
@@ -38,15 +59,24 @@ export class MessagesChannel {
     day,
     reason,
   }: IValidationCancelChannelDto) {
-    return `Регистрация канала: ${name} слота на день: ${day} по причине ${reason}`;
+    return `Отмена публикации канала: ${name} слота на день: ${day} по причине ${reason}`;
   }
 
-  static get BTN_CANCEL() {
-    return 'Отклонить';
+  static VALIDATE_MESSAGE(msg: string) {
+    return `Сообщение на модерацию для рекламного поста:
+${msg}`;
   }
 
-  static get BTN_BUY_ADVERTISING() {
-    return 'Купить';
+  static get SEND_MESSAGE_VERIFICATION() {
+    return 'Пожалуйста, отправьте рекламный текст одним сообщением';
+  }
+
+  static CONFIRM_SEND_MESSAGE_VERIFICATION(msg: string) {
+    return `Подтвердите корректность вашего сообщения: ${msg}`;
+  }
+
+  static get SUCCESS_SEND_TO_MODERATE() {
+    return 'Ваше письмо успешно отправлено на модерацию';
   }
 
   static BUY_ADVERTISING({
@@ -55,9 +85,10 @@ export class MessagesChannel {
     price,
     format,
     date,
+    conditionCheck,
   }: IBuyChannelMessage) {
-    const dateRu = convertUtcDateToFullDateMoscow(date);
-    const timeRu = convertTimestampToTimeMoscow(date);
+    const dateRu = convertUtcDateToFullDate(date);
+    const timeRu = convertTimestampToTime(date);
     return `
     Ув. пользователь
 
@@ -67,6 +98,7 @@ export class MessagesChannel {
 Цена: ${price}
 Дата публикации: ${dateRu}
 Время: ${timeRu}
+Требования к модерации рекламного сообщения: ${conditionCheck}
 `;
   }
 
@@ -80,6 +112,7 @@ export class MessagesChannel {
     slots,
     categories,
     format,
+    conditionCheck,
   }: MessageChannelRegistrationDto) {
     return `Ув. администраторы
 
@@ -92,6 +125,7 @@ export class MessagesChannel {
 Дата публикации: ${day}
 Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
-Категории: [${categories}]`;
+Категории: [${categories}]
+Условия оценки: ${conditionCheck}`;
   }
 }

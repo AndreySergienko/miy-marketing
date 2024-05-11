@@ -8,6 +8,7 @@ import { ChannelsService } from '../channels/channels.service';
 import { ChannelCreateDto } from '../channels/types/types';
 import { UserService } from '../user/user.service';
 import { BotRequestService } from './bot-request.service';
+import { StatusStore } from '../status/StatusStore';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -45,11 +46,15 @@ export class BotService implements OnModuleInit {
             const name = chat.title;
             const infoChat = await global.bot.getChat(chatId);
             // Для получении фотографии
-            // const photo = await global.bot.getFile(infoChat.photo.big_file_id);
-            // const downloadPhoto = await global.bot.downloadFile(
-            //   photo.file_path,
-            // );
+            let photo: string | undefined;
+            if (infoChat.photo.big_file_id) {
+              const link = await global.bot.getFileLink(
+                infoChat.photo.big_file_id,
+              );
+              photo = link.split('/file/')[1];
+            }
             const dto: ChannelCreateDto = {
+              avatar: photo,
               name,
               subscribers,
               chatId,
@@ -58,7 +63,8 @@ export class BotService implements OnModuleInit {
               description: infoChat.description || '',
             };
             if (!channel) {
-              await this.channelsService.createChannel(dto);
+              const newChannel = await this.channelsService.createChannel(dto);
+              await newChannel.$set('status', StatusStore.CREATE);
             } else {
               await this.channelsService.updateChannel(dto);
             }
@@ -80,7 +86,7 @@ export class BotService implements OnModuleInit {
       async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
           const { code, channelId } = this.getCodeAndCallbackId(data);
-          await this.botRequestService[code]({ from, channelId });
+          await this.botRequestService[code]({ from, id: channelId });
           await global.bot.answerCallbackQuery(id);
         } catch (e) {
           console.log(e);
@@ -91,12 +97,20 @@ export class BotService implements OnModuleInit {
     global.bot.on(
       'pre_checkout_query',
       async (query: TelegramBot.PreCheckoutQuery) => {
-        await global.bot.answerPreCheckoutQuery(query.id, true);
+        try {
+          await this.botRequestService.checkBuyAdvertising(query);
+        } catch (e) {
+          console.log(e);
+        }
       },
     );
 
     global.bot.on('successful_payment', async (msg: TelegramBot.Message) => {
-      await this.botRequestService.afterBuyAdvertising(msg);
+      try {
+        await this.botRequestService.afterBuyAdvertising(msg);
+      } catch (e) {
+        console.log(e);
+      }
     });
 
     // watch msg thread
@@ -111,8 +125,8 @@ export class BotService implements OnModuleInit {
 
           await this.botRequestService[code]({
             from: message.from,
-            channelId,
-            reason: message.text,
+            id: channelId,
+            text: message.text,
           });
           return;
         }

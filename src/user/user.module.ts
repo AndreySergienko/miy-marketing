@@ -12,6 +12,7 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import { Mail } from '../nodemailer/model/nodemailer.model';
 import { Channel } from '../channels/models/channels.model';
 import { UserChannel } from '../channels/models/user-channel.model';
+import { Card } from '../payments/models/card.model';
 
 @Module({
   controllers: [UserController],
@@ -25,6 +26,7 @@ import { UserChannel } from '../channels/models/user-channel.model';
       Mail,
       Channel,
       UserChannel,
+      Card,
     ]),
     PermissionModule,
     JwtModule,

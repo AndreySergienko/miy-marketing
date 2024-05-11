@@ -4,11 +4,10 @@ import {
   Table,
   Model,
   ForeignKey,
-  BelongsTo,
   HasOne,
 } from 'sequelize-typescript';
-import { Status } from '../../status/models/status.model';
 import { Slots } from '../../slots/models/slots.model';
+import { User } from '../../user/models/user.model';
 
 const MAX_LENGTH_MESSAGE = 200;
 
@@ -30,12 +29,9 @@ export class PublisherMessages extends Model<PublisherMessages> {
   })
   message: string;
 
-  @ForeignKey(() => Status)
+  @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
-  statusId: number;
-
-  @BelongsTo(() => Status)
-  status: Status;
+  userId: number;
 
   @HasOne(() => Slots)
   slot: Slots;

@@ -1,7 +1,15 @@
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString, MaxLength } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
+import { Channel } from '../models/channels.model';
+import { Slots } from '../../slots/models/slots.model';
+import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
+import {
+  MAX_LENGTH_CONDITION,
+  MAX_LENGTH_PASSWORD,
+} from '../../constants/validate.value';
 
 export interface ChannelsModelAttrs {
+  avatar?: string;
   chatId: number;
   subscribers: number;
   name: string;
@@ -13,6 +21,7 @@ export interface ChannelsModelAttrs {
 }
 
 export class ChannelCreateDto implements ChannelsModelAttrs {
+  avatar?: string;
   chatId: number;
   name: string;
   subscribers: number;
@@ -30,6 +39,12 @@ export class RegistrationChannelDto {
   @IsString(ErrorValidation.IS_STRING())
   name: string;
   @IsString(ErrorValidation.IS_STRING())
+  @MaxLength(
+    MAX_LENGTH_CONDITION,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
+  )
+  conditionCheck: string;
+  @IsString(ErrorValidation.IS_STRING())
   link: string;
   @IsString(ErrorValidation.IS_STRING())
   description: string;
@@ -39,8 +54,8 @@ export class RegistrationChannelDto {
   price: number;
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   day: number;
-  @IsArray(ErrorValidation.IS_ARRAY())
-  slots: number[];
+  @IsSlotValidate('', ErrorValidation.IS_SLOT_INCORRECT())
+  slots: string[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   formatChannel: number;
 }
@@ -66,4 +81,22 @@ export interface IBuyChannelMessage {
   format: string;
   date: number;
   slotId: number;
+  conditionCheck?: string;
+}
+
+export interface ChannelGetAllRequestDto {
+  slots: Slots[];
+  channel: Pick<
+    Channel,
+    | 'id'
+    | 'name'
+    | 'formatChannelId'
+    | 'subscribers'
+    | 'avatar'
+    | 'day'
+    | 'price'
+    | 'link'
+    | 'description'
+    | 'conditionCheck'
+  >;
 }

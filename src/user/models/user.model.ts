@@ -5,6 +5,7 @@ import {
   Model,
   BelongsToMany,
   HasOne,
+  HasMany,
 } from 'sequelize-typescript';
 import { UserModelAttrs } from '../types/user.types';
 import { Permission } from '../../permission/models/persmissions.model';
@@ -12,6 +13,8 @@ import { UserPermission } from '../../permission/models/user-permission.model';
 import { Mail } from '../../nodemailer/model/nodemailer.model';
 import { Channel } from '../../channels/models/channels.model';
 import { UserChannel } from '../../channels/models/user-channel.model';
+import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
+import { Card } from '../../payments/models/card.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -46,13 +49,7 @@ export class User extends Model<User, UserModelAttrs> {
   password: string;
 
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
-  name: string;
-
-  @Column({ type: DataType.STRING, unique: false, allowNull: true })
-  lastname: string;
-
-  @Column({ type: DataType.STRING, unique: false, allowNull: true })
-  surname: string;
+  fio: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isBan: boolean;
@@ -78,4 +75,10 @@ export class User extends Model<User, UserModelAttrs> {
 
   @BelongsToMany(() => Channel, () => UserChannel)
   channels: Channel[];
+
+  @HasMany(() => PublisherMessages)
+  messages: PublisherMessages[];
+
+  @HasOne(() => Card)
+  card: Card;
 }

@@ -45,12 +45,19 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  avatar: string;
+
   // Вынести в дальнейшем в заказ
   @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
 
   @Column({ type: DataType.BIGINT, allowNull: true })
   day: number;
+
+  // Условия для проверки
+  @Column({ type: DataType.STRING, allowNull: true })
+  conditionCheck: string;
 
   @BelongsToMany(() => User, () => UserChannel)
   users: User[];

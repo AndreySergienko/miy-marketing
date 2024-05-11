@@ -5,24 +5,37 @@ import { PermissionGuard } from './auth/guards/permission.guard';
 import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
-
-// import { BanGuard } from './user/guards/ban.guard';
+import * as cookieParser from 'cookie-parser';
+import { AuthTokenGuard } from './auth/guards/auth-token.guard';
 
 function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
   const jwt = app.get(JwtService);
   const user = app.get(UserService);
+  app.useGlobalGuards(new AuthTokenGuard(reflector));
   app.useGlobalGuards(new PermissionGuard(jwt, reflector, user));
-  // app.useGlobalGuards(new BanGuard(jwt));
 }
 
 async function bootstrap() {
-  // TODO настроить корс
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: false });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
-  await app.listen(3000);
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: [
+      'Content-Type',
+      'Origin',
+      'X-Requested-With',
+      'Accept',
+      'Authorization',
+    ],
+    exposedHeaders: ['Authorization'],
+  });
+  app.use(cookieParser());
+  await app.listen(process.env.PORT || 5000);
 }
 
 bootstrap();

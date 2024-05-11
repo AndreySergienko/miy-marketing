@@ -50,10 +50,10 @@ export default class Mailer {
   }
 
   async sendVerificationMail(to: string, link: string) {
-    await this.sendMessage(
+    return await this.sendMessage(
       to,
-      `Ваш код подтверждения: http://localhost:3000/api/v1/auth/confirm-email/${link}`,
-      'Код подтверждения',
+      `Перейдите по ссылке для подтверждения: ${process.env.API_URL}auth/confirm-email/${link}`,
+      'Подтверждение почты',
     );
   }
 

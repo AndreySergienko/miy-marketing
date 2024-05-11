@@ -4,16 +4,16 @@ import {
   IsEmpty,
   IsNumber,
   IsString,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import { MIN_LENGTH_NAME } from '../../constants/validate.value';
+import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
+import { CardModelAttrs } from '../../payments/types/types';
 
 export interface UserModelAttrs {
-  surname?: string;
-  lastname?: string;
-  name?: string;
+  fio?: string;
   password?: string;
   inn?: number;
   email?: string;
@@ -35,10 +35,8 @@ export class UserCreateDto implements UserModelAttrs {
   chatId: number;
   email: string;
   inn: number;
-  lastname: string;
-  name: string;
+  fio: string;
   password: string;
-  surname: string;
   uniqueBotId: string;
   isValidEmail: boolean;
   lastUpdateEmail?: number;
@@ -54,18 +52,15 @@ export class UpdateUserDto {
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly lastname: string;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly name: string;
-
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly surname: string;
+  public readonly fio: string;
 
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
+  @MaxLength(CARD_NUMBER, ErrorValidation.MAX_LENGTH(CARD_NUMBER))
+  public readonly cardNumber: string;
 }
 
 export class BanUserDto {
@@ -90,8 +85,7 @@ export class PardonUserDto {
 export class GetUserDto {
   email: string;
   inn: number;
-  name: string;
-  surname: string;
-  lastname: string;
+  fio: string;
   permissions: string[];
+  cardNumber?: string;
 }
