@@ -218,7 +218,8 @@ export class UserService {
 
   public async getAllAdmins() {
     const admins = await this.userPermissions.findAll({
-      where: { permissionId: PermissionStore.ADMIN_PERMISSIONS },
+      // TODO поменять на ADMIN_PERMISSIONS
+      where: { permissionId: PermissionStore.USER_PERMISSIONS },
     });
     const ids = admins.map((userPerms: UserPermission) => userPerms.userId);
     return await this.userRepository.findAll({

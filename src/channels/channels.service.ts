@@ -42,6 +42,13 @@ export class ChannelsService {
     private botEvent: BotEvent,
   ) {}
 
+  public findById(id: number) {
+    return this.channelRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
+  }
+
   public async getMyChannels(
     userId: number,
     { size, page }: IQueryFilterAndPagination,
@@ -74,16 +81,23 @@ export class ChannelsService {
         ErrorChannelMessages.SLOT_NOT_FOUND(),
         HttpStatus.BAD_REQUEST,
       );
+    //
+    // if (slot.timestamp < dayLater())
+    //   throw new HttpException(
+    //     ErrorChannelMessages.DATE_SLOT_INCORRECT(),
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
-    if (slot.timestamp < dayLater())
+    if (slot.statusId === StatusStore.AWAIT) {
       throw new HttpException(
-        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
+        ErrorChannelMessages.SLOT_IS_BOOKING(),
         HttpStatus.BAD_REQUEST,
       );
+    }
 
-    if (slot.statusId !== StatusStore.CREATE)
+    if (slot.statusId !== StatusStore.PUBLIC)
       throw new HttpException(
-        ErrorChannelMessages.SLOT_IS_PUBLICATION(),
+        ErrorChannelMessages.DATE_SLOT_INCORRECT(),
         HttpStatus.FORBIDDEN,
       );
 
@@ -105,6 +119,7 @@ export class ChannelsService {
       date: slot.timestamp,
       format: channel.formatChannel.value,
       slotId: dto.slotId,
+      conditionCheck: channel.conditionCheck,
     });
 
     return SuccessMessages.SLOT_IN_BOT;
@@ -151,7 +166,18 @@ export class ChannelsService {
       const slots = await this.slotService.findAllSlotByChannelId(channel.id);
       list.push({
         slots,
-        channel,
+        channel: {
+          id: channel.id,
+          name: channel.name,
+          subscribers: channel.subscribers,
+          link: channel.link,
+          description: channel.description,
+          avatar: setBotApiUrlFile(channel.avatar),
+          price: channel.price,
+          day: channel.day,
+          conditionCheck: channel.conditionCheck,
+          formatChannelId: channel.formatChannelId,
+        },
       });
     }
 
@@ -172,14 +198,14 @@ export class ChannelsService {
       return;
     }
 
-    if (channel.day < convertNextDay(Date.now())) {
-      await channel.$set('status', StatusStore.CANCEL);
-      await global.bot.sendMessage(
-        adminId,
-        ErrorChannelMessages.DATE_INCORRECT_VALIDATION().message,
-      );
-      return;
-    }
+    // if (channel.day < convertNextDay(Date.now())) {
+    //   await channel.$set('status', StatusStore.CANCEL);
+    //   await global.bot.sendMessage(
+    //     adminId,
+    //     ErrorChannelMessages.DATE_INCORRECT_VALIDATION().message,
+    //   );
+    //   return;
+    // }
 
     if (channel.statusId === StatusStore.PUBLIC) {
       await global.bot.sendMessage(
@@ -190,6 +216,12 @@ export class ChannelsService {
     }
 
     await channel.$set('status', StatusStore.PUBLIC);
+    // const slotsId = channel.slots.map((slot) => slot.id);
+
+    for (let i = 0; i < channel.slots.length; i++) {
+      const slot = channel.slots[i];
+      await slot.$set('status', StatusStore.PUBLIC);
+    }
 
     const dto: IValidationChannelDto = {
       name: channel.name,

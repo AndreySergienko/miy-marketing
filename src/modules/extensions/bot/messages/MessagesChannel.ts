@@ -22,6 +22,14 @@ export interface MessageChannelRegistrationDto {
 }
 
 export class MessagesChannel {
+  static SLOT_IS_NOT_ACTIVE_STATUS() {
+    return 'Слот уже опубликован или отклонён';
+  }
+
+  static MESSAGE_IS_VALIDATION(role: string) {
+    return `Сообщение поставлено в очередь на реализацию: ${role}`;
+  }
+
   static get BTN_ACCEPT() {
     return 'Опубликовать';
   }
@@ -55,7 +63,8 @@ export class MessagesChannel {
   }
 
   static VALIDATE_MESSAGE(msg: string) {
-    return `Сообщение на модерацию для рекламного поста: <br> ${msg}`;
+    return `Сообщение на модерацию для рекламного поста:
+${msg}`;
   }
 
   static get SEND_MESSAGE_VERIFICATION() {
@@ -76,9 +85,10 @@ export class MessagesChannel {
     price,
     format,
     date,
+    conditionCheck,
   }: IBuyChannelMessage) {
     const dateRu = convertUtcDateToFullDate(date);
-    const timeRu = convertUtcDateToFullDate(date);
+    const timeRu = convertTimestampToTime(date);
     return `
     Ув. пользователь
 
@@ -88,6 +98,7 @@ export class MessagesChannel {
 Цена: ${price}
 Дата публикации: ${dateRu}
 Время: ${timeRu}
+Требования к модерации рекламного сообщения: ${conditionCheck}
 `;
   }
 

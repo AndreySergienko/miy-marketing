@@ -81,9 +81,22 @@ export interface IBuyChannelMessage {
   format: string;
   date: number;
   slotId: number;
+  conditionCheck?: string;
 }
 
 export interface ChannelGetAllRequestDto {
   slots: Slots[];
-  channel: Channel;
+  channel: Pick<
+    Channel,
+    | 'id'
+    | 'name'
+    | 'formatChannelId'
+    | 'subscribers'
+    | 'avatar'
+    | 'day'
+    | 'price'
+    | 'link'
+    | 'description'
+    | 'conditionCheck'
+  >;
 }
