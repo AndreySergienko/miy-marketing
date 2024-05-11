@@ -34,6 +34,11 @@ export class ChannelsController {
     return await this.channelService.getAll(query);
   }
 
+  @Get('format/all')
+  async getFormatAll() {
+    return this.channelService.getFormatAll();
+  }
+
   @Get('my')
   async getMyChannels(
     @Req() req: Request,

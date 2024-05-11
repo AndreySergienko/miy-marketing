@@ -31,11 +31,14 @@ import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
 import ChannelsErrorMessages from './messages/ChannelsErrorMessages';
 import SlotsSuccessMessages from '../slots/messages/SlotsSuccessMessages';
 import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
+import { FormatChannel } from './models/format-channel.model';
 
 @Injectable()
 export class ChannelsService {
   constructor(
     @InjectModel(Channel) private channelRepository: typeof Channel,
+    @InjectModel(FormatChannel)
+    private formatChannelRepository: typeof FormatChannel,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(CategoriesChannel)
     private categoriesChannelRepository: typeof CategoriesChannel,
@@ -43,6 +46,14 @@ export class ChannelsService {
     private slotService: SlotsService,
     private botEvent: BotEvent,
   ) {}
+
+  /** Получить списком формат рекламы
+   * 1/24
+   * 2/48
+   * **/
+  public async getFormatAll() {
+    return await this.formatChannelRepository.findAll();
+  }
 
   /** Получить спиоск каналов привязанных к пользователю **/
   public async getMyChannels(
