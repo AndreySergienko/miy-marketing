@@ -6,11 +6,14 @@ import { Slots } from '../slots/models/slots.model';
 import { UserPayment } from './models/user-payment.model';
 import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
+import { Status } from '../status/models/status.model';
 
 @Module({
   controllers: [PaymentsController],
   providers: [PaymentsService],
-  imports: [SequelizeModule.forFeature([Payment, User, Slots, UserPayment])],
+  imports: [
+    SequelizeModule.forFeature([Payment, User, Slots, UserPayment, Status]),
+  ],
   exports: [PaymentsService],
 })
 export class PaymentsModule {}

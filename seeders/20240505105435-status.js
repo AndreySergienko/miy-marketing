@@ -28,6 +28,10 @@ module.exports = {
         value: 'PROCESS',
         description: 'Участвует в сделке',
       },
+      {
+        value: 'PAID',
+        description: 'Оплачено',
+      },
     ]);
   },
 

@@ -22,4 +22,8 @@ export class StatusStore {
   static get PROCESS() {
     return 6;
   }
+
+  static get PAID() {
+    return 7;
+  }
 }

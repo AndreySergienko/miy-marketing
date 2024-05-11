@@ -111,6 +111,7 @@ export class BotRequestService {
       price: successful_payment.total_amount,
       userId: user.id,
       slotId: slot.id,
+      statusId: StatusStore.PAID,
     });
 
     await slot.$set('status', StatusStore.AWAIT);
