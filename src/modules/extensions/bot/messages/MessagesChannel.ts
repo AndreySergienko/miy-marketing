@@ -67,6 +67,14 @@ export class MessagesChannel {
 ${msg}`;
   }
 
+  static MESSAGE_SUCCESS_CANCEL(text) {
+    return `Сообщение отклонёно, по причине: ${text}`;
+  }
+
+  static get SLOT_IS_NOT_AWAIT() {
+    return 'Слот уже принят или отклонён';
+  }
+
   static get SEND_MESSAGE_VERIFICATION() {
     return 'Пожалуйста, отправьте рекламный текст одним сообщением';
   }

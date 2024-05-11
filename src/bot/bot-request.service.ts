@@ -333,14 +333,46 @@ export class BotRequestService {
    * **/
   public async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
     from,
+    text,
     id,
   }: IBotRequestDto) {
     const slot = await this.slotService.findOneBySlotId(id);
+    if (!slot) return;
+    if (slot.statusId !== StatusStore.AWAIT) {
+      const ids = await this.userService.getAllAdminsChatIds();
+      await global.bot.sendMessage(
+        ids[0],
+        MessagesChannel.SLOT_IS_NOT_AWAIT,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+      return;
+    }
     await this.publisherMessages.destroy(slot.messageId);
     await slot.$set('status', StatusStore.PUBLIC);
     await slot.$set('message', '');
     // Отправить сообщение покупателю text и mainAdmin в чат, что статус изменён
     await this.userService.clearLastBotActive(from.id);
+
+    const user = await this.userService.findOneById(slot.message.userId);
+    if (!user) return;
+    await global.bot.sendMessage(
+      user.chatId,
+      MessagesChannel.MESSAGE_SUCCESS_CANCEL(text),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+
+    const ids = await this.userService.getAllAdminsChatIds();
+    await global.bot.sendMessage(
+      ids[0],
+      MessagesChannel.MESSAGE_SUCCESS_CANCEL(text),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
   }
 
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {
