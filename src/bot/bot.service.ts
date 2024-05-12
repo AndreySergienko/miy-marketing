@@ -47,7 +47,7 @@ export class BotService implements OnModuleInit {
             const infoChat = await global.bot.getChat(chatId);
             // Для получении фотографии
             let photo: string | undefined;
-            if (infoChat.photo.big_file_id) {
+            if (infoChat.photo?.big_file_id) {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
