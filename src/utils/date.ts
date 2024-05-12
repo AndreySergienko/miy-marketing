@@ -20,6 +20,12 @@ export const convertTimestampToTimeMoscow = (timestamp: number) =>
     })
     .slice(0, 5);
 
+export const convertDateTimeToMoscow = (timestamp: number) => {
+  return +new Date(timestamp).toLocaleString('en-US', {
+    timeZone: 'Europe/Moscow',
+  });
+};
+
 export const convertNextDay = (timestamp: number): number => {
   const day = new Date(
     new Date(timestamp).toLocaleString('en-US', {

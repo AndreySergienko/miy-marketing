@@ -17,6 +17,7 @@ import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChan
 import { PublisherMessagesService } from '../publisher-messages/publisher-messages.service';
 import BotErrorMessages from './messages/BotErrorMessages';
 import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
+import { KeyboardAuthentication } from '../modules/extensions/bot/keyboard/KeyboardAuthentication';
 
 @Injectable()
 export class BotRequestService {
@@ -375,10 +376,18 @@ export class BotRequestService {
     );
   }
 
+  /** User
+   * Получение кода первификации пользователем **/
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {
     const { id, isAlready } = await this.authService.registrationInBot(from.id);
     const sendToken = async (cb: (id: string) => string) =>
-      await global.bot.sendMessage(from.id, cb(String(id)));
+      await global.bot.sendMessage(
+        from.id,
+        cb(String(id)),
+        useSendMessage({
+          inline_keyboard: KeyboardAuthentication.GO_SITE,
+        }),
+      );
     isAlready
       ? await sendToken(MessagesAuthentication.HAS_TOKEN)
       : await sendToken(MessagesAuthentication.NEW_TOKEN);

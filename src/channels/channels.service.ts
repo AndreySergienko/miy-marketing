@@ -32,6 +32,7 @@ import ChannelsErrorMessages from './messages/ChannelsErrorMessages';
 import SlotsSuccessMessages from '../slots/messages/SlotsSuccessMessages';
 import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
 import { FormatChannel } from './models/format-channel.model';
+import { getFormatChannelDuration } from './utils/getFormatChannelDuration';
 
 @Injectable()
 export class ChannelsService {
@@ -128,6 +129,7 @@ export class ChannelsService {
       format: channel.formatChannel.value,
       slotId: dto.slotId,
       conditionCheck: channel.conditionCheck,
+      link: channel.link,
     });
 
     return SlotsSuccessMessages.SLOT_IN_BOT;
@@ -224,7 +226,6 @@ export class ChannelsService {
     }
 
     await channel.$set('status', StatusStore.PUBLIC);
-    // const slotsId = channel.slots.map((slot) => slot.id);
 
     for (let i = 0; i < channel.slots.length; i++) {
       const slot = channel.slots[i];
@@ -408,7 +409,14 @@ export class ChannelsService {
     for (let i = 0; i < slots.length; i++) {
       const [hours, minutes] = slots[i].split(':');
       const timestamp = new Date(day).setHours(+hours, +minutes, 0);
-      await this.slotService.createSlot(timestamp, id);
+      const timestampFinish = new Date(timestamp).setHours(
+        getFormatChannelDuration(channel.formatChannel.value),
+      );
+      await this.slotService.createSlot({
+        timestamp,
+        channelId: id,
+        timestampFinish,
+      });
     }
 
     const updatedChannel = await this.channelRepository.findOne({

@@ -2,14 +2,16 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Slots } from './models/slots.model';
 import { StatusStore } from '../status/StatusStore';
+import type { ICreateSlot } from '../channels/types/types';
 
 @Injectable()
 export class SlotsService {
   constructor(@InjectModel(Slots) private slotsRepository: typeof Slots) {}
 
-  async createSlot(timestamp: number, channelId: number) {
+  async createSlot({ timestamp, channelId, timestampFinish }: ICreateSlot) {
     const slot = await this.slotsRepository.create({
       timestamp,
+      timestampFinish,
     });
     await slot.$set('status', StatusStore.CREATE);
     await slot.$set('channel', channelId);

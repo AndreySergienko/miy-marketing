@@ -7,6 +7,7 @@ import {
   convertTimestampToTime,
   convertUtcDateToFullDate,
 } from '../../../../utils/date';
+import { goToFront, mailSupport } from '../../../../utils/links';
 
 export interface MessageChannelRegistrationDto {
   name: string;
@@ -24,6 +25,10 @@ export interface MessageChannelRegistrationDto {
 export class MessagesChannel {
   static SLOT_IS_NOT_ACTIVE_STATUS() {
     return 'Слот уже опубликован или отклонён';
+  }
+
+  static get BTN_GO_TO_PERSONAL() {
+    return 'Вернуться в личный кабинет';
   }
 
   static MESSAGE_IS_VALIDATION(role: string) {
@@ -51,7 +56,13 @@ export class MessagesChannel {
   }
 
   static ACCEPT_REGISTRATION({ name, day }: IValidationChannelDto) {
-    return `Канал опубликован в списке ${name}, на день ${day}`;
+    return `🎉Ура! Канал ${name}:${day} успешно добавлен на платформу!
+
+Возвращайтесь на сайт и создавайте новые выгодные рекламные интеграции!
+
+Все основную информацию и ответы на популярные вопросы о работе ON-Developer собрали здесь: ${goToFront()}
+
+В случае возникновения вопросов обратитесь в поддержку: ${mailSupport()}`;
   }
 
   static CANCEL_REGISTRATION({
@@ -67,7 +78,7 @@ export class MessagesChannel {
 ${msg}`;
   }
 
-  static MESSAGE_SUCCESS_CANCEL(text) {
+  static MESSAGE_SUCCESS_CANCEL(text: string) {
     return `Сообщение отклонёно, по причине: ${text}`;
   }
 
@@ -76,7 +87,14 @@ ${msg}`;
   }
 
   static get SEND_MESSAGE_VERIFICATION() {
-    return 'Пожалуйста, отправьте рекламный текст одним сообщением';
+    return `✅Операция успешно проведена! Желаем вам хороших результатов!
+
+При возникновении технических проблем обращайтесь в поддержку: (почта)
+
+С уважением,
+ON-Developer
+
+Прикрепите, пожалуйста рекламный текст сообщением ниже:`;
   }
 
   static CONFIRM_SEND_MESSAGE_VERIFICATION(msg: string) {
@@ -92,21 +110,24 @@ ${msg}`;
     subscribers,
     price,
     format,
+    link,
     date,
     conditionCheck,
   }: IBuyChannelMessage) {
     const dateRu = convertUtcDateToFullDate(date);
     const timeRu = convertTimestampToTime(date);
     return `
-    Ув. пользователь
+    ✍️Вы подали заявку на рекламную интеграцию.
+Как всегда, все перепроверяем:
 
-Вы хотите купить рекламный пост в канале: ${name}
+Канал:  ${name}
+Ссылка: ${link}
 Подписчики: ${subscribers}
-Формат рекламы: ${format}
-Цена: ${price}
-Дата публикации: ${dateRu}
+Дата: ${dateRu}
 Время: ${timeRu}
-Требования к модерации рекламного сообщения: ${conditionCheck}
+Формат: ${format}
+Цена: ${price}
+Условия проверки рекламного сообщения: ${conditionCheck}
 `;
   }
 

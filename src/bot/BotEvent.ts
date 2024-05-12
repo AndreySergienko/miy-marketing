@@ -19,7 +19,7 @@ export class BotEvent {
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
     return await global.bot.sendInvoice(
       chatId,
-      'Купить рекламу в канале',
+      'Покупка рекламной интеграции в канале',
       MessagesChannel.BUY_ADVERTISING(dto),
       `${dto.slotId}`,
       process.env.PAYMENT_TOKEN,
@@ -48,6 +48,9 @@ export class BotEvent {
     return await global.bot.sendMessage(
       chatId,
       MessagesChannel.ACCEPT_REGISTRATION(dto),
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.GO_TO_PERSONAL,
+      }),
     );
   }
 

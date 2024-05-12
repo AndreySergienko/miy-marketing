@@ -18,6 +18,17 @@ export class KeyboardChannel {
     ];
   }
 
+  /** User **/
+  static get GO_TO_PERSONAL() {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_GO_TO_PERSONAL,
+        },
+      ],
+    ];
+  }
+
   /** Moderate **/
   static VALIDATE_MESSAGE(slotId: number) {
     return [

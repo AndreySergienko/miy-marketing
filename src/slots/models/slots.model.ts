@@ -25,6 +25,12 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @Column({ type: DataType.BIGINT })
   timestamp: number;
 
+  @Column({ type: DataType.BIGINT })
+  timestampFinish: number;
+
+  @Column({ type: DataType.BIGINT, allowNull: true })
+  messageBotId: number;
+
   @ForeignKey(() => Channel)
   @Column({ type: DataType.BIGINT })
   channelId: number;

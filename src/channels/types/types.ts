@@ -3,10 +3,7 @@ import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { Slots } from '../../slots/models/slots.model';
 import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
-import {
-  MAX_LENGTH_CONDITION,
-  MAX_LENGTH_PASSWORD,
-} from '../../constants/validate.value';
+import { MAX_LENGTH_CONDITION } from '../../constants/validate.value';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -82,6 +79,7 @@ export interface IBuyChannelMessage {
   date: number;
   slotId: number;
   conditionCheck?: string;
+  link: string;
 }
 
 export interface ChannelGetAllRequestDto {
@@ -99,4 +97,10 @@ export interface ChannelGetAllRequestDto {
     | 'description'
     | 'conditionCheck'
   >;
+}
+
+export interface ICreateSlot {
+  channelId: number;
+  timestamp: number;
+  timestampFinish: number;
 }
