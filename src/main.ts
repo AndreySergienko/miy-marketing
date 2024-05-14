@@ -6,13 +6,11 @@ import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
 import * as cookieParser from 'cookie-parser';
-import { AuthTokenGuard } from './auth/guards/auth-token.guard';
 
 function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
   const jwt = app.get(JwtService);
   const user = app.get(UserService);
-  app.useGlobalGuards(new AuthTokenGuard(reflector));
   app.useGlobalGuards(new PermissionGuard(jwt, reflector, user));
 }
 
