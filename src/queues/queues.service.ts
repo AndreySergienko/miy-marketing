@@ -5,10 +5,33 @@ import { Slots } from '../slots/models/slots.model';
 import { StatusStore } from '../status/StatusStore';
 import { Op } from 'sequelize';
 import { convertDateTimeToMoscow, fifthMinuteLater } from '../utils/date';
+import { UserService } from '../user/user.service';
+import { BotEvent } from '../bot/BotEvent';
 
 @Injectable()
 export class QueuesService {
-  constructor(@InjectModel(Slots) private slotsRepository: typeof Slots) {}
+  constructor(
+    @InjectModel(Slots) private slotsRepository: typeof Slots,
+    private userService: UserService,
+    private botEvent: BotEvent,
+  ) {}
+
+  private async sendNotifications(
+    slot: Slots,
+    method: 'sendAfterPublicMessage' | 'sendAfterDeleteMessage',
+  ) {
+    const adminId = slot.channel.users[0].chatId;
+    const publisher = await this.userService.findOneById(slot.message.userId);
+    const publisherId = publisher.chatId;
+    const channelName = slot.channel.name;
+    const channelDate = slot.timestamp;
+    await this.botEvent[method]({
+      adminId,
+      publisherId,
+      channelDate,
+      channelName,
+    });
+  }
 
   private findSlots(statusId: number) {
     return this.slotsRepository.findAll({
@@ -36,6 +59,10 @@ export class QueuesService {
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
         const text = await global.bot.sendMessage(chatId, slot.message.message);
+        const user = await this.userService.findUserByChatId(chatId);
+        if (user.isNotification) {
+          await this.sendNotifications(slot, 'sendAfterPublicMessage');
+        }
         await slot.$set('messageBotId', text.message_id);
       }
 
@@ -45,6 +72,10 @@ export class QueuesService {
         const slot = finishedSlots[i];
         await slot.$set('status', StatusStore.PUBLIC);
         const chatId = slot.channel.chatId;
+        const user = await this.userService.findUserByChatId(chatId);
+        if (user.isNotification) {
+          await this.sendNotifications(slot, 'sendAfterDeleteMessage');
+        }
         await global.bot.deleteMessage(chatId, slot.messageBotId);
       }
     } catch (e) {

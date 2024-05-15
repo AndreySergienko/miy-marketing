@@ -1,6 +1,7 @@
 import { MessagesChannel } from '../messages/MessagesChannel';
 import { CallbackDataChannel } from '../callback-data/CallbackDataChannel';
 import { TInlineKeyboard } from '../types';
+import { goToFront } from '../../../../utils/links';
 
 export class KeyboardChannel {
   static SEND_VALIDATE_USER_MESSAGE(slotId: number) {
@@ -19,11 +20,12 @@ export class KeyboardChannel {
   }
 
   /** User **/
-  static get GO_TO_PERSONAL() {
+  static get GO_TO_PERSONAL(): TInlineKeyboard {
     return [
       [
         {
           text: MessagesChannel.BTN_GO_TO_PERSONAL,
+          url: goToFront('/personal/profile'),
         },
       ],
     ];

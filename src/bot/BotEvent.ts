@@ -6,6 +6,7 @@ import { Channel } from '../channels/models/channels.model';
 import {
   convertTimestampToTime,
   convertUtcDateToFullDate,
+  convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
   IBuyChannelMessage,
@@ -13,9 +14,34 @@ import type {
   IValidationChannelDto,
 } from '../channels/types/types';
 import * as process from 'process';
+import type { IPublishingMessages } from './types/bot.types';
 
 @Injectable()
 export class BotEvent {
+  /** Метод срабатывает для уведомления админа канала и рекламодателя о удаление сообщения в его канале */
+  public async sendAfterDeleteMessage(obj: IPublishingMessages) {
+    await this.sendNotificationMessage(obj, 'Сообщение удалено из канала');
+  }
+
+  private async sendNotificationMessage(
+    { adminId, publisherId, channelDate, channelName }: IPublishingMessages,
+    message: string,
+  ) {
+    const ids = [adminId, publisherId];
+
+    for (let i = 0; i < ids.length; i++) {
+      await global.bot.sendMessage(
+        ids[i],
+        `${message} ${channelName}: ${convertUtcDateToFullDateMoscow(channelDate)}`,
+      );
+    }
+  }
+
+  /** Метод срабатывает для уведомления админа канала и рекламодателя о публикации сообщения в его канале */
+  public async sendAfterPublicMessage(obj: IPublishingMessages) {
+    await this.sendNotificationMessage(obj, 'Сообщение опубликовано в канале');
+  }
+
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
     return await global.bot.sendInvoice(
       chatId,

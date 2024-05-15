@@ -123,6 +123,7 @@ export class BotService implements OnModuleInit {
             user.lastActiveBot,
           );
 
+          console.log('CODE', code);
           await this.botRequestService[code]({
             from: message.from,
             id: channelId,

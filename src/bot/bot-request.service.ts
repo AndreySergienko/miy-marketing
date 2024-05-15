@@ -196,7 +196,7 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId === StatusStore.AWAIT) return;
+    if (slot.statusId !== StatusStore.AWAIT) return;
 
     await this.userService.clearLastBotActive(from.id);
     await global.bot.sendMessage(
@@ -232,7 +232,10 @@ export class BotRequestService {
           remove_keyboard: true,
         }),
       );
-    await this.slotService.updateSlotStatusById(slotId, StatusStore.PROCESS);
+    await this.slotService.updateSlotStatusById({
+      slotId,
+      statusId: StatusStore.PROCESS,
+    });
     const channelId = slot.channel.id;
     const channel = await this.channelsService.findById(channelId);
     /** Сообщение для админа канала **/
@@ -290,7 +293,7 @@ export class BotRequestService {
   }: IBotRequestDto) {
     await this.userService.updateLastBotActive(
       from.id,
-      `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE}:${slotId}`,
+      `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE(slotId)}`,
     );
     await global.bot.sendMessage(
       from.id,

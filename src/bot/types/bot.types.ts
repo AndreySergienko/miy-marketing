@@ -11,3 +11,12 @@ export interface IBotRequestDto {
   from: User;
   text?: string;
 }
+
+export interface IPublishingMessages {
+  /** админ канала */
+  adminId: number;
+  /** рекламодателя */
+  publisherId: number;
+  channelName: string;
+  channelDate: number;
+}

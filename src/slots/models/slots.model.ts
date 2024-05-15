@@ -45,6 +45,9 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @BelongsTo(() => Status)
   status: Status;
 
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  publisherId: number;
+
   @ForeignKey(() => PublisherMessages)
   @Column({ type: DataType.INTEGER, allowNull: true })
   messageId: number;

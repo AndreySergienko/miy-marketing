@@ -67,7 +67,7 @@ export class ChannelsService {
         userId: userId,
       },
     });
-    const channelsIds = userChannels.map((channel) => channel.id);
+    const channelsIds = userChannels.map((channel) => channel.channelId);
     const channels = await this.channelRepository.findAll({
       where: {
         id: channelsIds,
@@ -357,11 +357,12 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    if (convertNextDay(Date.now()) < day)
+    if (convertNextDay(Date.now()) > day) {
       throw new HttpException(
         ChannelsErrorMessages.DATE_INCORRECT,
         HttpStatus.BAD_REQUEST,
       );
+    }
 
     const candidate = await this.channelRepository.findOne({
       where: { name, day },
@@ -406,11 +407,15 @@ export class ChannelsService {
     await channel.$set('status', status);
     await channel.$set('formatChannel', formatChannel);
 
+    const formatChannelObject = await this.formatChannelRepository.findOne({
+      where: { id: formatChannel },
+    });
+
     for (let i = 0; i < slots.length; i++) {
       const [hours, minutes] = slots[i].split(':');
       const timestamp = new Date(day).setHours(+hours, +minutes, 0);
       const timestampFinish = new Date(timestamp).setHours(
-        getFormatChannelDuration(channel.formatChannel.value),
+        getFormatChannelDuration(formatChannelObject.value),
       );
       await this.slotService.createSlot({
         timestamp,
