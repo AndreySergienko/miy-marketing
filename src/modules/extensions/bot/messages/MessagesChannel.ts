@@ -86,6 +86,10 @@ ${msg}`;
     return 'Слот уже принят или отклонён';
   }
 
+  static get CHANGE_MESSAGE_VERIFICATION() {
+    return `Пожалуйста отправьте корректное сообщение ниже:`;
+  }
+
   static get SEND_MESSAGE_VERIFICATION() {
     return `✅Операция успешно проведена! Желаем вам хороших результатов!
 
@@ -98,11 +102,12 @@ ON-Developer
   }
 
   static CONFIRM_SEND_MESSAGE_VERIFICATION(msg: string) {
-    return `Подтвердите корректность вашего сообщения: ${msg}`;
+    return `Ваше сообщение: ${msg}
+Нажмите отправить если всё верно или изменить для корректировки текущего сообщения:`;
   }
 
   static get SUCCESS_SEND_TO_MODERATE() {
-    return 'Ваше письмо успешно отправлено на модерацию';
+    return 'Письмо было отправлено на подерацию. В ближайшее время мы уведомим вас о результатах. Спасибо!';
   }
 
   static BUY_ADVERTISING({

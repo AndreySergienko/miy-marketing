@@ -4,7 +4,6 @@ import {
   Table,
   Model,
   BelongsToMany,
-  HasOne,
   BelongsTo,
   ForeignKey,
 } from 'sequelize-typescript';
@@ -27,15 +26,19 @@ export class Payment extends Model<Payment, PaymentModelAttrs> {
   @Column({ type: DataType.INTEGER })
   price: number;
 
-  @HasOne(() => Slots)
-  slot: Slots;
-
   @BelongsTo(() => Status)
   status: Status;
 
   @ForeignKey(() => Status)
   @Column({ type: DataType.INTEGER })
   statusId: number;
+
+  @ForeignKey(() => Slots)
+  @Column({ type: DataType.INTEGER })
+  slotId: number;
+
+  @BelongsTo(() => Slots)
+  slot: Slots;
 
   @BelongsToMany(() => User, () => UserPayment)
   user: User;

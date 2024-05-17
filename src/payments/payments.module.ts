@@ -7,12 +7,14 @@ import { UserPayment } from './models/user-payment.model';
 import { PaymentsService } from './payments.service';
 import { PaymentsController } from './payments.controller';
 import { Status } from '../status/models/status.model';
+import { ChannelsModule } from '../channels/channels.module';
 
 @Module({
   controllers: [PaymentsController],
   providers: [PaymentsService],
   imports: [
     SequelizeModule.forFeature([Payment, User, Slots, UserPayment, Status]),
+    ChannelsModule,
   ],
   exports: [PaymentsService],
 })

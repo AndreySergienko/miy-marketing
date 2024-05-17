@@ -5,6 +5,7 @@ import {
   Model,
   ForeignKey,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
 import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
@@ -55,11 +56,6 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @BelongsTo(() => PublisherMessages)
   message: PublisherMessages;
 
-  @ForeignKey(() => Payment)
-  @Column({ type: DataType.INTEGER })
-  paymentId: number;
-
-  // TODO много ко многим, т.к платёж могут повторить
-  @BelongsTo(() => Payment)
+  @HasMany(() => Payment)
   payment: Payment;
 }

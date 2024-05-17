@@ -177,7 +177,7 @@ export class BotRequestService {
 
     await global.bot.sendMessage(
       from.id,
-      MessagesChannel.SEND_MESSAGE_VERIFICATION,
+      MessagesChannel.CHANGE_MESSAGE_VERIFICATION,
     );
   }
 
@@ -278,7 +278,7 @@ export class BotRequestService {
     await this.botEvent.sendReasonCancelChannel(from.id);
     await this.userService.updateLastBotActive(
       from.id,
-      `${CallbackDataChannel.CANCEL_HANDLER}:${slotId}`,
+      CallbackDataChannel.CANCEL_MESSAGE(slotId),
     );
   }
 
@@ -297,7 +297,7 @@ export class BotRequestService {
     );
     await global.bot.sendMessage(
       from.id,
-      MessagesChannel.SEND_MESSAGE_VERIFICATION,
+      MessagesChannel.CHANGE_MESSAGE_VERIFICATION,
     );
   }
 
@@ -317,13 +317,12 @@ export class BotRequestService {
       );
 
     if (slot.statusId !== StatusStore.AWAIT) return;
-
     await this.publisherMessages.updateMessage(slot.messageId, text);
     await this.userService.clearLastBotActive(from.id);
     const ids = await this.userService.getAllAdminsChatIds();
     await global.bot.sendMessage(
       ids[0],
-      MessagesChannel.VALIDATE_MESSAGE(slot.message.message),
+      MessagesChannel.VALIDATE_MESSAGE(text),
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
       }),
@@ -355,7 +354,7 @@ export class BotRequestService {
     }
     await this.publisherMessages.destroy(slot.messageId);
     await slot.$set('status', StatusStore.PUBLIC);
-    await slot.$set('message', '');
+    // await slot.$set('message', '');
     // Отправить сообщение покупателю text и mainAdmin в чат, что статус изменён
     await this.userService.clearLastBotActive(from.id);
 
