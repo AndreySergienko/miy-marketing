@@ -411,18 +411,11 @@ export class ChannelsService {
       where: { id: formatChannel },
     });
 
-    console.log(slots);
     for (let i = 0; i < slots.length; i++) {
       const [hours, minutes] = slots[i].split(':');
       const timestamp = new Date(day).setHours(+hours, +minutes, 0);
       const timestampFinish = new Date(timestamp).setHours(
         getFormatChannelDuration(formatChannelObject.value),
-      );
-      console.log(
-        'timestamp1',
-        timestamp,
-        timestampFinish,
-        formatChannelObject.value,
       );
       await this.slotService.createSlot({
         timestamp,
