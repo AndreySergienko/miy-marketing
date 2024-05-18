@@ -18,7 +18,6 @@ import { BotEvent } from '../bot/BotEvent';
 import {
   convertNextDay,
   convertUtcDateToFullDate,
-  dayLater,
   getCurrentMoscowTimestamp,
 } from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
@@ -33,6 +32,7 @@ import SlotsSuccessMessages from '../slots/messages/SlotsSuccessMessages';
 import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
 import { FormatChannel } from './models/format-channel.model';
 import { getFormatChannelDuration } from './utils/getFormatChannelDuration';
+import { Categories } from '../categories/models/categories.model';
 
 @Injectable()
 export class ChannelsService {
@@ -72,11 +72,48 @@ export class ChannelsService {
       where: {
         id: channelsIds,
       },
+      include: Categories,
     });
-    return channels.map((channel) => {
-      channel.avatar = setBotApiUrlFile(channel.avatar);
-      return channel;
-    });
+
+    const transformChannels = [];
+
+    channels.forEach(
+      ({
+        id,
+        statusId,
+        formatChannelId,
+        name,
+        subscribers,
+        isCanPostMessage,
+        link,
+        description,
+        conditionCheck,
+        avatar,
+        price,
+        day,
+        categories,
+      }) => {
+        const obj = {
+          id,
+          statusId,
+          formatChannelId,
+          name,
+          subscribers,
+          isCanPostMessage,
+          link,
+          description,
+          conditionCheck,
+          avatar: setBotApiUrlFile(avatar),
+          price,
+          day,
+          categories: categories.map((category) => category.id),
+        };
+
+        transformChannels.push(obj);
+      },
+    );
+
+    return transformChannels;
   }
 
   /** Метод покупки рекламы **/
@@ -91,11 +128,11 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.timestamp < dayLater())
-      throw new HttpException(
-        SlotsErrorMessages.DATE_SLOT_INCORRECT,
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (slot.timestamp < dayLater())
+    //   throw new HttpException(
+    //     SlotsErrorMessages.DATE_SLOT_INCORRECT,
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
     if (slot.statusId === StatusStore.AWAIT) {
       throw new HttpException(
