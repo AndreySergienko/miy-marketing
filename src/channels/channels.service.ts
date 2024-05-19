@@ -166,7 +166,7 @@ export class ChannelsService {
       format: channel.formatChannel.value,
       slotId: dto.slotId,
       conditionCheck: channel.conditionCheck,
-      link: channel.link,
+      link: channel.link || '',
     });
 
     return SlotsSuccessMessages.SLOT_IN_BOT;
@@ -217,7 +217,7 @@ export class ChannelsService {
           id: channel.id,
           name: channel.name,
           subscribers: channel.subscribers,
-          link: channel.link,
+          link: channel.link || '',
           description: channel.description,
           avatar: setBotApiUrlFile(channel.avatar),
           price: channel.price,
@@ -375,7 +375,7 @@ export class ChannelsService {
       name: channel.name,
       subscribers: channel.subscribers,
       description: channel.description,
-      link: channel.link,
+      link: channel.link || '',
       avatar: setBotApiUrlFile(channel.avatar),
     };
   }
@@ -431,7 +431,7 @@ export class ChannelsService {
     await this.channelRepository.update(
       {
         description,
-        link,
+        link: link || null,
         price,
         day,
         conditionCheck,

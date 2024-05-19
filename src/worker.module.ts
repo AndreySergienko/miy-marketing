@@ -20,6 +20,9 @@ import { Mail } from './nodemailer/model/nodemailer.model';
 import { FormatChannel } from './channels/models/format-channel.model';
 import { UserPayment } from './payments/models/user-payment.model';
 import { Card } from './payments/models/card.model';
+import { UserModule } from './user/user.module';
+import { BotModule } from './bot/bot.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -45,8 +48,11 @@ import { Card } from './payments/models/card.model';
         Card,
       ]),
     ),
+    ScheduleModule.forRoot(),
     QueuesModule,
     SlotsModule,
+    UserModule,
+    BotModule,
   ],
   providers: [],
 })

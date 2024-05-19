@@ -41,8 +41,7 @@ export class RegistrationChannelDto {
     ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
   )
   conditionCheck: string;
-  @IsString(ErrorValidation.IS_STRING())
-  link: string;
+  link?: string;
   @IsString(ErrorValidation.IS_STRING())
   description: string;
   @IsArray(ErrorValidation.IS_ARRAY())

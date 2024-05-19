@@ -10,6 +10,12 @@ export class PublisherMessagesService {
     private publisherMessagesRepository: typeof PublisherMessages,
   ) {}
 
+  async findById(messageId: number) {
+    return await this.publisherMessagesRepository.findOne({
+      where: { id: messageId },
+    });
+  }
+
   async createMessage({ message, slotId, userId }: PublisherMessageCreateDto) {
     const msg = await this.publisherMessagesRepository.create({
       message,

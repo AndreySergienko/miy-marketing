@@ -19,6 +19,7 @@ import { PermissionService } from '../permission/permission.service';
 import { Card } from '../payments/models/card.model';
 import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
+import { Permission } from '../permission/models/persmissions.model';
 
 @Injectable()
 export class UserService {
@@ -216,10 +217,15 @@ export class UserService {
     });
   }
 
+  public async setAdmin(userId: number) {
+    const user = await this.findOneById(userId);
+    if (!user) return;
+    await user.$set('permissions', PermissionStore.ADMIN_PERMISSIONS);
+  }
+
   public async getAllAdmins() {
     const admins = await this.userPermissions.findAll({
-      // TODO поменять на ADMIN_PERMISSIONS
-      where: { permissionId: PermissionStore.USER_PERMISSIONS },
+      where: { permissionId: PermissionStore.CAN_VALIDATE },
     });
     const ids = admins.map((userPerms: UserPermission) => userPerms.userId);
     return await this.userRepository.findAll({

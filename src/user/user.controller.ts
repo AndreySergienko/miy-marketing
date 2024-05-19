@@ -9,6 +9,7 @@ import {
 } from './types/user.types';
 import PermissionStore from '../permission/PermissionStore';
 import { getToken } from '../token/token.utils';
+import { Public } from '../auth/decorators/public-auth.decorator';
 
 @Controller('user')
 export class UserController {
@@ -40,5 +41,11 @@ export class UserController {
   @Get('me')
   async getMe(@Req() req: Request) {
     return await this.userService.getMe(getToken(req));
+  }
+
+  @Public()
+  @Post('set/admin')
+  setAdmin(@Body() { userId }: { userId: number }) {
+    return this.userService.setAdmin(userId);
   }
 }

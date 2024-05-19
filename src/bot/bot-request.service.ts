@@ -224,20 +224,24 @@ export class BotRequestService {
     const slot = await this.slotService.findOneBySlotId(slotId);
     if (!slot) return;
     const ids = await this.userService.getAllAdminsChatIds();
-    if (slot.statusId !== StatusStore.AWAIT)
-      return await global.bot.sendMessage(
-        ids[0],
-        MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
+    // if (slot.statusId !== StatusStore.AWAIT)
+    //   return await global.bot.sendMessage(
+    //     ids[0],
+    //     MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
+    //     useSendMessage({
+    //       remove_keyboard: true,
+    //     }),
+    //   );
     await this.slotService.updateSlotStatusById({
       slotId,
       statusId: StatusStore.PROCESS,
     });
     const channelId = slot.channel.id;
     const channel = await this.channelsService.findById(channelId);
+    const message = await this.publisherMessages.findById(slot.messageId);
+    if (!message) return;
+    const advertiser = await this.userService.findOneById(message.userId);
+    if (!advertiser) return;
     /** Сообщение для админа канала **/
     const isNotificationAdminChannel = channel.users[0].isNotification;
     if (isNotificationAdminChannel) {
@@ -251,13 +255,16 @@ export class BotRequestService {
     }
 
     /** Сообщение для рекламодателя **/
-    await global.bot.sendMessage(
-      from.id,
-      MessagesChannel.MESSAGE_IS_VALIDATION('reclam'),
-      useSendMessage({
-        remove_keyboard: true,
-      }),
-    );
+    const isNotificationAdvertiser = advertiser.isNotification;
+    if (isNotificationAdvertiser) {
+      await global.bot.sendMessage(
+        advertiser.chatId,
+        MessagesChannel.MESSAGE_IS_VALIDATION('reclam'),
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
       ids[0],

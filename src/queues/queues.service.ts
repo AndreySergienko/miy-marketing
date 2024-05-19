@@ -34,6 +34,8 @@ export class QueuesService {
   }
 
   private findSlots(statusId: number) {
+    console.log('GT', String(convertDateTimeToMoscow(Date.now())));
+    console.log('lt', String(convertDateTimeToMoscow(fifthMinuteLater())));
     return this.slotsRepository.findAll({
       where: {
         statusId,
@@ -50,10 +52,11 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES)
+  @Cron(CronExpression.EVERY_30_SECONDS)
   public async actionMessages() {
     try {
       const activeSlots = await this.findSlots(StatusStore.PROCESS);
+      console.log('activeSlots', activeSlots);
       for (let i = 0; i < activeSlots.length; i++) {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
