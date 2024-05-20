@@ -4,7 +4,11 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Slots } from '../slots/models/slots.model';
 import { StatusStore } from '../status/StatusStore';
 import { Op } from 'sequelize';
-import { convertDateTimeToMoscow, fifthMinuteLater } from '../utils/date';
+import {
+  convertDateTimeToMoscow,
+  fifthMinuteLater,
+  towMinuteLast,
+} from '../utils/date';
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
 
@@ -19,8 +23,8 @@ export class QueuesService {
   private async sendNotifications(
     slot: Slots,
     method: 'sendAfterPublicMessage' | 'sendAfterDeleteMessage',
+    adminId: number,
   ) {
-    const adminId = slot.channel.users[0].chatId;
     const publisher = await this.userService.findOneById(slot.message.userId);
     const publisherId = publisher.chatId;
     const channelName = slot.channel.name;
@@ -34,16 +38,14 @@ export class QueuesService {
   }
 
   private findSlots(statusId: number) {
-    console.log('GT', String(convertDateTimeToMoscow(Date.now())));
-    console.log('lt', String(convertDateTimeToMoscow(fifthMinuteLater())));
     return this.slotsRepository.findAll({
       where: {
         statusId,
         timestamp: {
           /** Дата публикации **/
-          [Op.gt]: String(convertDateTimeToMoscow(Date.now())),
+          [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
           /** Дата публикации с погрешностью в 1 минуту **/
-          [Op.lt]: String(convertDateTimeToMoscow(fifthMinuteLater())),
+          [Op.lte]: String(convertDateTimeToMoscow(fifthMinuteLater())),
         },
       },
       include: {
@@ -52,34 +54,46 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
+  @Cron(CronExpression.EVERY_30_SECONDS, {
+    timeZone: 'Asia/Yekaterinburg',
+  })
   public async actionMessages() {
     try {
+      const finishedSlots = await this.findSlots(StatusStore.FINISH);
+      for (let i = 0; i < finishedSlots.length; i++) {
+        const slot = finishedSlots[i];
+        await slot.$set('status', StatusStore.PUBLIC);
+        const chatId = slot.channel.chatId;
+        const user = await this.userService.findByChannelId(slot.channel.id);
+        await global.bot.deleteMessage(chatId, slot.messageBotId);
+        await this.slotsRepository.destroy({ where: { id: slot.id } });
+        if (user.isNotification) {
+          await this.sendNotifications(
+            slot,
+            'sendAfterDeleteMessage',
+            user.chatId,
+          );
+        }
+      }
+
       const activeSlots = await this.findSlots(StatusStore.PROCESS);
-      console.log('activeSlots', activeSlots);
       for (let i = 0; i < activeSlots.length; i++) {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
         const text = await global.bot.sendMessage(chatId, slot.message.message);
-        const user = await this.userService.findUserByChatId(chatId);
+        const user = await this.userService.findByChannelId(slot.channel.id);
+        await this.slotsRepository.update(
+          { messageBotId: text.message_id },
+          { where: { id: slot.id } },
+        );
         if (user.isNotification) {
-          await this.sendNotifications(slot, 'sendAfterPublicMessage');
+          await this.sendNotifications(
+            slot,
+            'sendAfterPublicMessage',
+            user.chatId,
+          );
         }
-        await slot.$set('messageBotId', text.message_id);
-      }
-
-      const finishedSlots = await this.findSlots(StatusStore.FINISH);
-
-      for (let i = 0; i < finishedSlots.length; i++) {
-        const slot = finishedSlots[i];
-        await slot.$set('status', StatusStore.PUBLIC);
-        const chatId = slot.channel.chatId;
-        const user = await this.userService.findUserByChatId(chatId);
-        if (user.isNotification) {
-          await this.sendNotifications(slot, 'sendAfterDeleteMessage');
-        }
-        await global.bot.deleteMessage(chatId, slot.messageBotId);
       }
     } catch (e) {
       /** Отследить поведение отправки сообщений, если такое невозможно, тогда вернуть средства **/

@@ -19,13 +19,14 @@ import { PermissionService } from '../permission/permission.service';
 import { Card } from '../payments/models/card.model';
 import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
-import { Permission } from '../permission/models/persmissions.model';
+import { UserChannel } from '../channels/models/user-channel.model';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     @InjectModel(Card) private cardRepository: typeof Card,
+    @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
@@ -34,6 +35,15 @@ export class UserService {
 
   public async findByInn(inn: number) {
     return await this.userRepository.findOne({ where: { inn } });
+  }
+
+  public async findByChannelId(id: number) {
+    const userChannel = await this.userChannelRepository.findOne({
+      where: { channelId: id },
+    });
+    return await this.userRepository.findOne({
+      where: { id: userChannel.userId },
+    });
   }
 
   public getId(token: string) {

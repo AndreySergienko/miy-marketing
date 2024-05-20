@@ -33,7 +33,9 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
   });
   app.use(cookieParser());
-  await app.listen(process.env.PORT || 5000);
+  const port = process.env.PORT || 5000;
+  console.log('Server has been start on port:', port);
+  await app.listen(port);
 }
 
 bootstrap();

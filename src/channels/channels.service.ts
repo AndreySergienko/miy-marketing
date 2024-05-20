@@ -431,7 +431,7 @@ export class ChannelsService {
     await this.channelRepository.update(
       {
         description,
-        link: link || null,
+        link: link || '',
         price,
         day,
         conditionCheck,
@@ -477,7 +477,7 @@ export class ChannelsService {
       ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
       channel: {
         description,
-        link,
+        link: channel.link || '',
         price,
         day,
         name,
