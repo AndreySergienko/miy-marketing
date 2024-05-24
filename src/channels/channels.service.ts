@@ -128,12 +128,6 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    // if (slot.timestamp < dayLater())
-    //   throw new HttpException(
-    //     SlotsErrorMessages.DATE_SLOT_INCORRECT,
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-
     if (slot.statusId === StatusStore.AWAIT) {
       throw new HttpException(
         SlotsErrorMessages.SLOT_IS_BOOKING,
@@ -384,7 +378,6 @@ export class ChannelsService {
     {
       categoriesId,
       description,
-      link,
       name,
       day,
       slots,
@@ -431,7 +424,6 @@ export class ChannelsService {
     await this.channelRepository.update(
       {
         description,
-        link: link || '',
         price,
         day,
         conditionCheck,

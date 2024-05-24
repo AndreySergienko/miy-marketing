@@ -49,6 +49,7 @@ export default class PermissionStore {
   static get ADMIN_PERMISSIONS() {
     return [
       ...PermissionStore.USER_PERMISSIONS,
+      ...PermissionStore.USER_CHANNELS_PERMISSIONS,
       PermissionStore.CAN_BAN,
       PermissionStore.CAN_PARDON,
       PermissionStore.CAN_VALIDATE,
