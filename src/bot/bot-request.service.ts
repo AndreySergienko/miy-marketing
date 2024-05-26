@@ -18,6 +18,8 @@ import { PublisherMessagesService } from '../publisher-messages/publisher-messag
 import BotErrorMessages from './messages/BotErrorMessages';
 import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
 import { KeyboardAuthentication } from '../modules/extensions/bot/keyboard/KeyboardAuthentication';
+import { convertUtcDateToFullDate } from '../utils/date';
+import { ICreateAdvertisementMessage } from '../channels/types/types';
 
 @Injectable()
 export class BotRequestService {
@@ -196,18 +198,23 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId !== StatusStore.AWAIT) return;
+    console.log('test');
+    if (slot.statusId === StatusStore.MODERATE_MESSAGE) return;
 
+    await slot.$set('status', StatusStore.MODERATE_MESSAGE);
+    if (slot.statusId !== StatusStore.AWAIT) return;
     await this.userService.clearLastBotActive(from.id);
     await global.bot.sendMessage(
       from.id,
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
-
     const ids = await this.userService.getAllAdminsChatIds();
     await global.bot.sendMessage(
       ids[0],
-      MessagesChannel.VALIDATE_MESSAGE(slot.message.message),
+      MessagesChannel.VALIDATE_MESSAGE(
+        slot.message.message,
+        slot.channel.conditionCheck,
+      ),
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
       }),
@@ -219,19 +226,18 @@ export class BotRequestService {
    * **/
   public async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({
     id: slotId,
-    from,
   }: IBotRequestDto) {
     const slot = await this.slotService.findOneBySlotId(slotId);
     if (!slot) return;
     const ids = await this.userService.getAllAdminsChatIds();
-    // if (slot.statusId !== StatusStore.AWAIT)
-    //   return await global.bot.sendMessage(
-    //     ids[0],
-    //     MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
-    //     useSendMessage({
-    //       remove_keyboard: true,
-    //     }),
-    //   );
+    if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
+      return await global.bot.sendMessage(
+        ids[0],
+        MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
     await this.slotService.updateSlotStatusById({
       slotId,
       statusId: StatusStore.PROCESS,
@@ -242,12 +248,26 @@ export class BotRequestService {
     if (!message) return;
     const advertiser = await this.userService.findOneById(message.userId);
     if (!advertiser) return;
+
+    const channelName = channel.name;
+    const day = convertUtcDateToFullDate(slot.timestamp);
+    const format = await this.channelsService.findFormatById(
+      channel.formatChannelId,
+    );
+    const formatName = format.value;
+    const dataMessage: ICreateAdvertisementMessage = {
+      channelName,
+      day,
+      format: formatName,
+      message: message.message,
+    };
+
     /** Сообщение для админа канала **/
     const isNotificationAdminChannel = channel.users[0].isNotification;
     if (isNotificationAdminChannel) {
       await global.bot.sendMessage(
         channel.users[0].chatId,
-        MessagesChannel.MESSAGE_IS_VALIDATION('admin'),
+        MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
         useSendMessage({
           remove_keyboard: true,
         }),
@@ -259,7 +279,7 @@ export class BotRequestService {
     if (isNotificationAdvertiser) {
       await global.bot.sendMessage(
         advertiser.chatId,
-        MessagesChannel.MESSAGE_IS_VALIDATION('reclam'),
+        MessagesChannel.ADVERTISER_CREATE_ADVERTISEMENT(dataMessage),
         useSendMessage({
           remove_keyboard: true,
         }),
@@ -268,7 +288,7 @@ export class BotRequestService {
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
       ids[0],
-      MessagesChannel.MESSAGE_IS_VALIDATION('moder'),
+      MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
       useSendMessage({
         remove_keyboard: true,
       }),
@@ -298,6 +318,7 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
+    console.log('test11');
     await this.userService.updateLastBotActive(
       from.id,
       `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE(slotId)}`,
@@ -323,13 +344,13 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId !== StatusStore.AWAIT) return;
+    if (slot.statusId !== StatusStore.MODERATE_MESSAGE) return;
     await this.publisherMessages.updateMessage(slot.messageId, text);
     await this.userService.clearLastBotActive(from.id);
     const ids = await this.userService.getAllAdminsChatIds();
     await global.bot.sendMessage(
       ids[0],
-      MessagesChannel.VALIDATE_MESSAGE(text),
+      MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck),
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
       }),

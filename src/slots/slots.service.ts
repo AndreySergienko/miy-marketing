@@ -27,7 +27,6 @@ export class SlotsService {
   async findAllSlotByChannelId(channelId: number) {
     return await this.slotsRepository.findAll({
       where: { channelId },
-      include: { all: true },
     });
   }
 

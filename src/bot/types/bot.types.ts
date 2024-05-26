@@ -14,7 +14,7 @@ export interface IBotRequestDto {
 
 export interface IPublishingMessages {
   /** админ канала */
-  adminId: number;
+  // adminId: number;
   /** рекламодателя */
   publisherId: number;
   channelName: string;

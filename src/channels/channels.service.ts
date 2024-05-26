@@ -71,6 +71,9 @@ export class ChannelsService {
     const channels = await this.channelRepository.findAll({
       where: {
         id: channelsIds,
+        price: {
+          [Op.gt]: 1,
+        },
       },
       include: Categories,
     });
@@ -331,7 +334,7 @@ export class ChannelsService {
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-expect-error
-    await this.botEvent[keyEvent](mainAdminApp, dto);
+    await this.botEvent[keyEvent](mainAdminApp, dto, true);
   }
 
   public async checkConnectChannel(userId: number, chatName: string) {
@@ -523,5 +526,9 @@ export class ChannelsService {
 
   public async removeChannel(chatId: number) {
     return await this.channelRepository.destroy({ where: { chatId } });
+  }
+
+  public async findFormatById(id: number) {
+    return await this.formatChannelRepository.findOne({ where: { id } });
   }
 }

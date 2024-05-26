@@ -20,14 +20,17 @@ import type { IPublishingMessages } from './types/bot.types';
 export class BotEvent {
   /** Метод срабатывает для уведомления админа канала и рекламодателя о удаление сообщения в его канале */
   public async sendAfterDeleteMessage(obj: IPublishingMessages) {
-    await this.sendNotificationMessage(obj, 'Сообщение удалено из канала');
+    await this.sendNotificationMessage(
+      obj,
+      `❌Реклама в канале ${obj.channelName} удалена. `,
+    );
   }
 
   private async sendNotificationMessage(
-    { adminId, publisherId, channelDate, channelName }: IPublishingMessages,
+    { publisherId, channelDate, channelName }: IPublishingMessages,
     message: string,
   ) {
-    const ids = [adminId, publisherId];
+    const ids = [publisherId];
 
     for (let i = 0; i < ids.length; i++) {
       await global.bot.sendMessage(
@@ -39,7 +42,10 @@ export class BotEvent {
 
   /** Метод срабатывает для уведомления админа канала и рекламодателя о публикации сообщения в его канале */
   public async sendAfterPublicMessage(obj: IPublishingMessages) {
-    await this.sendNotificationMessage(obj, 'Сообщение опубликовано в канале');
+    await this.sendNotificationMessage(
+      obj,
+      `✅Реклама в канале ${obj.channelName} опубликована.`,
+    );
   }
 
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
@@ -70,7 +76,20 @@ export class BotEvent {
     );
   }
 
-  async sendMessageAcceptChannel(chatId: number, dto: IValidationChannelDto) {
+  async sendMessageAcceptChannel(
+    chatId: number,
+    dto: IValidationChannelDto,
+    isModer?: boolean,
+  ) {
+    if (isModer) {
+      return await global.bot.sendMessage(
+        chatId,
+        MessagesChannel.MODER_ACCEPT_REGISTRATION,
+        useSendMessage({
+          inline_keyboard: [],
+        }),
+      );
+    }
     return await global.bot.sendMessage(
       chatId,
       MessagesChannel.ACCEPT_REGISTRATION(dto),
@@ -83,7 +102,17 @@ export class BotEvent {
   async sendMessageCancelChannel(
     chatId: number,
     dto: IValidationCancelChannelDto,
+    isModer?: boolean,
   ) {
+    if (isModer) {
+      return await global.bot.sendMessage(
+        chatId,
+        MessagesChannel.MODER_CANCEL_REGISTRATION,
+        useSendMessage({
+          inline_keyboard: [],
+        }),
+      );
+    }
     return await global.bot.sendMessage(
       chatId,
       MessagesChannel.CANCEL_REGISTRATION(dto),

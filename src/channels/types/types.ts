@@ -103,3 +103,10 @@ export interface ICreateSlot {
   timestamp: number;
   timestampFinish: number;
 }
+
+export interface ICreateAdvertisementMessage {
+  channelName: string;
+  format: string;
+  message: string;
+  day: string;
+}

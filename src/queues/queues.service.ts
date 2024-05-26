@@ -23,14 +23,12 @@ export class QueuesService {
   private async sendNotifications(
     slot: Slots,
     method: 'sendAfterPublicMessage' | 'sendAfterDeleteMessage',
-    adminId: number,
   ) {
     const publisher = await this.userService.findOneById(slot.message.userId);
     const publisherId = publisher.chatId;
     const channelName = slot.channel.name;
     const channelDate = slot.timestamp;
     await this.botEvent[method]({
-      adminId,
       publisherId,
       channelDate,
       channelName,
@@ -54,7 +52,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_30_MINUTES, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
@@ -71,7 +69,7 @@ export class QueuesService {
           await this.sendNotifications(
             slot,
             'sendAfterDeleteMessage',
-            user.chatId,
+            // user.chatId,
           );
         }
       }
@@ -91,7 +89,7 @@ export class QueuesService {
           await this.sendNotifications(
             slot,
             'sendAfterPublicMessage',
-            user.chatId,
+            // user.chatId,
           );
         }
       }

@@ -1,5 +1,6 @@
 import type {
   IBuyChannelMessage,
+  ICreateAdvertisementMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
@@ -52,7 +53,7 @@ export class MessagesChannel {
   }
 
   static get REASON_CANCEL_CHANNEL() {
-    return 'Опишите причину один сообщением почему не удалось пройти проверку';
+    return '❌Вы отклонили регистрацию канала. Аргументируйте свое решение: ';
   }
 
   static ACCEPT_REGISTRATION({ name, day }: IValidationChannelDto) {
@@ -65,6 +66,14 @@ export class MessagesChannel {
 В случае возникновения вопросов обратитесь в поддержку: ${mailSupport()}`;
   }
 
+  static get MODER_ACCEPT_REGISTRATION() {
+    return `✅Вы одобрили регистрацию  канала N на платформу ON-DEVELOPER`;
+  }
+
+  static get MODER_CANCEL_REGISTRATION() {
+    return `💬Ваш комментарий отправлен паблишеру`;
+  }
+
   static CANCEL_REGISTRATION({
     name,
     day,
@@ -73,8 +82,10 @@ export class MessagesChannel {
     return `Отмена публикации канала: ${name} слота на день: ${day} по причине ${reason}`;
   }
 
-  static VALIDATE_MESSAGE(msg: string) {
-    return `Сообщение на модерацию для рекламного поста:
+  static VALIDATE_MESSAGE(msg: string, conditionCheck: string) {
+    return `🆕Новая заявка на рекламную интеграцию. Промодерируйте данные согласно установленным требованиям паблишер:
+
+Требования: ${conditionCheck}
 ${msg}`;
   }
 
@@ -87,7 +98,49 @@ ${msg}`;
   }
 
   static get CHANGE_MESSAGE_VERIFICATION() {
-    return `Пожалуйста отправьте корректное сообщение ниже:`;
+    return `✍️Отправьте отредактированное сообщение:`;
+  }
+
+  static ADMIN_CHANNEL_CREATE_ADVERTISEMENT({
+    channelName,
+    day,
+    format,
+    message,
+  }: ICreateAdvertisementMessage) {
+    return `🤝У Вас заключена рекламная интеграция:
+
+Канал: ${channelName}
+Дата: ${day}
+Формат:  ${format}
+Сообщение: ${message}`;
+  }
+
+  static MODERATOR_CREATE_ADVERTISEMENT({
+    channelName,
+    day,
+    format,
+    message,
+  }: ICreateAdvertisementMessage) {
+    return `☝️Рекламная интеграция поставлена в очередь. Необходимо проконтролировать публикацию:
+
+Канал: ${channelName}
+Дата: ${day}
+Формат:  ${format}
+Сообщение: ${message}`;
+  }
+
+  static ADVERTISER_CREATE_ADVERTISEMENT({
+    channelName,
+    day,
+    format,
+    message,
+  }: ICreateAdvertisementMessage) {
+    return `🤝Вы успешно заключили рекламную интеграцию:
+
+Канал: ${channelName}
+Дата: ${day}
+Формат:  ${format}
+Сообщение: ${message}`;
   }
 
   static get SEND_MESSAGE_VERIFICATION() {
@@ -107,7 +160,7 @@ ON-Developer
   }
 
   static get SUCCESS_SEND_TO_MODERATE() {
-    return 'Письмо было отправлено на подерацию. В ближайшее время мы уведомим вас о результатах. Спасибо!';
+    return `🔎Ваша заявка была отправлена на модерацию. В ближайшее время мы сообщим Вам результат.`;
   }
 
   static BUY_ADVERTISING({
@@ -148,7 +201,7 @@ ON-Developer
     format,
     conditionCheck,
   }: MessageChannelRegistrationDto) {
-    return `Ув. администраторы
+    return `🆕Новая заявка на регистрацию канала на платформу ON-DEVELOPER:
 
 Запрос на регистрацию канала:
 Наименование: <b>${name}</b>
