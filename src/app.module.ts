@@ -29,6 +29,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
 import { Card } from './payments/models/card.model';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { Card } from './payments/models/card.model';
         Card,
       ]),
     ),
+    ScheduleModule.forRoot(),
     BotModule,
     UserModule,
     AuthModule,

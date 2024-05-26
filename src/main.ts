@@ -6,6 +6,8 @@ import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
 import * as cookieParser from 'cookie-parser';
+import * as process from 'node:process';
+import { QueuesService } from './queues/queues.service';
 
 function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
@@ -20,7 +22,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
   app.enableCors({
-    origin: '*',
+    origin: process.env.FRONT_URL || '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: [
@@ -34,6 +36,8 @@ async function bootstrap() {
   });
   app.use(cookieParser());
   const port = process.env.PORT || 5000;
+  const worker = await NestFactory.createApplicationContext(AppModule);
+  worker.get(QueuesService);
   console.log('Server has been start on port:', port);
   await app.listen(port);
 }
