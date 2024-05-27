@@ -11,11 +11,13 @@ import {
 } from '../utils/date';
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
+import { User } from '../user/models/user.model';
 
 @Injectable()
 export class QueuesService {
   constructor(
     @InjectModel(Slots) private slotsRepository: typeof Slots,
+    @InjectModel(User) private usersRepository: typeof User,
     private userService: UserService,
     private botEvent: BotEvent,
   ) {}
@@ -52,7 +54,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES, {
+  @Cron(CronExpression.EVERY_SECOND, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {

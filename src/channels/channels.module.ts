@@ -12,7 +12,6 @@ import { Slots } from '../slots/models/slots.model';
 import { SlotsModule } from '../slots/slots.module';
 import { FormatChannel } from './models/format-channel.model';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
-import { QueuesService } from '../queues/queues.service';
 
 @Module({
   imports: [
@@ -26,11 +25,10 @@ import { QueuesService } from '../queues/queues.service';
       FormatChannel,
       CategoriesChannel,
     ]),
-
     UserModule,
     SlotsModule,
   ],
-  providers: [ChannelsService, QueuesService],
+  providers: [ChannelsService],
   controllers: [ChannelsController],
   exports: [ChannelsService],
 })

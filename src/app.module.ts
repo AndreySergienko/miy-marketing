@@ -30,6 +30,8 @@ import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
 import { Card } from './payments/models/card.model';
 import { ScheduleModule } from '@nestjs/schedule';
+import { QueuesService } from './queues/queues.service';
+import { QueuesModule } from './queues/queues.module';
 
 @Module({
   imports: [
@@ -67,6 +69,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     SlotsModule,
     PublisherMessagesModule,
     PaymentsModule,
+    QueuesModule,
   ],
 
   controllers: [],

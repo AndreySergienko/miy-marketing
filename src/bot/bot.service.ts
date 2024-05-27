@@ -9,6 +9,7 @@ import { ChannelCreateDto } from '../channels/types/types';
 import { UserService } from '../user/user.service';
 import { BotRequestService } from './bot-request.service';
 import { StatusStore } from '../status/StatusStore';
+import { connect } from '../bot.connect';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -18,10 +19,7 @@ export class BotService implements OnModuleInit {
     private botRequestService: BotRequestService,
     private userService: UserService,
   ) {
-    // Если уже есть, то не создавать экземпляр
-    global.bot = !global.bot
-      ? new TelegramBot(process.env.TOKEN_BOT, { polling: true })
-      : global.bot;
+    global.bot = connect(process.env.TOKEN_BOT);
   }
 
   private connectAndKickedBot() {
