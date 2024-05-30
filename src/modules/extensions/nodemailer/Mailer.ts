@@ -5,18 +5,28 @@ export default class Mailer {
   private readonly transporter: object;
 
   constructor() {
-    this.transporter = mailer.createTransport({
-      service: process.env.MAIL_SERVICE,
-      auth: {
-        type: process.env.MAIL_TYPE,
-        user: process.env.MAIL_USER,
-        clientId: process.env.MAIL_CLIENT_ID,
-        clientSecret: process.env.MAIL_CLIENT_SECRET,
-        accessUrl: process.env.MAIL_ACCESS_URL,
-        refreshToken: process.env.MAIL_REFRESH_TOKEN,
-      },
-    });
+    // const gmailConnect = {
+    //   service: process.env.MAIL_SERVICE,
+    //   auth: {
+    //     type: process.env.MAIL_TYPE,
+    //     user: process.env.MAIL_USER,
+    //     clientId: process.env.MAIL_CLIENT_ID,
+    //     clientSecret: process.env.MAIL_CLIENT_SECRET,
+    //     accessUrl: process.env.MAIL_ACCESS_URL,
+    //     refreshToken: process.env.MAIL_REFRESH_TOKEN,
+    //   },
+    // }
 
+    const connect = {
+      host: process.env.MAIL_HOST,
+      port: Number(process.env.MAIL_PORT),
+      secure: Number(process.env.MAIL_PORT) === 465,
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    };
+    this.transporter = mailer.createTransport(connect);
     this.verify();
   }
 
@@ -24,7 +34,7 @@ export default class Mailer {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     this.transporter.verify((error, success) => {
-      if (error) return console.log(error);
+      if (error) return console.log('ERROR', error);
       console.log('Mailer is ready', success);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
