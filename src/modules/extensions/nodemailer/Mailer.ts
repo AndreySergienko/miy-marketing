@@ -16,17 +16,15 @@ export default class Mailer {
     //     refreshToken: process.env.MAIL_REFRESH_TOKEN,
     //   },
     // }
-
-    const connect = {
+    this.transporter = mailer.createTransport({
       host: process.env.MAIL_HOST,
-      port: Number(process.env.MAIL_PORT),
-      secure: Number(process.env.MAIL_PORT) === 465,
+      port: process.env.MAIL_PORT,
+      secure: true,
       auth: {
         user: process.env.MAIL_USER,
         pass: process.env.MAIL_PASSWORD,
       },
-    };
-    this.transporter = mailer.createTransport(connect);
+    });
     this.verify();
   }
 
@@ -52,7 +50,7 @@ export default class Mailer {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     await this.transporter.sendMail({
-      from: process.env.USER_MAIL,
+      from: process.env.MAIL_USER,
       to,
       subject,
       html,

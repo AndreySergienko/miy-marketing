@@ -54,7 +54,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_SECOND, {
+  @Cron(CronExpression.EVERY_30_MINUTES, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
