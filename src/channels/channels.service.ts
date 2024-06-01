@@ -296,7 +296,12 @@ export class ChannelsService {
       return;
     }
     await channel.$set('status', StatusStore.CANCEL);
-    await this.slotService.removeSlots(channel.id);
+    // await this.slotService.removeSlots(channel.id);
+
+    for (let i = 0; i < channel.slots.length; i++) {
+      const slot = channel.slots[i];
+      await slot.$set('status', StatusStore.CANCEL);
+    }
 
     const dto: IValidationCancelChannelDto = {
       name: channel.name,
