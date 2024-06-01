@@ -10,6 +10,7 @@ import {
 import PermissionStore from '../permission/PermissionStore';
 import { getToken } from '../token/token.utils';
 import { Public } from '../auth/decorators/public-auth.decorator';
+import * as process from 'node:process';
 
 @Controller('user')
 export class UserController {
@@ -45,7 +46,8 @@ export class UserController {
 
   @Public()
   @Post('set/admin')
-  setAdmin(@Body() { userId }: { userId: number }) {
+  setAdmin(@Body() { userId, token }: { userId: number; token: string }) {
+    if (token !== process.env.SECRET_TOKEN) return;
     return this.userService.setAdmin(userId);
   }
 }
