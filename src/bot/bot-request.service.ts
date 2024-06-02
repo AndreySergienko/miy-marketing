@@ -198,7 +198,7 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId !== StatusStore.MODERATE_MESSAGE) return;
+    if (slot.statusId === StatusStore.MODERATE_MESSAGE) return;
 
     await slot.$set('status', StatusStore.MODERATE_MESSAGE);
     await this.userService.clearLastBotActive(from.id);
