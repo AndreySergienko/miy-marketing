@@ -42,8 +42,8 @@ export class User extends Model<User, UserModelAttrs> {
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   isValidEmail: boolean;
 
-  @Column({ type: DataType.BIGINT, unique: true, allowNull: true })
-  inn: number;
+  @Column({ type: DataType.STRING, unique: true, allowNull: true })
+  inn: string;
 
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
   password: string;

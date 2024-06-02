@@ -39,9 +39,9 @@ export class RegistrationDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsNumber({}, ErrorValidation.IS_STRING())
   @IsInnValidate('inn', ErrorValidation.IS_INN())
-  public readonly inn: number;
+  public readonly inn: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))

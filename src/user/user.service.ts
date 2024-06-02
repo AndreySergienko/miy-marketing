@@ -33,7 +33,7 @@ export class UserService {
     private permissionService: PermissionService,
   ) {}
 
-  public async findByInn(inn: number) {
+  public async findByInn(inn: string) {
     return await this.userRepository.findOne({ where: { inn } });
   }
 

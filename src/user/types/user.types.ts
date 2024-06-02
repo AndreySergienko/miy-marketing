@@ -10,12 +10,11 @@ import {
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
 import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
-import { CardModelAttrs } from '../../payments/types/types';
 
 export interface UserModelAttrs {
   fio?: string;
   password?: string;
-  inn?: number;
+  inn?: string;
   email?: string;
   uniqueBotId: string;
   chatId: number;
@@ -34,7 +33,7 @@ export class UserRegistrationBotDto {
 export class UserCreateDto implements UserModelAttrs {
   chatId: number;
   email: string;
-  inn: number;
+  inn: string;
   fio: string;
   password: string;
   uniqueBotId: string;
@@ -46,9 +45,9 @@ export class UpdateUserDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsNumber({}, ErrorValidation.IS_STRING())
   @IsInnValidate('inn', ErrorValidation.IS_INN())
-  public readonly inn: number;
+  public readonly inn: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
@@ -84,7 +83,7 @@ export class PardonUserDto {
 
 export class GetUserDto {
   email: string;
-  inn: number;
+  inn: string;
   fio: string;
   permissions: string[];
   cardNumber?: string;
