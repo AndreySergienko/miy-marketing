@@ -33,7 +33,6 @@ import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
 import { FormatChannel } from './models/format-channel.model';
 import { getFormatChannelDuration } from './utils/getFormatChannelDuration';
 import { Categories } from '../categories/models/categories.model';
-import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class ChannelsService {

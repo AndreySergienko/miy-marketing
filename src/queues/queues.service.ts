@@ -6,6 +6,7 @@ import { StatusStore } from '../status/StatusStore';
 import { Op } from 'sequelize';
 import {
   convertDateTimeToMoscow,
+  convertNextDay,
   fifthMinuteLater,
   towMinuteLast,
 } from '../utils/date';
@@ -125,7 +126,10 @@ export class QueuesService {
           fio: publisher.fio,
         };
 
-        if (invalidSlot.timestampFinish < Date.now()) {
+        if (
+          invalidSlot.timestampFinish <
+          convertNextDay(invalidSlot.timestampFinish)
+        ) {
           await this.slotsRepository.destroy({ where: { id: invalidSlot.id } });
         }
 
