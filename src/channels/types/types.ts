@@ -110,3 +110,11 @@ export interface ICreateAdvertisementMessage {
   message: string;
   day: string;
 }
+
+export interface IResetCashMessage {
+  price: number;
+  email: string;
+  card: string;
+  id: number;
+  fio: string;
+}

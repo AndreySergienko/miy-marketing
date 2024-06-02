@@ -12,6 +12,7 @@ import {
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
 import { User } from '../user/models/user.model';
+import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 
 @Injectable()
 export class QueuesService {
@@ -62,7 +63,6 @@ export class QueuesService {
       const finishedSlots = await this.findSlots(StatusStore.FINISH);
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
-        await slot.$set('status', StatusStore.PUBLIC);
         const chatId = slot.channel.chatId;
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
@@ -97,6 +97,45 @@ export class QueuesService {
       }
     } catch (e) {
       /** Отследить поведение отправки сообщений, если такое невозможно, тогда вернуть средства **/
+      console.log(e);
+    }
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
+    timeZone: 'Asia/Yekaterinburg',
+  })
+  public async sendResetCash() {
+    try {
+      const invalidSlots = await this.slotsRepository.findAll({
+        where: { statusId: StatusStore.FINISH },
+        include: { all: true },
+      });
+
+      for (let i = 0; i < invalidSlots.length; i++) {
+        const invalidSlot = invalidSlots[i];
+        const publisher = await this.userService.findOneById(
+          invalidSlot.message.userId,
+        );
+
+        const info = {
+          price: invalidSlot.payment.price,
+          email: publisher.email,
+          card: publisher.card.number,
+          id: invalidSlot.id,
+          fio: publisher.fio,
+        };
+
+        if (invalidSlot.timestampFinish < Date.now()) {
+          await this.slotsRepository.destroy({ where: { id: invalidSlot.id } });
+        }
+
+        const admins = await this.userService.getAllAdmins();
+        await global.bot.sendMessage(
+          admins[0].chatId,
+          MessagesChannel.RESET_CASH(info),
+        );
+      }
+    } catch (e) {
       console.log(e);
     }
   }

@@ -1,6 +1,7 @@
-import type {
+import {
   IBuyChannelMessage,
   ICreateAdvertisementMessage,
+  IResetCashMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
@@ -30,6 +31,16 @@ export class MessagesChannel {
 
   static get BTN_GO_TO_PERSONAL() {
     return 'Вернуться в личный кабинет';
+  }
+
+  static RESET_CASH({ id, fio, email, card, price }: IResetCashMessage) {
+    return `Реклама не состоялась, пожалуйста, верните средства пользователю:
+
+ID слота: ${id}
+Сумма: ${price}
+Email: ${email}
+ФИО: ${fio}
+Номер карты: ${card}`;
   }
 
   static MESSAGE_IS_VALIDATION(role: string) {
