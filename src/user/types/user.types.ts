@@ -45,7 +45,7 @@ export class UpdateUserDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
 
-  @IsNumber({}, ErrorValidation.IS_STRING())
+  @IsString(ErrorValidation.IS_STRING())
   @IsInnValidate('inn', ErrorValidation.IS_INN())
   public readonly inn: string;
 
