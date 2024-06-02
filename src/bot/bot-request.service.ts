@@ -198,11 +198,9 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    console.log('test');
-    if (slot.statusId === StatusStore.MODERATE_MESSAGE) return;
+    if (slot.statusId !== StatusStore.MODERATE_MESSAGE) return;
 
     await slot.$set('status', StatusStore.MODERATE_MESSAGE);
-    if (slot.statusId !== StatusStore.AWAIT) return;
     await this.userService.clearLastBotActive(from.id);
     await global.bot.sendMessage(
       from.id,

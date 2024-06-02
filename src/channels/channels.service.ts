@@ -209,7 +209,7 @@ export class ChannelsService {
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       const slots = await this.slotService.findAllSlotByChannelId(channel.id);
       list.push({
-        slots,
+        slots: slots.filter((slot) => slot.statusId === StatusStore.PUBLIC),
         channel: {
           id: channel.id,
           name: channel.name,
