@@ -1,31 +1,30 @@
+import { BotService } from './../bot/bot.service';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/sequelize';
-import { Slots } from '../slots/models/slots.model';
 import { StatusStore } from '../status/StatusStore';
 import { Op } from 'sequelize';
 import {
   convertDateTimeToMoscow,
-  convertNextDay,
   fifthMinuteLater,
   towMinuteLast,
 } from '../utils/date';
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
-import { User } from '../user/models/user.model';
-import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Injectable()
 export class QueuesService {
   constructor(
-    @InjectModel(Slots) private slotsRepository: typeof Slots,
-    @InjectModel(User) private usersRepository: typeof User,
+    @InjectModel(Advertisement)
+    private advertisementRepository: typeof Advertisement,
+    private botService: BotService,
     private userService: UserService,
     private botEvent: BotEvent,
   ) {}
 
   private async sendNotifications(
-    slot: Slots,
+    slot: Advertisement,
     method: 'sendAfterPublicMessage' | 'sendAfterDeleteMessage',
   ) {
     const publisher = await this.userService.findOneById(slot.message.userId);
@@ -40,7 +39,7 @@ export class QueuesService {
   }
 
   private findSlots(statusId: number) {
-    return this.slotsRepository.findAll({
+    return this.advertisementRepository.findAll({
       where: {
         statusId,
         timestamp: {
@@ -67,7 +66,7 @@ export class QueuesService {
         const chatId = slot.channel.chatId;
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
-        await this.slotsRepository.destroy({ where: { id: slot.id } });
+        await this.advertisementRepository.destroy({ where: { id: slot.id } });
         if (user.isNotification) {
           await this.sendNotifications(
             slot,
@@ -84,7 +83,7 @@ export class QueuesService {
         const chatId = slot.channel.chatId;
         const text = await global.bot.sendMessage(chatId, slot.message.message);
         const user = await this.userService.findByChannelId(slot.channel.id);
-        await this.slotsRepository.update(
+        await this.advertisementRepository.update(
           { messageBotId: text.message_id },
           { where: { id: slot.id } },
         );
@@ -107,38 +106,12 @@ export class QueuesService {
   })
   public async sendResetCash() {
     try {
-      const invalidSlots = await this.slotsRepository.findAll({
+      const invalidAdvertisements = await this.advertisementRepository.findAll({
         where: { statusId: StatusStore.FINISH },
         include: { all: true },
       });
 
-      for (let i = 0; i < invalidSlots.length; i++) {
-        const invalidSlot = invalidSlots[i];
-        const publisher = await this.userService.findOneById(
-          invalidSlot.message.userId,
-        );
-
-        const info = {
-          price: invalidSlot.payment.price,
-          email: publisher.email,
-          card: publisher.card.number,
-          id: invalidSlot.id,
-          fio: publisher.fio,
-        };
-
-        if (
-          invalidSlot.timestampFinish <
-          convertNextDay(invalidSlot.timestampFinish)
-        ) {
-          await this.slotsRepository.destroy({ where: { id: invalidSlot.id } });
-        }
-
-        const admins = await this.userService.getAllAdmins();
-        await global.bot.sendMessage(
-          admins[0].chatId,
-          MessagesChannel.RESET_CASH(info),
-        );
-      }
+      await this.botService.sendMessageReset(invalidAdvertisements);
     } catch (e) {
       console.log(e);
     }

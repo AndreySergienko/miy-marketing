@@ -3,8 +3,3 @@ export interface SlotsModelAttrs {
   timestampFinish: number;
   messageBotId?: number;
 }
-
-export interface IUpdateSlotStatusById {
-  statusId: number;
-  slotId: number;
-}

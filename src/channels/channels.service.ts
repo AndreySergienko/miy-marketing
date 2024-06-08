@@ -15,11 +15,7 @@ import { User } from '../user/models/user.model';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
-import {
-  convertNextDay,
-  convertUtcDateToFullDate,
-  getCurrentMoscowTimestamp,
-} from '../utils/date';
+import { convertNextDay, convertUtcDateToFullDate } from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
@@ -188,14 +184,15 @@ export class ChannelsService {
     const channelIds = categoriesChannels.map(
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
-    const currentDay = getCurrentMoscowTimestamp() + 1000 * 60 * 60;
+    // Временно убираем дату
+    // const currentDay = getCurrentMoscowTimestamp() + 1000 * 60 * 60;
     return await this.channelRepository.findAll({
       where: {
         id: channelIds,
         statusId: StatusStore.PUBLIC,
-        day: {
-          [Op.gt]: currentDay,
-        },
+        // day: {
+        //   [Op.gt]: currentDay,
+        // },
       },
     });
   }
@@ -242,14 +239,14 @@ export class ChannelsService {
       return;
     }
 
-    if (channel.day < convertNextDay(Date.now())) {
-      await channel.$set('status', StatusStore.CANCEL);
-      await global.bot.sendMessage(
-        adminId,
-        ChannelsErrorMessages.DATE_INCORRECT_VALIDATION.message,
-      );
-      return;
-    }
+    // if (channel.day < convertNextDay(Date.now())) {
+    //   await channel.$set('status', StatusStore.CANCEL);
+    //   await global.bot.sendMessage(
+    //     adminId,
+    //     ChannelsErrorMessages.DATE_INCORRECT_VALIDATION.message,
+    //   );
+    //   return;
+    // }
 
     if (channel.statusId === StatusStore.PUBLIC) {
       await global.bot.sendMessage(

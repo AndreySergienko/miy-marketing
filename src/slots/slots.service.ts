@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Slots } from './models/slots.model';
 import { StatusStore } from '../status/StatusStore';
 import type { ICreateSlot } from '../channels/types/types';
-import type { IUpdateSlotStatusById } from './types/types';
 
 @Injectable()
 export class SlotsService {
@@ -35,9 +34,5 @@ export class SlotsService {
       where: { id },
       include: { all: true },
     });
-  }
-
-  async updateSlotStatusById({ statusId, slotId }: IUpdateSlotStatusById) {
-    await this.slotsRepository.update({ statusId }, { where: { id: slotId } });
   }
 }

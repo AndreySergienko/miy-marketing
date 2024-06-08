@@ -8,7 +8,6 @@ import { ChannelsService } from '../channels/channels.service';
 import { BotEvent } from './BotEvent';
 import type { IBotRequestDto } from './types/bot.types';
 import TelegramBot, { PreCheckoutQuery } from 'node-telegram-bot-api';
-import { SlotsService } from '../slots/slots.service';
 import { PaymentsService } from '../payments/payments.service';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 import { StatusStore } from '../status/StatusStore';
@@ -20,6 +19,7 @@ import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
 import { KeyboardAuthentication } from '../modules/extensions/bot/keyboard/KeyboardAuthentication';
 import { convertUtcDateToFullDate } from '../utils/date';
 import { ICreateAdvertisementMessage } from '../channels/types/types';
+import { AdvertisementService } from 'src/advertisement/advertisement.service';
 
 @Injectable()
 export class BotRequestService {
@@ -27,7 +27,7 @@ export class BotRequestService {
     private authService: AuthService,
     private userService: UserService,
     private channelsService: ChannelsService,
-    private slotService: SlotsService,
+    private advertisementService: AdvertisementService,
     private botEvent: BotEvent,
     private paymentsService: PaymentsService,
     private publisherMessages: PublisherMessagesService,
@@ -80,7 +80,9 @@ export class BotRequestService {
    * **/
   public async checkBuyAdvertising(query: PreCheckoutQuery) {
     let status = false;
-    const slot = await this.slotService.findOneBySlotId(+query.invoice_payload);
+    const slot = await this.advertisementService.findOneById(
+      +query.invoice_payload,
+    );
     if (!slot) {
       await global.bot.answerPreCheckoutQuery(query.id, status, {
         error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
@@ -105,7 +107,7 @@ export class BotRequestService {
   }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
-    const slot = await this.slotService.findOneBySlotId(
+    const slot = await this.advertisementService.findOneById(
       +successful_payment.invoice_payload,
     );
     if (!slot) return;
@@ -163,7 +165,7 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
     if (!slot)
       throw new HttpException(
         SlotsErrorMessages.SLOT_NOT_FOUND,
@@ -190,7 +192,7 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
 
     if (!slot)
       throw new HttpException(
@@ -225,7 +227,7 @@ export class BotRequestService {
   public async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
     const ids = await this.userService.getAllAdminsChatIds();
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
@@ -236,7 +238,7 @@ export class BotRequestService {
           remove_keyboard: true,
         }),
       );
-    await this.slotService.updateSlotStatusById({
+    await this.advertisementService.updateStatusById({
       slotId,
       statusId: StatusStore.PROCESS,
     });
@@ -335,7 +337,7 @@ export class BotRequestService {
     text,
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
     if (!slot)
       throw new HttpException(
         SlotsErrorMessages.SLOT_NOT_FOUND,
@@ -365,7 +367,7 @@ export class BotRequestService {
     text,
     id,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(id);
+    const slot = await this.advertisementService.findOneById(id);
     if (!slot) return;
     if (slot.statusId !== StatusStore.AWAIT) {
       const ids = await this.userService.getAllAdminsChatIds();

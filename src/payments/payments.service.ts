@@ -7,11 +7,13 @@ import { UserPayment } from './models/user-payment.model';
 import { PaymentCreateDto, PaymentResponseDto } from './types/types';
 import { StatusStore } from '../status/StatusStore';
 import { ChannelsService } from '../channels/channels.service';
+import { SlotPayment } from './models/slot-payment.model';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectModel(Payment) private paymentRepository: typeof Payment,
+    @InjectModel(SlotPayment) private slotPaymentRepository: typeof SlotPayment,
     @InjectModel(UserPayment) private userPaymentRepository: typeof UserPayment,
     private channelService: ChannelsService,
   ) {}
@@ -60,5 +62,15 @@ export class PaymentsService {
     }
 
     return list;
+  }
+
+  async findPaymentBySlotId(slotId: number) {
+    const paymentSlot = await this.slotPaymentRepository.findOne({
+      where: { slotId },
+    });
+    if (!paymentSlot) return;
+    return await this.paymentRepository.findOne({
+      where: { id: paymentSlot.id },
+    });
   }
 }
