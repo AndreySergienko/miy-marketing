@@ -18,6 +18,8 @@ export class AdvertisementService {
     });
     await advertisement.$set('status', StatusStore.CREATE);
     await advertisement.$set('channel', channelId);
+
+    return advertisement;
   }
 
   async destroy(id: number) {
@@ -26,6 +28,10 @@ export class AdvertisementService {
 
   async removeAdvertisement(channelId: number) {
     await this.advertisementRepository.destroy({ where: { channelId } });
+  }
+
+  async findByTimestamp(timestamp: number) {
+    return await this.advertisementRepository.findOne({ where: { timestamp } });
   }
 
   async findActive(channelId: number) {

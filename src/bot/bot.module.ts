@@ -8,12 +8,13 @@ import { BotRequestService } from './bot-request.service';
 import { SlotsModule } from '../slots/slots.module';
 import { PaymentsModule } from '../payments/payments.module';
 import { PublisherMessagesModule } from '../publisher-messages/publisher-messages.module';
+import { AdvertisementModule } from 'src/advertisement/advertisement.module';
 
 @Global()
 @Module({
   controllers: [],
   providers: [BotService, BotEvent, BotRequestService],
-  exports: [BotEvent],
+  exports: [BotEvent, BotService],
   imports: [
     AuthModule,
     ChannelsModule,
@@ -21,6 +22,7 @@ import { PublisherMessagesModule } from '../publisher-messages/publisher-message
     SlotsModule,
     PaymentsModule,
     PublisherMessagesModule,
+    AdvertisementModule,
   ],
 })
 export class BotModule {}

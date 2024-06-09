@@ -16,6 +16,7 @@ import { CategoriesChannel } from '../../categories/models/categories-channel.mo
 import { Status } from '../../status/models/status.model';
 import { Slots } from '../../slots/models/slots.model';
 import { FormatChannel } from './format-channel.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -74,6 +75,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
 
   @HasMany(() => Slots)
   slots: Slots[];
+
+  @HasMany(() => Advertisement)
+  advertisements: Advertisement[];
 
   @ForeignKey(() => FormatChannel)
   @Column({ type: DataType.INTEGER })

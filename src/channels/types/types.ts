@@ -48,8 +48,8 @@ export class RegistrationChannelDto {
   categoriesId: number[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   price: number;
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  day: number;
+  // @IsNumber({}, ErrorValidation.IS_NUMBER())
+  // day: number;
   @IsSlotValidate('', ErrorValidation.IS_SLOT_INCORRECT())
   slots: string[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
@@ -68,6 +68,8 @@ export interface IValidationCancelChannelDto extends IValidationChannelDto {
 export class BuyChannelDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   slotId: number;
+  @IsString(ErrorValidation.IS_STRING())
+  date: string;
 }
 
 export interface IBuyChannelMessage {
@@ -76,7 +78,7 @@ export interface IBuyChannelMessage {
   price: number;
   format: string;
   date: number;
-  slotId: number;
+  channelId: number;
   conditionCheck?: string;
   link: string;
 }
@@ -101,7 +103,6 @@ export interface ChannelGetAllRequestDto {
 export interface ICreateSlot {
   channelId: number;
   timestamp: number;
-  timestampFinish: number;
 }
 
 export interface ICreateAdvertisementMessage {

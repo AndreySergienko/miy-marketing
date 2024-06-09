@@ -7,20 +7,21 @@ import { UserPayment } from './models/user-payment.model';
 import { PaymentCreateDto, PaymentResponseDto } from './types/types';
 import { StatusStore } from '../status/StatusStore';
 import { ChannelsService } from '../channels/channels.service';
-import { SlotPayment } from './models/slot-payment.model';
+import { AdvertisementPayment } from './models/advertisement-payment.model';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectModel(Payment) private paymentRepository: typeof Payment,
-    @InjectModel(SlotPayment) private slotPaymentRepository: typeof SlotPayment,
+    @InjectModel(AdvertisementPayment)
+    private slotPaymentRepository: typeof AdvertisementPayment,
     @InjectModel(UserPayment) private userPaymentRepository: typeof UserPayment,
     private channelService: ChannelsService,
   ) {}
 
   async addPayment({ price, slotId, userId }: PaymentCreateDto) {
     const payment = await this.paymentRepository.create({ price });
-    await payment.$set('slot', slotId);
+    await payment.$set('advertisement', slotId);
     await payment.$set('status', StatusStore.PAID);
     await payment.$set('user', userId);
   }
@@ -47,9 +48,9 @@ export class PaymentsService {
     for (let i = 0; i < payments.length; i++) {
       const payment = payments[i];
       const channelSlot = await this.channelService.findById(
-        payment.slot.channelId,
+        payment.advertisement.channelId,
       );
-      const datetime = payment.slot.timestamp;
+      const datetime = payment.advertisement.timestamp;
       const channel = {
         name: channelSlot.name,
       };
@@ -64,9 +65,9 @@ export class PaymentsService {
     return list;
   }
 
-  async findPaymentBySlotId(slotId: number) {
+  async findPaymentBySlotId(advertisementId: number) {
     const paymentSlot = await this.slotPaymentRepository.findOne({
-      where: { slotId },
+      where: { advertisementId },
     });
     if (!paymentSlot) return;
     return await this.paymentRepository.findOne({

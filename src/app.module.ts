@@ -33,6 +33,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { QueuesModule } from './queues/queues.module';
 import { Advertisement } from './advertisement/models/advertisement.model';
 import { AdvertisementModule } from './advertisement/advertisement.module';
+import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { AdvertisementModule } from './advertisement/advertisement.module';
         UserPayment,
         Card,
         Advertisement,
+        AdvertisementPayment,
       ]),
     ),
     ScheduleModule.forRoot(),

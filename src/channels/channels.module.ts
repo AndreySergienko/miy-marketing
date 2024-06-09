@@ -12,6 +12,7 @@ import { Slots } from '../slots/models/slots.model';
 import { SlotsModule } from '../slots/slots.module';
 import { FormatChannel } from './models/format-channel.model';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
+import { AdvertisementModule } from 'src/advertisement/advertisement.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { CategoriesChannel } from '../categories/models/categories-channel.model
     ]),
     UserModule,
     SlotsModule,
+    AdvertisementModule,
   ],
   providers: [ChannelsService],
   controllers: [ChannelsController],

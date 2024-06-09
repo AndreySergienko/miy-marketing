@@ -6,10 +6,10 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { Payment } from './payment.model';
-import { Slots } from '../../slots/models/slots.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Table({ tableName: 'slot-payment', updatedAt: false })
-export class SlotPayment extends Model<SlotPayment> {
+export class AdvertisementPayment extends Model<AdvertisementPayment> {
   @Column({
     type: DataType.INTEGER,
     unique: true,
@@ -22,7 +22,7 @@ export class SlotPayment extends Model<SlotPayment> {
   @Column({ type: DataType.INTEGER })
   paymentId: number;
 
-  @ForeignKey(() => Slots)
+  @ForeignKey(() => Advertisement)
   @Column({ type: DataType.INTEGER })
-  slotId: number;
+  advertisementId: number;
 }

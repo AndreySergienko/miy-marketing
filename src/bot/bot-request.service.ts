@@ -20,6 +20,7 @@ import { KeyboardAuthentication } from '../modules/extensions/bot/keyboard/Keybo
 import { convertUtcDateToFullDate } from '../utils/date';
 import { ICreateAdvertisementMessage } from '../channels/types/types';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
+import { getFormatChannelDuration } from 'src/channels/utils/getFormatChannelDuration';
 
 @Injectable()
 export class BotRequestService {
@@ -107,19 +108,34 @@ export class BotRequestService {
   }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
-    const slot = await this.advertisementService.findOneById(
-      +successful_payment.invoice_payload,
+
+    if (!successful_payment.invoice_payload) return;
+
+    const [channelId, timestamp, formatChannel] =
+      successful_payment.invoice_payload.split(':');
+
+    const timestampFinish = new Date(timestamp).setHours(
+      getFormatChannelDuration(formatChannel),
     );
-    if (!slot) return;
+
+    const advertisement = await this.advertisementService.createAdvertisement({
+      timestamp,
+      timestampFinish,
+      channelId: +channelId,
+    });
+    // const slot = await this.advertisementService.findOneById(
+    //   +successful_payment.invoice_payload,
+    // );
+    // if (!slot) return;
 
     await this.paymentsService.addPayment({
       price: successful_payment.total_amount,
       userId: user.id,
-      slotId: slot.id,
+      slotId: advertisement.id,
       statusId: StatusStore.PAID,
     });
 
-    await slot.$set('status', StatusStore.AWAIT);
+    await advertisement.$set('status', StatusStore.AWAIT);
 
     await global.bot.sendMessage(
       from.id,
@@ -128,7 +144,7 @@ export class BotRequestService {
 
     await this.userService.updateLastBotActive(
       from.id,
-      `${CallbackDataChannel.VALIDATE_MESSAGE_HANDLER}:${slot.id}`,
+      `${CallbackDataChannel.VALIDATE_MESSAGE_HANDLER}:${advertisement.id}`,
     );
   }
 
