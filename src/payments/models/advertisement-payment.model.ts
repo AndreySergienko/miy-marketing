@@ -8,7 +8,7 @@ import {
 import { Payment } from './payment.model';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
-@Table({ tableName: 'slot-payment', updatedAt: false })
+@Table({ tableName: 'advertisement-payment', updatedAt: false })
 export class AdvertisementPayment extends Model<AdvertisementPayment> {
   @Column({
     type: DataType.INTEGER,

@@ -135,12 +135,16 @@ export class BotRequestService {
     // if (!slot) return;
 
     await this.paymentsService.addPayment({
-      price: successful_payment.total_amount,
+      price: successful_payment.total_amount / 100,
       userId: user.id,
       slotId: advertisement.id,
       statusId: StatusStore.PAID,
     });
 
+    await advertisement.update(
+      { publisherId: user.id },
+      { where: { id: advertisement.id } },
+    );
     await advertisement.$set('status', StatusStore.AWAIT);
 
     await global.bot.sendMessage(

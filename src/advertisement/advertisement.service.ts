@@ -16,6 +16,7 @@ export class AdvertisementService {
       timestamp,
       timestampFinish,
     });
+
     await advertisement.$set('status', StatusStore.CREATE);
     await advertisement.$set('channel', channelId);
 
@@ -36,7 +37,11 @@ export class AdvertisementService {
 
   async findAllActive(channelId: number) {
     return await this.advertisementRepository.findAll({
-      where: { channelId, status: StatusStore.FINISH },
+      where: {
+        channelId,
+        statusId: [StatusStore.AWAIT, StatusStore.FINISH, StatusStore.PROCESS],
+      },
+      include: { all: true },
     });
   }
 

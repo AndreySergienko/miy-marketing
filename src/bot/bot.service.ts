@@ -14,7 +14,6 @@ import { StatusStore } from '../status/StatusStore';
 import { connect } from '../bot.connect';
 import { MessagesChannel } from 'src/modules/extensions/bot/messages/MessagesChannel';
 import { PaymentsService } from 'src/payments/payments.service';
-import { convertNextDay } from 'src/utils/date';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Injectable()
@@ -30,31 +29,29 @@ export class BotService implements OnModuleInit {
   ) {}
 
   async sendMessageReset(invalidAdvertisements: Advertisement[]) {
+    if (!invalidAdvertisements) return;
     for (let i = 0; i < invalidAdvertisements.length; i++) {
       const invalidAdvertisement = invalidAdvertisements[i];
-      const messageUserId = invalidAdvertisement.message.userId;
+      const publisher = await this.userService.findOneById(
+        invalidAdvertisement.publisherId,
+      );
+      const payment = await this.paymentService.findPaymentBySlotId(
+        invalidAdvertisement.id,
+      );
+      const info = {
+        price: payment.price,
+        email: publisher.email,
+        card: publisher.card.number,
+        id: invalidAdvertisement.id,
+        fio: publisher.fio,
+      };
 
-      if (invalidAdvertisement.timestampFinish < convertNextDay(+new Date())) {
-        await this.advertisementService.destroy(invalidAdvertisement.id);
-
-        const publisher = await this.userService.findOneById(messageUserId);
-        const payment = await this.paymentService.findPaymentBySlotId(
-          invalidAdvertisement.id,
-        );
-        const info = {
-          price: payment.price,
-          email: publisher.email,
-          card: publisher.card.number,
-          id: invalidAdvertisement.id,
-          fio: publisher.fio,
-        };
-
-        const admins = await this.userService.getAllAdmins();
-        await global.bot.sendMessage(
-          admins[0].chatId,
-          MessagesChannel.RESET_CASH(info),
-        );
-      }
+      const admins = await this.userService.getAllAdmins();
+      await global.bot.sendMessage(
+        admins[0].chatId,
+        MessagesChannel.RESET_CASH(info),
+      );
+      await this.advertisementService.destroy(invalidAdvertisement.id);
     }
   }
 
@@ -104,12 +101,12 @@ export class BotService implements OnModuleInit {
             }
           }
           if (leaveStatuses.includes(currentBotStatus) && channel) {
-            await this.channelsService.removeChannel(chatId);
-            await this.slotsService.removeSlots(channel.id);
             // Здесь надо получить все активные рекламные посты и по ним отписать админу на возврат средств
             const advertisements =
               await this.advertisementService.findAllActive(channel.id);
-            await this.sendMessageReset(advertisements);
+            if (advertisements) await this.sendMessageReset(advertisements);
+            await this.channelsService.removeChannel(chatId);
+            await this.slotsService.removeSlots(channel.id);
             await this.advertisementService.removeAdvertisement(channel.id);
           }
         },

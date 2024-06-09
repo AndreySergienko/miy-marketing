@@ -14,7 +14,7 @@ export class PaymentsService {
   constructor(
     @InjectModel(Payment) private paymentRepository: typeof Payment,
     @InjectModel(AdvertisementPayment)
-    private slotPaymentRepository: typeof AdvertisementPayment,
+    private advertisementPaymentRepository: typeof AdvertisementPayment,
     @InjectModel(UserPayment) private userPaymentRepository: typeof UserPayment,
     private channelService: ChannelsService,
   ) {}
@@ -66,12 +66,8 @@ export class PaymentsService {
   }
 
   async findPaymentBySlotId(advertisementId: number) {
-    const paymentSlot = await this.slotPaymentRepository.findOne({
-      where: { advertisementId },
-    });
-    if (!paymentSlot) return;
     return await this.paymentRepository.findOne({
-      where: { id: paymentSlot.id },
+      where: { advertisementId },
     });
   }
 }
