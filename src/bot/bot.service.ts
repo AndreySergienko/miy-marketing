@@ -106,12 +106,11 @@ export class BotService implements OnModuleInit {
           if (leaveStatuses.includes(currentBotStatus) && channel) {
             await this.channelsService.removeChannel(chatId);
             await this.slotsService.removeSlots(channel.id);
-            await this.advertisementService.removeAdvertisement(channel.id);
             // Здесь надо получить все активные рекламные посты и по ним отписать админу на возврат средств
-            const advertisements = await this.advertisementService.findActive(
-              channel.id,
-            );
+            const advertisements =
+              await this.advertisementService.findAllActive(channel.id);
             await this.sendMessageReset(advertisements);
+            await this.advertisementService.removeAdvertisement(channel.id);
           }
         },
       );

@@ -58,7 +58,6 @@ export class RegistrationChannelDto {
 
 export interface IValidationChannelDto {
   name: string;
-  day: string;
 }
 
 export interface IValidationCancelChannelDto extends IValidationChannelDto {
@@ -92,7 +91,6 @@ export interface ChannelGetAllRequestDto {
     | 'formatChannelId'
     | 'subscribers'
     | 'avatar'
-    | 'day'
     | 'price'
     | 'link'
     | 'description'

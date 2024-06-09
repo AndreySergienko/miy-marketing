@@ -15,7 +15,6 @@ import { User } from '../user/models/user.model';
 import { StatusStore } from '../status/StatusStore';
 import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
-import { convertUtcDateToFullDate } from '../utils/date';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
 import { Op } from 'sequelize';
@@ -90,7 +89,6 @@ export class ChannelsService {
         conditionCheck,
         avatar,
         price,
-        day,
         categories,
       }) => {
         const obj = {
@@ -105,7 +103,6 @@ export class ChannelsService {
           conditionCheck,
           avatar: setBotApiUrlFile(avatar),
           price,
-          day,
           categories: categories.map((category) => category.id),
         };
 
@@ -131,13 +128,12 @@ export class ChannelsService {
     const selectedDate = new Date(+date);
     const selectedDay = selectedDate.getDate();
     const selectedMonth = selectedDate.getMonth();
-    const advertisementTimestampWithDay = new Date(slot.timestamp).setDate(
-      selectedDay,
-    );
+    const newDate = new Date(+slot.timestamp);
+    const advertisementTimestampWithDay = newDate.setDate(selectedDay);
+
     const advertisementTimestampWithMonthAndDay = new Date(
       advertisementTimestampWithDay,
     ).setMonth(selectedMonth);
-
     const advertisement = await this.advertisementService.findByTimestamp(
       advertisementTimestampWithMonthAndDay,
     );
@@ -238,7 +234,6 @@ export class ChannelsService {
           description: channel.description,
           avatar: setBotApiUrlFile(channel.avatar),
           price: channel.price,
-          day: channel.day,
           conditionCheck: channel.conditionCheck,
           formatChannelId: channel.formatChannelId,
         },
@@ -279,7 +274,7 @@ export class ChannelsService {
 
     const dto: IValidationChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDate(+channel.day),
+      // day: convertUtcDateToFullDate(+channel.day),
     };
 
     await this.sendMessageAfterUpdateStatusChannel<IValidationChannelDto>(
@@ -315,7 +310,6 @@ export class ChannelsService {
 
     const dto: IValidationCancelChannelDto = {
       name: channel.name,
-      day: convertUtcDateToFullDate(+channel.day),
       reason,
     };
 
@@ -414,7 +408,10 @@ export class ChannelsService {
     // }
 
     const candidate = await this.channelRepository.findOne({
-      where: { name },
+      where: {
+        name,
+        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL, StatusStore.AWAIT],
+      },
     });
     if (candidate)
       throw new HttpException(

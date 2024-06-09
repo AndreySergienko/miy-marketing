@@ -53,8 +53,8 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
 
-  @Column({ type: DataType.BIGINT, allowNull: true })
-  day: number;
+  // @Column({ type: DataType.BIGINT, allowNull: true })
+  // day: number;
 
   // Условия для проверки
   @Column({ type: DataType.STRING, allowNull: true })

@@ -5,7 +5,6 @@ import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChan
 import { Channel } from '../channels/models/channels.model';
 import {
   convertTimestampToTime,
-  convertUtcDateToFullDate,
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
@@ -127,7 +126,6 @@ export class BotEvent {
     {
       chatId,
       name,
-      day,
       description,
       price,
       link,
@@ -138,7 +136,6 @@ export class BotEvent {
       conditionCheck,
     }: Channel,
   ) {
-    const full_day = convertUtcDateToFullDate(+day);
     const categoriesNames = categories.map((category) => category.value);
     const slotDate = slots.map((slot) =>
       convertTimestampToTime(+slot.timestamp),
@@ -148,7 +145,6 @@ export class BotEvent {
       adminId,
       MessagesChannel.REGISTRATION({
         name,
-        day: full_day,
         description,
         price,
         link,

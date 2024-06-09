@@ -17,7 +17,6 @@ export interface MessageChannelRegistrationDto {
   subscribers: number;
   link: string;
   price: number;
-  day: string;
   slots: string[];
   format: string;
   categories: string[];
@@ -67,8 +66,8 @@ Email: ${email}
     return '❌Вы отклонили регистрацию канала. Аргументируйте свое решение: ';
   }
 
-  static ACCEPT_REGISTRATION({ name, day }: IValidationChannelDto) {
-    return `🎉Ура! Канал ${name}:${day} успешно добавлен на платформу!
+  static ACCEPT_REGISTRATION({ name }: IValidationChannelDto) {
+    return `🎉Ура! Канал ${name} успешно добавлен на платформу!
 
 Возвращайтесь на сайт и создавайте новые выгодные рекламные интеграции!
 
@@ -85,12 +84,8 @@ Email: ${email}
     return `💬Ваш комментарий отправлен паблишеру`;
   }
 
-  static CANCEL_REGISTRATION({
-    name,
-    day,
-    reason,
-  }: IValidationCancelChannelDto) {
-    return `Отмена публикации канала: ${name} слота на день: ${day} по причине ${reason}`;
+  static CANCEL_REGISTRATION({ name, reason }: IValidationCancelChannelDto) {
+    return `Отмена публикации канала: ${name} по причине ${reason}`;
   }
 
   static VALIDATE_MESSAGE(msg: string, conditionCheck: string) {
@@ -206,7 +201,6 @@ ON-Developer
     subscribers,
     link,
     price,
-    day,
     slots,
     categories,
     format,
@@ -220,7 +214,6 @@ ON-Developer
 Подписчики: ${subscribers}
 Ссылка: ${link}
 Цена за слот: ${price}
-Дата публикации: ${day}
 Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
 Категории: [${categories}]

@@ -34,7 +34,7 @@ export class AdvertisementService {
     return await this.advertisementRepository.findOne({ where: { timestamp } });
   }
 
-  async findActive(channelId: number) {
+  async findAllActive(channelId: number) {
     return await this.advertisementRepository.findAll({
       where: { channelId, status: StatusStore.FINISH },
     });

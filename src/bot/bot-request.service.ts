@@ -81,17 +81,23 @@ export class BotRequestService {
    * **/
   public async checkBuyAdvertising(query: PreCheckoutQuery) {
     let status = false;
-    const slot = await this.advertisementService.findOneById(
-      +query.invoice_payload,
+
+    if (!query.invoice_payload) return;
+
+    const info = query.invoice_payload.split(':');
+
+    const advertisement = await this.advertisementService.findByTimestamp(
+      +info[1],
     );
-    if (!slot) {
+
+    if (advertisement) {
       await global.bot.answerPreCheckoutQuery(query.id, status, {
         error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
       });
       return;
     }
 
-    if (slot.statusId === StatusStore.PUBLIC) status = true;
+    status = true;
     await global.bot.answerPreCheckoutQuery(query.id, status, {
       error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
     });
@@ -114,12 +120,12 @@ export class BotRequestService {
     const [channelId, timestamp, formatChannel] =
       successful_payment.invoice_payload.split(':');
 
-    const timestampFinish = new Date(timestamp).setHours(
+    const timestampFinish = new Date(+timestamp).setHours(
       getFormatChannelDuration(formatChannel),
     );
 
     const advertisement = await this.advertisementService.createAdvertisement({
-      timestamp,
+      timestamp: +timestamp,
       timestampFinish,
       channelId: +channelId,
     });
