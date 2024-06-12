@@ -43,6 +43,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true, validate: { isUrl: true } })
   link: string;
 
+  @Column({ type: DataType.JSON, allowNull: true })
+  days: string[];
+
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
@@ -52,9 +55,6 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   // Вынести в дальнейшем в заказ
   @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
-
-  // @Column({ type: DataType.BIGINT, allowNull: true })
-  // day: number;
 
   // Условия для проверки
   @Column({ type: DataType.STRING, allowNull: true })

@@ -5,6 +5,7 @@ import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChan
 import { Channel } from '../channels/models/channels.model';
 import {
   convertTimestampToTime,
+  convertUtcDateToFullDate,
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
@@ -131,6 +132,7 @@ export class BotEvent {
       link,
       subscribers,
       categories,
+      days,
       slots,
       formatChannel,
       conditionCheck,
@@ -140,7 +142,6 @@ export class BotEvent {
     const slotDate = slots.map((slot) =>
       convertTimestampToTime(+slot.timestamp),
     );
-
     return await global.bot.sendMessage(
       adminId,
       MessagesChannel.REGISTRATION({
@@ -153,6 +154,7 @@ export class BotEvent {
         slots: slotDate,
         format: formatChannel.value,
         conditionCheck,
+        days,
       }),
       useSendMessage({
         inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),

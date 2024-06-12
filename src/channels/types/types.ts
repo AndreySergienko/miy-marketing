@@ -4,6 +4,7 @@ import { Channel } from '../models/channels.model';
 import { Slots } from '../../slots/models/slots.model';
 import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
 import { MAX_LENGTH_CONDITION } from '../../constants/validate.value';
+import { IsDaysValidate } from 'src/modules/extensions/validator/daysValidator';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -15,6 +16,7 @@ export interface ChannelsModelAttrs {
   link?: string;
   day?: number;
   price?: number;
+  days?: string[];
 }
 
 export class ChannelCreateDto implements ChannelsModelAttrs {
@@ -33,6 +35,9 @@ export class CheckConnectChannelDto {
 }
 
 export class RegistrationChannelDto {
+  @IsDaysValidate('', ErrorValidation.IS_DAYS_INCORRECT())
+  days: string[];
+
   @IsString(ErrorValidation.IS_STRING())
   name: string;
   @IsString(ErrorValidation.IS_STRING())
@@ -48,8 +53,6 @@ export class RegistrationChannelDto {
   categoriesId: number[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   price: number;
-  // @IsNumber({}, ErrorValidation.IS_NUMBER())
-  // day: number;
   @IsSlotValidate('', ErrorValidation.IS_SLOT_INCORRECT())
   slots: string[];
   @IsNumber({}, ErrorValidation.IS_NUMBER())
@@ -95,6 +98,7 @@ export interface ChannelGetAllRequestDto {
     | 'link'
     | 'description'
     | 'conditionCheck'
+    | 'days'
   >;
 }
 

@@ -15,6 +15,7 @@ export interface MessageChannelRegistrationDto {
   name: string;
   description: string;
   subscribers: number;
+  days: string[];
   link: string;
   price: number;
   slots: string[];
@@ -77,7 +78,7 @@ Email: ${email}
   }
 
   static get MODER_ACCEPT_REGISTRATION() {
-    return `✅Вы одобрили регистрацию  канала N на платформу ON-DEVELOPER`;
+    return `✅Вы одобрили регистрацию канала на платформу ON-DEVELOPER`;
   }
 
   static get MODER_CANCEL_REGISTRATION() {
@@ -205,6 +206,7 @@ ON-Developer
     categories,
     format,
     conditionCheck,
+    days,
   }: MessageChannelRegistrationDto) {
     return `🆕Новая заявка на регистрацию канала на платформу ON-DEVELOPER:
 
@@ -214,6 +216,7 @@ ON-Developer
 Подписчики: ${subscribers}
 Ссылка: ${link}
 Цена за слот: ${price}
+Даты: ${days}
 Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
 Категории: [${categories}]

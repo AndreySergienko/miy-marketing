@@ -1,3 +1,4 @@
+import { convertUtcDateToFullDate } from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -125,6 +126,28 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
+    const channel = await this.channelRepository.findOne({
+      where: { id: slot.channelId },
+      include: { all: true },
+    });
+
+    if (!channel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const openedDays = channel.days;
+    const dayIncludeOpenedDays = openedDays.find(
+      (openDay) => openDay === convertUtcDateToFullDate(+date),
+    );
+
+    if (!dayIncludeOpenedDays)
+      throw new HttpException(
+        ChannelsErrorMessages.DATE_INCORRECT,
+        HttpStatus.BAD_REQUEST,
+      );
+
     const selectedDate = new Date(+date);
     const selectedDay = selectedDate.getDate();
     const selectedMonth = selectedDate.getMonth();
@@ -141,32 +164,6 @@ export class ChannelsService {
     if (advertisement)
       throw new HttpException(
         SlotsErrorMessages.SLOT_IS_BOOKING,
-        HttpStatus.BAD_REQUEST,
-      );
-
-    // const slot = await this.advertisementService.findOneById(dto.slotId);
-
-    // if (slot.statusId === StatusStore.AWAIT) {
-    //   throw new HttpException(
-    //     SlotsErrorMessages.SLOT_IS_BOOKING,
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
-
-    // if (slot.statusId !== StatusStore.PUBLIC)
-    //   throw new HttpException(
-    //     SlotsErrorMessages.DATE_SLOT_INCORRECT,
-    //     HttpStatus.FORBIDDEN,
-    //   );
-
-    const channel = await this.channelRepository.findOne({
-      where: { id: slot.channelId },
-      include: { all: true },
-    });
-
-    if (!channel)
-      throw new HttpException(
-        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
 
@@ -227,6 +224,7 @@ export class ChannelsService {
       list.push({
         slots,
         channel: {
+          days: channel.days || [],
           id: channel.id,
           name: channel.name,
           subscribers: channel.subscribers,
@@ -392,7 +390,7 @@ export class ChannelsService {
       categoriesId,
       description,
       name,
-      // day,
+      days,
       slots,
       price,
       formatChannel,
@@ -400,13 +398,6 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    // if (convertNextDay(Date.now()) > day) {
-    //   throw new HttpException(
-    //     ChannelsErrorMessages.DATE_INCORRECT,
-    //     HttpStatus.BAD_REQUEST,
-    //   );
-    // }
-
     const candidate = await this.channelRepository.findOne({
       where: {
         name,
@@ -437,11 +428,15 @@ export class ChannelsService {
 
     await channel.$set('categories', categoriesId);
     const id = channel.id;
+
+    const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
+
     await this.channelRepository.update(
       {
         description,
         price,
         conditionCheck,
+        days: shortedDays,
       },
       {
         where: { id },
@@ -451,16 +446,9 @@ export class ChannelsService {
     await channel.$set('status', status);
     await channel.$set('formatChannel', formatChannel);
 
-    // const formatChannelObject = await this.formatChannelRepository.findOne({
-    //   where: { id: formatChannel },
-    // });
-
     for (let i = 0; i < slots.length; i++) {
       const [hours, minutes] = slots[i].split(':');
       const timestamp = new Date().setHours(+hours, +minutes, 0);
-      // const timestampFinish = new Date(timestamp).setHours(
-      //   getFormatChannelDuration(formatChannelObject.value),
-      // );
       await this.slotService.createSlot({
         timestamp,
         channelId: id,
