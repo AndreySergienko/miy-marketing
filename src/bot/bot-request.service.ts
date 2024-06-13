@@ -84,11 +84,13 @@ export class BotRequestService {
 
     if (!query.invoice_payload) return;
 
-    const info = query.invoice_payload.split(':');
+    const [channelId, timestamp] = query.invoice_payload.split(':');
 
-    const advertisement = await this.advertisementService.findByTimestamp(
-      +info[1],
-    );
+    const advertisement =
+      await this.advertisementService.findByTimestampAndChannelId(
+        +timestamp,
+        +channelId,
+      );
 
     if (advertisement) {
       await global.bot.answerPreCheckoutQuery(query.id, status, {
@@ -117,7 +119,7 @@ export class BotRequestService {
 
     if (!successful_payment.invoice_payload) return;
 
-    const [channelId, timestamp, formatChannel] =
+    const [channelId, timestamp, formatChannel, slot] =
       successful_payment.invoice_payload.split(':');
 
     const timestampFinish = new Date(+timestamp).setHours(
@@ -128,6 +130,7 @@ export class BotRequestService {
       timestamp: +timestamp,
       timestampFinish,
       channelId: +channelId,
+      slotId: +slot,
     });
     // const slot = await this.advertisementService.findOneById(
     //   +successful_payment.invoice_payload,

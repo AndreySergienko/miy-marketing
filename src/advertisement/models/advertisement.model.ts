@@ -12,6 +12,7 @@ import { Status } from '../../status/models/status.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
 import { Payment } from '../../payments/models/payment.model';
 import { AdvertisementModelAttrs } from '../types/types';
+import { Slots } from 'src/slots/models/slots.model';
 
 @Table({ tableName: 'advertisement', createdAt: false, updatedAt: false })
 export class Advertisement extends Model<
@@ -55,6 +56,13 @@ export class Advertisement extends Model<
   @ForeignKey(() => PublisherMessages)
   @Column({ type: DataType.INTEGER, allowNull: true })
   messageId: number;
+
+  @ForeignKey(() => Slots)
+  @Column({ type: DataType.INTEGER })
+  slotId: number;
+
+  @BelongsTo(() => Slots)
+  slot: Slots;
 
   @BelongsTo(() => PublisherMessages)
   message: PublisherMessages;

@@ -83,6 +83,7 @@ export interface IBuyChannelMessage {
   channelId: number;
   conditionCheck?: string;
   link: string;
+  slotId: number;
 }
 
 export interface ChannelGetAllRequestDto {

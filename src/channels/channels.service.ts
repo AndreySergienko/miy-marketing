@@ -153,13 +153,15 @@ export class ChannelsService {
     const selectedMonth = selectedDate.getMonth();
     const newDate = new Date(+slot.timestamp);
     const advertisementTimestampWithDay = newDate.setDate(selectedDay);
-
     const advertisementTimestampWithMonthAndDay = new Date(
       advertisementTimestampWithDay,
     ).setMonth(selectedMonth);
-    const advertisement = await this.advertisementService.findByTimestamp(
-      advertisementTimestampWithMonthAndDay,
-    );
+
+    const advertisement =
+      await this.advertisementService.findByTimestampAndChannelId(
+        advertisementTimestampWithMonthAndDay,
+        channel.id,
+      );
 
     if (advertisement)
       throw new HttpException(
@@ -176,6 +178,7 @@ export class ChannelsService {
       channelId: channel.id,
       conditionCheck: channel.conditionCheck,
       link: channel.link || '',
+      slotId: slot.id,
     });
 
     return SlotsSuccessMessages.SLOT_IN_BOT;
@@ -529,5 +532,11 @@ export class ChannelsService {
 
   public async findFormatById(id: number) {
     return await this.formatChannelRepository.findOne({ where: { id } });
+  }
+
+  public async findAllPublic() {
+    return await this.channelRepository.findAll({
+      where: { statusId: StatusStore.PUBLIC },
+    });
   }
 }

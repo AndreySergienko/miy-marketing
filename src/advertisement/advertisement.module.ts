@@ -5,6 +5,7 @@ import { Status } from '../status/models/status.model';
 import { PublisherMessages } from '../publisher-messages/models/publisher-messages.model';
 import { AdvertisementService } from './advertisement.service';
 import { Advertisement } from './models/advertisement.model';
+import { Slots } from 'src/slots/models/slots.model';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { Advertisement } from './models/advertisement.model';
       Channel,
       Status,
       PublisherMessages,
+      Slots,
     ]),
   ],
   providers: [AdvertisementService],

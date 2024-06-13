@@ -53,7 +53,7 @@ export class BotEvent {
       chatId,
       'Покупка рекламной интеграции в канале',
       MessagesChannel.BUY_ADVERTISING(dto),
-      `${dto.channelId}:${dto.date}:${dto.format}`,
+      `${dto.channelId}:${dto.date}:${dto.format}:${dto.slotId}`,
       process.env.PAYMENT_TOKEN,
       'RUB',
       [

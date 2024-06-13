@@ -12,6 +12,7 @@ import {
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelsService } from 'src/channels/channels.service';
 
 @Injectable()
 export class QueuesService {
@@ -21,6 +22,7 @@ export class QueuesService {
     private botService: BotService,
     private userService: UserService,
     private botEvent: BotEvent,
+    private channelsService: ChannelsService,
   ) {}
 
   private async sendNotifications(
@@ -116,4 +118,22 @@ export class QueuesService {
       console.log(e);
     }
   }
+
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, {
+    timeZone: 'Asia/Yekaterinburg',
+  })
+  public async checkCancelChannel() {
+    try {
+      const channels = await this.channelsService.findAllPublic();
+      for (let i = 0; i < channels.length; i++) {
+        const channel = channels[i];
+        channel.days;
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // TODO Вынести отсюда
+  private hasInvalidDay() {}
 }
