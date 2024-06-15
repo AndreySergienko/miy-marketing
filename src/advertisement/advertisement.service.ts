@@ -11,14 +11,24 @@ export class AdvertisementService {
     private advertisementRepository: typeof Advertisement,
   ) {}
 
-  async createAdvertisement({ timestamp, channelId, timestampFinish, slotId }) {
+  async createAdvertisement({
+    timestamp,
+    channelId,
+    timestampFinish,
+    slotId,
+  }: {
+    timestamp: number;
+    channelId: number;
+    timestampFinish: number;
+    slotId: number;
+  }) {
     const advertisement = await this.advertisementRepository.create({
       timestamp,
       timestampFinish,
     });
 
     await advertisement.$set('status', StatusStore.CREATE);
-    await advertisement.$set('slotId', slotId);
+    await advertisement.$set('slot', slotId);
     await advertisement.$set('channel', channelId);
 
     return advertisement;
@@ -26,6 +36,18 @@ export class AdvertisementService {
 
   async findAllBySlotId(slotId: number) {
     return await this.advertisementRepository.findAll({ where: { slotId } });
+  }
+
+  async findAllBySlotIdAndChannelId({
+    slotId,
+    channelId,
+  }: {
+    channelId: number;
+    slotId: number;
+  }) {
+    return await this.advertisementRepository.findAll({
+      where: { slotId, channelId },
+    });
   }
 
   async destroy(id: number) {

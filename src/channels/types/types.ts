@@ -70,8 +70,10 @@ export interface IValidationCancelChannelDto extends IValidationChannelDto {
 export class BuyChannelDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   slotId: number;
-  @IsString(ErrorValidation.IS_STRING())
-  date: string;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  dateIdx: number;
+  // @IsString(ErrorValidation.IS_STRING())
+  // date: string;
 }
 
 export interface IBuyChannelMessage {

@@ -126,6 +126,7 @@ export class BotRequestService {
       getFormatChannelDuration(formatChannel),
     );
 
+    console.log(channelId, slot, timestamp, timestampFinish);
     const advertisement = await this.advertisementService.createAdvertisement({
       timestamp: +timestamp,
       timestampFinish,

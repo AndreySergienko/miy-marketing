@@ -115,7 +115,10 @@ export class ChannelsService {
   }
 
   /** Метод покупки рекламы **/
-  public async buyAdvertising({ date, slotId }: BuyChannelDto, userId: number) {
+  public async buyAdvertising(
+    { dateIdx, slotId }: BuyChannelDto,
+    userId: number,
+  ) {
     const user = await this.userService.findOneById(userId);
     if (!user) return;
 
@@ -137,25 +140,30 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const openedDays = channel.days;
-    const dayIncludeOpenedDays = openedDays.find(
-      (openDay) => openDay === convertUtcDateToFullDate(+date),
-    );
+    const date = channel.days[dateIdx];
 
-    if (!dayIncludeOpenedDays)
+    // const openedDays = channel.days;
+    // const dayIncludeOpenedDays = openedDays.find(
+    //   (openDay) => openDay === +date,
+    // );
+
+    if (!date)
       throw new HttpException(
         ChannelsErrorMessages.DATE_INCORRECT,
         HttpStatus.BAD_REQUEST,
       );
 
-    const selectedDate = new Date(+date);
-    const selectedDay = selectedDate.getDate();
-    const selectedMonth = selectedDate.getMonth();
+    const [day, month] = date.split('.');
+    // const selectedDate = new Date(date);
+    // const selectedDay = selectedDate.getDate();
+    // const selectedMonth = selectedDate.getMonth();
     const newDate = new Date(+slot.timestamp);
-    const advertisementTimestampWithDay = newDate.setDate(selectedDay);
+    const advertisementTimestampWithDay = newDate.setDate(+day);
     const advertisementTimestampWithMonthAndDay = new Date(
       advertisementTimestampWithDay,
-    ).setMonth(selectedMonth);
+    ).setMonth(+month);
+
+    console.log(date, advertisementTimestampWithMonthAndDay, channel.id);
 
     const advertisement =
       await this.advertisementService.findByTimestampAndChannelId(
