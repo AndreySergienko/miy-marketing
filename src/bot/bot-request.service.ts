@@ -348,7 +348,6 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
-    console.log('test11');
     await this.userService.updateLastBotActive(
       from.id,
       `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE(slotId)}`,

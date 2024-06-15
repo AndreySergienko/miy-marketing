@@ -21,10 +21,8 @@ export function IsDaysValidate(
           const checkedDays = {};
           for (let i = 0; i < days.length; i++) {
             const day = days[i];
-            console.log(new Date(day));
 
             if (isNaN(+new Date(+day))) return false;
-            console.log(day, checkedDays);
             if (checkedDays[day]) return false;
             if (convertNextDay(Date.now()) > +day) return false;
             checkedDays[day] = day;

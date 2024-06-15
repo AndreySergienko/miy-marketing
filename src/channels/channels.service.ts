@@ -142,11 +142,6 @@ export class ChannelsService {
 
     const date = channel.days[dateIdx];
 
-    // const openedDays = channel.days;
-    // const dayIncludeOpenedDays = openedDays.find(
-    //   (openDay) => openDay === +date,
-    // );
-
     if (!date)
       throw new HttpException(
         ChannelsErrorMessages.DATE_INCORRECT,
@@ -154,16 +149,11 @@ export class ChannelsService {
       );
 
     const [day, month] = date.split('.');
-    // const selectedDate = new Date(date);
-    // const selectedDay = selectedDate.getDate();
-    // const selectedMonth = selectedDate.getMonth();
     const newDate = new Date(+slot.timestamp);
     const advertisementTimestampWithDay = newDate.setDate(+day);
     const advertisementTimestampWithMonthAndDay = new Date(
       advertisementTimestampWithDay,
-    ).setMonth(+month);
-
-    console.log(date, advertisementTimestampWithMonthAndDay, channel.id);
+    ).setMonth(+month - 1);
 
     const advertisement =
       await this.advertisementService.findByTimestampAndChannelId(
@@ -459,7 +449,7 @@ export class ChannelsService {
 
     for (let i = 0; i < slots.length; i++) {
       const [hours, minutes] = slots[i].split(':');
-      const timestamp = new Date().setHours(+hours, +minutes, 0);
+      const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
       await this.slotService.createSlot({
         timestamp,
         channelId: id,
