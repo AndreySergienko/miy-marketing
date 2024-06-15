@@ -231,7 +231,7 @@ export class ChannelsService {
           subscribers: channel.subscribers,
           link: channel.link || '',
           description: channel.description,
-          avatar: setBotApiUrlFile(channel.avatar),
+          avatar: channel.avatar,
           price: channel.price,
           conditionCheck: channel.conditionCheck,
           formatChannelId: channel.formatChannelId,
