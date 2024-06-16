@@ -92,6 +92,7 @@ export class ChannelsService {
         price,
         categories,
       }) => {
+        const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
         const obj = {
           id,
           statusId,
@@ -102,7 +103,7 @@ export class ChannelsService {
           link,
           description,
           conditionCheck,
-          avatar: setBotApiUrlFile(avatar),
+          avatar: avatarLink,
           price,
           categories: categories.map((category) => category.id),
         };
