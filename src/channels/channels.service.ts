@@ -76,9 +76,8 @@ export class ChannelsService {
     });
 
     const transformChannels = [];
-
-    channels.forEach(
-      ({
+    for (let i = 0; i < channels.length; i++) {
+      const {
         id,
         statusId,
         formatChannelId,
@@ -92,27 +91,29 @@ export class ChannelsService {
         price,
         categories,
         days,
-      }) => {
-        const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
-        const obj = {
-          id,
-          statusId,
-          formatChannelId,
-          name,
-          subscribers,
-          isCanPostMessage,
-          link,
-          description,
-          conditionCheck,
-          avatar: avatarLink,
-          price,
-          days,
-          categories: categories.map((category) => category.id),
-        };
+      } = channels[i];
 
-        transformChannels.push(obj);
-      },
-    );
+      const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
+      const slots = await this.slotService.findAllByChannelId(id);
+      const obj = {
+        id,
+        statusId,
+        formatChannelId,
+        name,
+        subscribers,
+        isCanPostMessage,
+        slots,
+        link,
+        description,
+        conditionCheck,
+        avatar: avatarLink,
+        price,
+        days,
+        categories: categories.map((category) => category.id),
+      };
+
+      transformChannels.push(obj);
+    }
 
     return transformChannels;
   }
