@@ -91,6 +91,7 @@ export class ChannelsService {
         avatar,
         price,
         categories,
+        days,
       }) => {
         const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
         const obj = {
@@ -105,6 +106,7 @@ export class ChannelsService {
           conditionCheck,
           avatar: avatarLink,
           price,
+          days,
           categories: categories.map((category) => category.id),
         };
 
@@ -379,6 +381,7 @@ export class ChannelsService {
 
     await channel.$set('users', [userId]);
     return {
+      days: channel.days,
       name: channel.name,
       subscribers: channel.subscribers,
       description: channel.description,
@@ -481,6 +484,7 @@ export class ChannelsService {
         categoriesId,
         avatar: setBotApiUrlFile(channel.avatar),
         conditionCheck,
+        days: updatedChannel.days,
       },
     };
   }
