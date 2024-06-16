@@ -270,14 +270,8 @@ export class ChannelsService {
 
     await channel.$set('status', StatusStore.PUBLIC);
 
-    // for (let i = 0; i < channel.slots.length; i++) {
-    //   const slot = channel.slots[i];
-    //   await slot.$set('status', StatusStore.PUBLIC);
-    // }
-
     const dto: IValidationChannelDto = {
       name: channel.name,
-      // day: convertUtcDateToFullDate(+channel.day),
     };
 
     await this.sendMessageAfterUpdateStatusChannel<IValidationChannelDto>(
@@ -304,12 +298,6 @@ export class ChannelsService {
       return;
     }
     await channel.$set('status', StatusStore.CANCEL);
-    // await this.slotService.removeSlots(channel.id);
-
-    // for (let i = 0; i < channel.slots.length; i++) {
-    //   const slot = channel.slots[i];
-    //   await slot.$set('status', StatusStore.CANCEL);
-    // }
 
     const dto: IValidationCancelChannelDto = {
       name: channel.name,
@@ -407,7 +395,7 @@ export class ChannelsService {
     const candidate = await this.channelRepository.findOne({
       where: {
         name,
-        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL, StatusStore.AWAIT],
+        statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
       },
     });
     if (candidate)
