@@ -32,6 +32,10 @@ export class BotService implements OnModuleInit {
     if (!invalidAdvertisements) return;
     for (let i = 0; i < invalidAdvertisements.length; i++) {
       const invalidAdvertisement = invalidAdvertisements[i];
+
+      console.log(invalidAdvertisements)
+
+
       const publisher = await this.userService.findOneById(
         invalidAdvertisement.publisherId,
       );

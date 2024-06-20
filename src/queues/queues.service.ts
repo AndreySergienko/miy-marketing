@@ -7,6 +7,7 @@ import { Op } from 'sequelize';
 import {
   convertDateTimeToMoscow,
   fifthMinuteLater,
+  hourLast,
   towMinuteLast,
 } from '../utils/date';
 import { UserService } from '../user/user.service';
@@ -109,7 +110,9 @@ export class QueuesService {
   public async sendResetCash() {
     try {
       const invalidAdvertisements = await this.advertisementRepository.findAll({
-        where: { statusId: StatusStore.FINISH },
+        where: { statusId: StatusStore.FINISH, timestampFinish: {
+          [Op.lte]: String(convertDateTimeToMoscow(hourLast())),
+        } },
         include: { all: true },
       });
 

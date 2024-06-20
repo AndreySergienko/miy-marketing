@@ -122,11 +122,8 @@ export class BotRequestService {
     const [channelId, timestamp, formatChannel, slot] =
       successful_payment.invoice_payload.split(':');
 
-    const timestampFinish = new Date(+timestamp).setHours(
-      getFormatChannelDuration(formatChannel),
-    );
+    const timestampFinish = +timestamp + 1000 * 60 * 60 * getFormatChannelDuration(formatChannel)
 
-    console.log(channelId, slot, timestamp, timestampFinish);
     const advertisement = await this.advertisementService.createAdvertisement({
       timestamp: +timestamp,
       timestampFinish,

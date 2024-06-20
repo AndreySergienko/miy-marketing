@@ -1,6 +1,7 @@
 export const dayLater = () => Date.now() + 1000 * 60 * 60 * 24;
 export const fifthMinuteLater = () => Date.now() + 1000 * 60 * 5;
 export const towMinuteLast = () => Date.now() - 1000 * 60 * 2;
+export const hourLast = () => Date.now() - 1000 * 60 * 2;
 export const weekLater = () => Date.now() + 1000 * 60 * 60 * 24 * 7;
 
 export const convertUtcDateToFullDate = (timestamp: number) =>

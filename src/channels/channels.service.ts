@@ -29,6 +29,7 @@ import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
 import { FormatChannel } from './models/format-channel.model';
 import { Categories } from '../categories/models/categories.model';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
+import { DATEONLY } from 'sequelize';
 
 @Injectable()
 export class ChannelsService {
@@ -143,9 +144,10 @@ export class ChannelsService {
         ChannelsErrorMessages.CHANNEL_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
-
+    
+      console.log(channel.days)
     const date = channel.days[dateIdx];
-
+    console.log(dateIdx, date)
     if (!date)
       throw new HttpException(
         ChannelsErrorMessages.DATE_INCORRECT,
@@ -158,6 +160,11 @@ export class ChannelsService {
     const advertisementTimestampWithMonthAndDay = new Date(
       advertisementTimestampWithDay,
     ).setMonth(+month - 1);
+
+    if (advertisementTimestampWithMonthAndDay < Date.now()) throw new HttpException(
+      ChannelsErrorMessages.DATE_INCORRECT,
+      HttpStatus.BAD_REQUEST,
+    );
 
     const advertisement =
       await this.advertisementService.findByTimestampAndChannelId(
@@ -340,6 +347,7 @@ export class ChannelsService {
 
   public async checkConnectChannel(userId: number, chatName: string) {
     const user = await this.userService.getUserById(userId);
+    console.log(user)
     const channel = await this.findOneByChatName(chatName);
     if (!channel)
       throw new HttpException(
