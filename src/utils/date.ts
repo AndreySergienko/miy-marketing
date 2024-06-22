@@ -53,3 +53,10 @@ export const getCurrentMoscowTimestamp = () => {
     }),
   );
 };
+
+export const createDate = (newDate: Date, month: string, day: string) => {
+  const updateDate = newDate.setDate(+day);
+  return new Date(
+    updateDate,
+    ).setMonth(+month - 1);
+  }

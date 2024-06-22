@@ -41,11 +41,11 @@ export class QueuesService {
     });
   }
 
-  private findSlots(statusId: number) {
+  private findSlots(statusId: number, key: 'timestamp' | 'timestampFinish') {
     return this.advertisementRepository.findAll({
       where: {
         statusId,
-        timestamp: {
+        [key]: {
           /** Дата публикации **/
           [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
           /** Дата публикации с погрешностью в 1 минуту **/
@@ -58,12 +58,12 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES, {
+  @Cron(CronExpression.EVERY_30_SECONDS, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
     try {
-      const finishedSlots = await this.findSlots(StatusStore.FINISH);
+      const finishedSlots = await this.findSlots(StatusStore.FINISH, 'timestampFinish');
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
         const chatId = slot.channel.chatId;
@@ -79,7 +79,7 @@ export class QueuesService {
         }
       }
 
-      const activeSlots = await this.findSlots(StatusStore.PROCESS);
+      const activeSlots = await this.findSlots(StatusStore.PROCESS, 'timestamp');
       for (let i = 0; i < activeSlots.length; i++) {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);

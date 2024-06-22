@@ -33,9 +33,6 @@ export class BotService implements OnModuleInit {
     for (let i = 0; i < invalidAdvertisements.length; i++) {
       const invalidAdvertisement = invalidAdvertisements[i];
 
-      console.log(invalidAdvertisements)
-
-
       const publisher = await this.userService.findOneById(
         invalidAdvertisement.publisherId,
       );
@@ -45,7 +42,7 @@ export class BotService implements OnModuleInit {
       const info = {
         price: payment.price,
         email: publisher.email,
-        card: publisher.card.number,
+        card: publisher?.card?.number,
         id: invalidAdvertisement.id,
         fio: publisher.fio,
       };

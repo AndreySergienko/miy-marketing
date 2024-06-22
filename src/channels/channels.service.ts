@@ -1,4 +1,4 @@
-import { convertUtcDateToFullDate } from './../utils/date';
+import { convertUtcDateToFullDate, createDate } from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -44,6 +44,7 @@ export class ChannelsService {
     private slotService: SlotsService,
     private botEvent: BotEvent,
     private advertisementService: AdvertisementService,
+    // private botService: BotService,
   ) {}
 
   /** Получить списком формат рекламы
@@ -144,10 +145,14 @@ export class ChannelsService {
         ChannelsErrorMessages.CHANNEL_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
+
+      if (channel.statusId !== StatusStore.PUBLIC)
+        throw new HttpException(
+          ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+          HttpStatus.BAD_REQUEST,
+      );
     
-      console.log(channel.days)
     const date = channel.days[dateIdx];
-    console.log(dateIdx, date)
     if (!date)
       throw new HttpException(
         ChannelsErrorMessages.DATE_INCORRECT,
@@ -156,10 +161,7 @@ export class ChannelsService {
 
     const [day, month] = date.split('.');
     const newDate = new Date(+slot.timestamp);
-    const advertisementTimestampWithDay = newDate.setDate(+day);
-    const advertisementTimestampWithMonthAndDay = new Date(
-      advertisementTimestampWithDay,
-    ).setMonth(+month - 1);
+    const advertisementTimestampWithMonthAndDay = createDate(newDate, month, day)
 
     if (advertisementTimestampWithMonthAndDay < Date.now()) throw new HttpException(
       ChannelsErrorMessages.DATE_INCORRECT,
@@ -228,9 +230,18 @@ export class ChannelsService {
   public async getAll(query: IQueryFilterAndPagination) {
     const channels = await this.getChannels(query);
     const list: ChannelGetAllRequestDto[] = [];
-
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
+
+      // const invalidDate = channel.days.every(el => {
+      //   const [day, month] = el.split('.')
+      //   const updatedDate = createDate(new Date(), month, day)
+      //   return updatedDate < +new Date()
+      // })
+
+      // if (invalidDate) {
+      //   continue;
+      // }
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       const slots = await this.slotService.findAllByChannelId(channel.id);
       list.push({
@@ -486,6 +497,106 @@ export class ChannelsService {
     };
   }
 
+
+  // public async updateRegistrationChannel(
+  //   {
+  //     categoriesId,
+  //     description,
+  //     name,
+  //     days,
+  //     slots,
+  //     price,
+  //     formatChannel,
+  //     conditionCheck,
+  //   }: RegistrationChannelDto,
+  //   userId: number,
+  // ) {
+  //   const candidate = await this.channelRepository.findOne({
+  //     where: {
+  //       name,
+  //       statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
+  //     },
+  //   });
+  //   if (candidate)
+  //     throw new HttpException(
+  //       ChannelsErrorMessages.CREATED,
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+  //   const channel = await this.findOneByChatName(name);
+  //   const admins = await this.userService.getAllAdminsChatIds();
+
+  //   if (!channel)
+  //     throw new HttpException(
+  //       ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+  //       HttpStatus.BAD_REQUEST,
+  //     );
+
+  //   const isAdmin = channel.users.find((user: User) => +user.id === +userId);
+
+  //   if (!isAdmin)
+  //     throw new HttpException(
+  //       ChannelsErrorMessages.USER_FORBIDDEN,
+  //       HttpStatus.FORBIDDEN,
+  //     );
+
+  //   await channel.$set('categories', categoriesId);
+  //   const id = channel.id;
+
+  //   const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
+
+  //   await this.channelRepository.update(
+  //     {
+  //       description,
+  //       price,
+  //       conditionCheck,
+  //       days: shortedDays,
+  //     },
+  //     {
+  //       where: { id },
+  //     },
+  //   );
+  //   const status = StatusStore.AWAIT;
+  //   await channel.$set('status', status);
+  //   await channel.$set('formatChannel', formatChannel);
+
+  //   for (let i = 0; i < slots.length; i++) {
+  //     const [hours, minutes] = slots[i].split(':');
+  //     const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
+  //     await this.slotService.createSlot({
+  //       timestamp,
+  //       channelId: id,
+  //     });
+  //   }
+
+  //   const updatedChannel = await this.channelRepository.findOne({
+  //     where: { id },
+  //     include: { all: true },
+  //   });
+
+  //   for (let i = 0; i < admins.length; i++) {
+  //     const adminId = admins[i];
+  //     await this.botEvent.sendMessageAdminAfterCreateChannel(
+  //       adminId,
+  //       updatedChannel,
+  //     );
+  //   }
+
+  //   return {
+  //     ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
+  //     channel: {
+  //       description,
+  //       link: channel.link || '',
+  //       price,
+  //       name,
+  //       statusId: status,
+  //       categoriesId,
+  //       avatar: setBotApiUrlFile(channel.avatar),
+  //       conditionCheck,
+  //       days: updatedChannel.days,
+  //     },
+  //   };
+  // }
+
   /** Найти один канала по ID */
   public findById(id: number) {
     return this.channelRepository.findOne({
@@ -528,6 +639,10 @@ export class ChannelsService {
 
   public async removeChannel(chatId: number) {
     return await this.channelRepository.destroy({ where: { chatId } });
+  }
+
+  public async removeChannelById(id: number) {
+    return await this.channelRepository.destroy({ where: { id } });
   }
 
   public async findFormatById(id: number) {
