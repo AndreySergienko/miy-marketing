@@ -190,6 +190,7 @@ export class ChannelsService {
       conditionCheck: channel.conditionCheck,
       link: channel.link || '',
       slotId: slot.id,
+      email: user.email
     });
 
     return SlotsSuccessMessages.SLOT_IN_BOT;

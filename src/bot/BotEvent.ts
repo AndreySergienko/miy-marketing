@@ -49,6 +49,7 @@ export class BotEvent {
   }
 
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
+    const price = (dto.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }).split(' ')
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',
@@ -62,6 +63,23 @@ export class BotEvent {
           amount: dto.price * 100,
         },
       ],
+      {
+        provider_data: JSON.stringify({
+          receipt: {
+            email: dto.email,
+            items: [
+              {
+                description: 'Покупка рекламной интеграции',
+                quantity: '1.00',
+                amount: {
+                  value: price[0],
+                  currency: 'RUB'
+                }
+              }
+            ]
+          }
+        })
+      }
     );
   }
 

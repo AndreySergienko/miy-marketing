@@ -85,6 +85,7 @@ export interface IBuyChannelMessage {
   channelId: number;
   conditionCheck?: string;
   link: string;
+  email: string;
   slotId: number;
 }
 
