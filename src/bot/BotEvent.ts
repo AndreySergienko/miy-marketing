@@ -66,7 +66,6 @@ export class BotEvent {
         ]
       }
     })
-    console.log('CHECK PROVIDER DATA==========  ', provider_data)
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',

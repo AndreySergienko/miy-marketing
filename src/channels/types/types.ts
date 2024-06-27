@@ -121,7 +121,7 @@ export interface ICreateAdvertisementMessage {
 export interface IResetCashMessage {
   price: number;
   email: string;
-  card: string;
+  productId: string;
   id: number;
   fio: string;
 }

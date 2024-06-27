@@ -16,8 +16,8 @@ export class PaymentsService {
     private channelService: ChannelsService,
   ) {}
 
-  async addPayment({ price, slotId, userId }: PaymentCreateDto) {
-    const payment = await this.paymentRepository.create({ price });
+  async addPayment({ price, slotId, userId, productId }: PaymentCreateDto) {
+    const payment = await this.paymentRepository.create({ price, productId });
     await payment.$set('advertisement', slotId);
     await payment.$set('status', StatusStore.PAID);
     await payment.$set('user', userId);

@@ -26,6 +26,9 @@ export class Payment extends Model<Payment, PaymentModelAttrs> {
   @Column({ type: DataType.INTEGER })
   price: number;
 
+  @Column({ type: DataType.STRING })
+  productId: string;
+
   @BelongsTo(() => Status)
   status: Status;
 

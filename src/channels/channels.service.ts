@@ -668,20 +668,20 @@ export class ChannelsService {
         invalidAdvertisement.publisherId,
       );
 
-      const payment = await this.paymentRepository.findOne({ where: { advertisementId: invalidAdvertisement.id } })
-      const info = {
-        price: 0,
-        email: publisher.email,
-        card: publisher?.card?.number,
-        id: invalidAdvertisement.id,
-        fio: publisher.fio,
-      };
+      // const payment = await this.paymentRepository.findOne({ where: { advertisementId: invalidAdvertisement.id } })
+      // const info = {
+      //   price: 0,
+      //   email: publisher.email,
+      //   card: publisher?.card?.number,
+      //   id: invalidAdvertisement.id,
+      //   fio: publisher.fio,
+      // };
 
-      const admins = await this.userService.getAllAdmins();
-      await global.bot.sendMessage(
-        admins[0].chatId,
-        MessagesChannel.RESET_CASH(info),
-      );
+      // const admins = await this.userService.getAllAdmins();
+      // await global.bot.sendMessage(
+      //   admins[0].chatId,
+      //   MessagesChannel.RESET_CASH(info),
+      // );
       await this.advertisementService.destroy(invalidAdvertisement.id);
     }
   }

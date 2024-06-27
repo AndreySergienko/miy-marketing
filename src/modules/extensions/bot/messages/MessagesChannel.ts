@@ -33,14 +33,14 @@ export class MessagesChannel {
     return 'Вернуться в личный кабинет';
   }
 
-  static RESET_CASH({ id, fio, email, card, price }: IResetCashMessage) {
+  static RESET_CASH({ id, fio, email, productId, price }: IResetCashMessage) {
     return `Реклама не состоялась, пожалуйста, верните средства пользователю:
 
 ID слота: ${id}
 Сумма: ${price}
 Email: ${email}
 ФИО: ${fio}
-Номер карты: ${card}`;
+Номер заказа: ${productId}`;
   }
 
   static MESSAGE_IS_VALIDATION(role: string) {
