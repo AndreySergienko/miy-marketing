@@ -104,7 +104,7 @@ export class QueuesService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
+  @Cron(CronExpression.EVERY_30_SECONDS, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async sendResetCash() {

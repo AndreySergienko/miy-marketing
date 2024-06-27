@@ -116,7 +116,6 @@ export class BotRequestService {
   }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
-    console.log(successful_payment)
     if (!successful_payment.invoice_payload) return;
 
     const [channelId, timestamp, formatChannel, slot] =
@@ -130,13 +129,13 @@ export class BotRequestService {
       channelId: +channelId,
       slotId: +slot,
     });
-    
+
     await this.paymentsService.addPayment({
       price: successful_payment.total_amount / 100,
       userId: user.id,
       slotId: advertisement.id,
       statusId: StatusStore.PAID,
-      productId: successful_payment.provider_payment_charge_id
+      productId: successful_payment.telegram_payment_charge_id
     });
 
     await advertisement.update(
