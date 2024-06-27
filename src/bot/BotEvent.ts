@@ -57,7 +57,7 @@ export class BotEvent {
             description: 'Покупка рекламной интеграции',
             quantity: '1.00',
             amount: {
-              value: price[0].trim(),
+              value: price[0].trim().replace(/,/g, '.'),
               currency: 'RUB'
             },
             // TODO вынести в env
@@ -66,6 +66,7 @@ export class BotEvent {
         ]
       }
     })
+    console.log('CHECK PROVIDER DATA==========  ', provider_data)
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',
