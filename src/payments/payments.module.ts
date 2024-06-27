@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Payment } from './models/payment.model';
 import { User } from '../user/models/user.model';
@@ -18,7 +18,6 @@ import { AdvertisementPayment } from './models/advertisement-payment.model';
       Payment,
       User,
       Advertisement,
-      AdvertisementPayment,
       UserPayment,
       Status,
     ]),

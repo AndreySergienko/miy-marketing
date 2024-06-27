@@ -65,18 +65,18 @@ export class ChannelsController {
     return await this.channelService.registrationChannel(dto, userId);
   }
 
-  // @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)
-  // @Post('update')
-  // async updateChannel(
-  //   @Req() req: Request,
-  //   @Body() dto: RegistrationChannelDto,
-  // ) {
-  //   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  //   // @ts-expect-error;
-  //   const userId = req.user.id;
-  //   if (typeof userId !== 'number') return;
-  //   return await this.channelService.updateChannel(dto, userId);
-  // }
+  @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)
+  @Post('update')
+  async updateChannel(
+    @Req() req: Request,
+    @Body() dto: RegistrationChannelDto,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error;
+    const userId = req.user.id;
+    if (typeof userId !== 'number') return;
+    return await this.channelService.updateRegistrationChannel(dto, userId);
+  }
 
   @Perms(PermissionStore.CAN_BUY)
   @Post('buy')

@@ -29,7 +29,10 @@ import ChannelsSuccessMessages from './messages/ChannelsSuccessMessages';
 import { FormatChannel } from './models/format-channel.model';
 import { Categories } from '../categories/models/categories.model';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
-import { DATEONLY } from 'sequelize';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { MessagesChannel } from 'src/modules/extensions/bot/messages/MessagesChannel';
+import { PaymentsService } from 'src/payments/payments.service';
+import { Payment } from 'src/payments/models/payment.model';
 
 @Injectable()
 export class ChannelsService {
@@ -38,13 +41,13 @@ export class ChannelsService {
     @InjectModel(FormatChannel)
     private formatChannelRepository: typeof FormatChannel,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
+    @InjectModel(Payment) private paymentRepository: typeof Payment,
     @InjectModel(CategoriesChannel)
     private categoriesChannelRepository: typeof CategoriesChannel,
     private userService: UserService,
     private slotService: SlotsService,
     private botEvent: BotEvent,
     private advertisementService: AdvertisementService,
-    // private botService: BotService,
   ) {}
 
   /** Получить списком формат рекламы
@@ -499,104 +502,110 @@ export class ChannelsService {
   }
 
 
-  // public async updateRegistrationChannel(
-  //   {
-  //     categoriesId,
-  //     description,
-  //     name,
-  //     days,
-  //     slots,
-  //     price,
-  //     formatChannel,
-  //     conditionCheck,
-  //   }: RegistrationChannelDto,
-  //   userId: number,
-  // ) {
-  //   const candidate = await this.channelRepository.findOne({
-  //     where: {
-  //       name,
-  //       statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
-  //     },
-  //   });
-  //   if (candidate)
-  //     throw new HttpException(
-  //       ChannelsErrorMessages.CREATED,
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   const channel = await this.findOneByChatName(name);
-  //   const admins = await this.userService.getAllAdminsChatIds();
+  public async updateRegistrationChannel(
+    {
+      categoriesId,
+      description,
+      name,
+      days,
+      slots,
+      price,
+      formatChannel,
+      conditionCheck,
+    }: RegistrationChannelDto,
+    userId: number,
+  ) {
+    const candidate = await this.channelRepository.findOne({
+      where: {
+        name,
+        statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
+      },
+    });
+    if (candidate)
+      throw new HttpException(
+        ChannelsErrorMessages.CREATED,
+        HttpStatus.BAD_REQUEST,
+      );
+    const channel = await this.findOneByChatName(name);
+    const admins = await this.userService.getAllAdminsChatIds();
 
-  //   if (!channel)
-  //     throw new HttpException(
-  //       ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-  //       HttpStatus.BAD_REQUEST,
-  //     );
+    if (!channel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
 
-  //   const isAdmin = channel.users.find((user: User) => +user.id === +userId);
+    const isAdmin = channel.users.find((user: User) => +user.id === +userId);
 
-  //   if (!isAdmin)
-  //     throw new HttpException(
-  //       ChannelsErrorMessages.USER_FORBIDDEN,
-  //       HttpStatus.FORBIDDEN,
-  //     );
+    if (!isAdmin)
+      throw new HttpException(
+        ChannelsErrorMessages.USER_FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
 
-  //   await channel.$set('categories', categoriesId);
-  //   const id = channel.id;
+    await channel.$set('categories', categoriesId);
+    const id = channel.id;
 
-  //   const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
+    const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
 
-  //   await this.channelRepository.update(
-  //     {
-  //       description,
-  //       price,
-  //       conditionCheck,
-  //       days: shortedDays,
-  //     },
-  //     {
-  //       where: { id },
-  //     },
-  //   );
-  //   const status = StatusStore.AWAIT;
-  //   await channel.$set('status', status);
-  //   await channel.$set('formatChannel', formatChannel);
+    const advertisements =
+    await this.advertisementService.findAllActive(channel.id);
+    if (advertisements) await this.sendMessageReset(advertisements);
+    await this.slotService.removeSlots(channel.id);
+    await this.advertisementService.removeAdvertisement(channel.id);
 
-  //   for (let i = 0; i < slots.length; i++) {
-  //     const [hours, minutes] = slots[i].split(':');
-  //     const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
-  //     await this.slotService.createSlot({
-  //       timestamp,
-  //       channelId: id,
-  //     });
-  //   }
+    await this.channelRepository.update(
+      {
+        description,
+        price,
+        conditionCheck,
+        days: shortedDays,
+      },
+      {
+        where: { id },
+      },
+    );
+    const status = StatusStore.AWAIT;
+    await channel.$set('status', status);
+    await channel.$set('formatChannel', formatChannel);
 
-  //   const updatedChannel = await this.channelRepository.findOne({
-  //     where: { id },
-  //     include: { all: true },
-  //   });
+    for (let i = 0; i < slots.length; i++) {
+      const [hours, minutes] = slots[i].split(':');
+      const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
+      await this.slotService.createSlot({
+        timestamp,
+        channelId: id,
+      });
+    }
 
-  //   for (let i = 0; i < admins.length; i++) {
-  //     const adminId = admins[i];
-  //     await this.botEvent.sendMessageAdminAfterCreateChannel(
-  //       adminId,
-  //       updatedChannel,
-  //     );
-  //   }
+    const updatedChannel = await this.channelRepository.findOne({
+      where: { id },
+      include: { all: true },
+    });
 
-  //   return {
-  //     ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
-  //     channel: {
-  //       description,
-  //       link: channel.link || '',
-  //       price,
-  //       name,
-  //       statusId: status,
-  //       categoriesId,
-  //       avatar: setBotApiUrlFile(channel.avatar),
-  //       conditionCheck,
-  //       days: updatedChannel.days,
-  //     },
-  //   };
-  // }
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await this.botEvent.sendMessageAdminAfterCreateChannel(
+        adminId,
+        updatedChannel,
+      );
+    }
+
+    return {
+      ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
+      channel: {
+        description,
+        link: channel.link || '',
+        price,
+        name,
+        statusId: status,
+        categoriesId,
+        avatar: setBotApiUrlFile(channel.avatar),
+        conditionCheck,
+        days: updatedChannel.days,
+      },
+    };
+  }
 
   /** Найти один канала по ID */
   public findById(id: number) {
@@ -648,6 +657,33 @@ export class ChannelsService {
 
   public async findFormatById(id: number) {
     return await this.formatChannelRepository.findOne({ where: { id } });
+  }
+
+  async sendMessageReset(invalidAdvertisements: Advertisement[]) {
+    if (!invalidAdvertisements) return;
+    for (let i = 0; i < invalidAdvertisements.length; i++) {
+      const invalidAdvertisement = invalidAdvertisements[i];
+
+      const publisher = await this.userService.findOneById(
+        invalidAdvertisement.publisherId,
+      );
+
+      const payment = await this.paymentRepository.findOne({ where: { advertisementId: invalidAdvertisement.id } })
+      const info = {
+        price: 0,
+        email: publisher.email,
+        card: publisher?.card?.number,
+        id: invalidAdvertisement.id,
+        fio: publisher.fio,
+      };
+
+      const admins = await this.userService.getAllAdmins();
+      await global.bot.sendMessage(
+        admins[0].chatId,
+        MessagesChannel.RESET_CASH(info),
+      );
+      await this.advertisementService.destroy(invalidAdvertisement.id);
+    }
   }
 
   public async findAllPublic() {

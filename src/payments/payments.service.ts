@@ -7,14 +7,11 @@ import { UserPayment } from './models/user-payment.model';
 import { PaymentCreateDto, PaymentResponseDto } from './types/types';
 import { StatusStore } from '../status/StatusStore';
 import { ChannelsService } from '../channels/channels.service';
-import { AdvertisementPayment } from './models/advertisement-payment.model';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectModel(Payment) private paymentRepository: typeof Payment,
-    @InjectModel(AdvertisementPayment)
-    private advertisementPaymentRepository: typeof AdvertisementPayment,
     @InjectModel(UserPayment) private userPaymentRepository: typeof UserPayment,
     private channelService: ChannelsService,
   ) {}

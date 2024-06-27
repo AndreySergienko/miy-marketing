@@ -5,7 +5,6 @@ import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChan
 import { Channel } from '../channels/models/channels.model';
 import {
   convertTimestampToTime,
-  convertUtcDateToFullDate,
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
@@ -49,7 +48,22 @@ export class BotEvent {
   }
 
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
-    const price = (dto.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }).split(' ')
+    const price = (dto.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }).split('₽')
+    const provider_data = JSON.stringify({
+      receipt: {
+        email: dto.email,
+        items: [
+          {
+            description: 'Покупка рекламной интеграции',
+            quantity: '1.00',
+            amount: {
+              value: price[0].trim(),
+              currency: 'RUB'
+            }
+          }
+        ]
+      }
+    })
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',
@@ -64,21 +78,7 @@ export class BotEvent {
         },
       ],
       {
-        provider_data: JSON.stringify({
-          receipt: {
-            email: dto.email,
-            items: [
-              {
-                description: 'Покупка рекламной интеграции',
-                quantity: '1.00',
-                amount: {
-                  value: price[0],
-                  currency: 'RUB'
-                }
-              }
-            ]
-          }
-        })
+        provider_data
       }
     );
   }

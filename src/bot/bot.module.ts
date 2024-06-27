@@ -1,5 +1,5 @@
 import { BotService } from './bot.service';
-import { Global, Module } from '@nestjs/common';
+import { forwardRef, Global, Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { ChannelsModule } from '../channels/channels.module';
 import { BotEvent } from './BotEvent';
@@ -16,8 +16,8 @@ import { AdvertisementModule } from 'src/advertisement/advertisement.module';
   providers: [BotService, BotEvent, BotRequestService],
   exports: [BotEvent, BotService],
   imports: [
-    AuthModule,
     ChannelsModule,
+    AuthModule,
     UserModule,
     SlotsModule,
     PaymentsModule,
