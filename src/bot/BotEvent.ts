@@ -59,7 +59,9 @@ export class BotEvent {
             amount: {
               value: price[0].trim(),
               currency: 'RUB'
-            }
+            },
+            // TODO вынести в env
+            vat_code: 1
           }
         ]
       }
