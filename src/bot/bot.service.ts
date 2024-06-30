@@ -145,7 +145,6 @@ export class BotService implements OnModuleInit {
 
     global.bot.on('successful_payment', async (msg: TelegramBot.Message) => {
       try {
-        console.log('SUCCES PAYMENT===========================', msg)
         await this.botRequestService.afterBuyAdvertising(msg);
       } catch (e) {
         console.log(e);

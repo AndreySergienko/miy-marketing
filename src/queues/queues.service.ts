@@ -58,7 +58,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_30_MINUTES, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
@@ -104,7 +104,7 @@ export class QueuesService {
     }
   }
 
-  @Cron(CronExpression.EVERY_30_SECONDS, {
+  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async sendResetCash() {
@@ -122,7 +122,7 @@ export class QueuesService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_3AM, {
+  @Cron(CronExpression.EVERY_10_SECONDS, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async checkCancelChannel() {
@@ -130,13 +130,22 @@ export class QueuesService {
       const channels = await this.channelsService.findAllPublic();
       for (let i = 0; i < channels.length; i++) {
         const channel = channels[i];
-        channel.days;
+
+        const isDateInvalid = channel.days.every((date) => {
+          const [day, month, year] = date.split('.')
+          const timestamp = +new Date(`${month}/${day}/${year}`)
+          return +new Date() > timestamp
+        })
+
+        if (isDateInvalid) {
+          await channel.$set('status', StatusStore.CANCEL)
+          await global.bot.sendMessage(channel.users[0].chatId, `Уважаемый администратор!
+
+Даты публикации канала ${channel.name} устарели, пожалуйста, обновите список актуальных дат.`)
+        }
       }
     } catch (e) {
       console.log(e);
     }
   }
-
-  // TODO Вынести отсюда
-  private hasInvalidDay() {}
 }

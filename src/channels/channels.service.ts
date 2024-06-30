@@ -30,8 +30,6 @@ import { FormatChannel } from './models/format-channel.model';
 import { Categories } from '../categories/models/categories.model';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
-import { MessagesChannel } from 'src/modules/extensions/bot/messages/MessagesChannel';
-import { PaymentsService } from 'src/payments/payments.service';
 import { Payment } from 'src/payments/models/payment.model';
 
 @Injectable()
@@ -218,15 +216,11 @@ export class ChannelsService {
     const channelIds = categoriesChannels.map(
       (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
     );
-    // Временно убираем дату
-    // const currentDay = getCurrentMoscowTimestamp() + 1000 * 60 * 60;
     return await this.channelRepository.findAll({
       where: {
         id: channelIds,
         statusId: StatusStore.PUBLIC,
-        // day: {
-        //   [Op.gt]: currentDay,
-        // },
+
       },
     });
   }
@@ -251,7 +245,11 @@ export class ChannelsService {
       list.push({
         slots,
         channel: {
-          days: channel.days || [],
+          days: channel.days.filter((date) => {
+            const [day, month, year] = date.split('.')
+            const timestamp = +new Date(`${month}/${day}/${year}`)
+            return new Date().setHours(0, 0, 0, 0) < timestamp
+          }) || [],
           id: channel.id,
           name: channel.name,
           subscribers: channel.subscribers,
@@ -668,20 +666,6 @@ export class ChannelsService {
         invalidAdvertisement.publisherId,
       );
 
-      // const payment = await this.paymentRepository.findOne({ where: { advertisementId: invalidAdvertisement.id } })
-      // const info = {
-      //   price: 0,
-      //   email: publisher.email,
-      //   card: publisher?.card?.number,
-      //   id: invalidAdvertisement.id,
-      //   fio: publisher.fio,
-      // };
-
-      // const admins = await this.userService.getAllAdmins();
-      // await global.bot.sendMessage(
-      //   admins[0].chatId,
-      //   MessagesChannel.RESET_CASH(info),
-      // );
       await this.advertisementService.destroy(invalidAdvertisement.id);
     }
   }
@@ -689,6 +673,7 @@ export class ChannelsService {
   public async findAllPublic() {
     return await this.channelRepository.findAll({
       where: { statusId: StatusStore.PUBLIC },
+      include: User
     });
   }
 }
