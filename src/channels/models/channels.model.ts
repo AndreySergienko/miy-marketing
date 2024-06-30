@@ -16,6 +16,7 @@ import { CategoriesChannel } from '../../categories/models/categories-channel.mo
 import { Status } from '../../status/models/status.model';
 import { Slots } from '../../slots/models/slots.model';
 import { FormatChannel } from './format-channel.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -42,6 +43,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true, validate: { isUrl: true } })
   link: string;
 
+  @Column({ type: DataType.JSON, allowNull: true })
+  days: string[];
+
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 
@@ -51,9 +55,6 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   // Вынести в дальнейшем в заказ
   @Column({ type: DataType.INTEGER, allowNull: true })
   price: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: true })
-  day: number;
 
   // Условия для проверки
   @Column({ type: DataType.STRING, allowNull: true })
@@ -74,6 +75,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
 
   @HasMany(() => Slots)
   slots: Slots[];
+
+  @HasMany(() => Advertisement)
+  advertisements: Advertisement[];
 
   @ForeignKey(() => FormatChannel)
   @Column({ type: DataType.INTEGER })

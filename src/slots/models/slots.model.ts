@@ -9,9 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
-import { Status } from '../../status/models/status.model';
-import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
-import { Payment } from '../../payments/models/payment.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -26,11 +24,8 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @Column({ type: DataType.BIGINT })
   timestamp: number;
 
-  @Column({ type: DataType.BIGINT })
-  timestampFinish: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: true })
-  messageBotId: number;
+  @HasMany(() => Advertisement)
+  advertisements: Advertisement[];
 
   @ForeignKey(() => Channel)
   @Column({ type: DataType.BIGINT })
@@ -38,24 +33,4 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
 
   @BelongsTo(() => Channel)
   channel: Channel;
-
-  @ForeignKey(() => Status)
-  @Column({ type: DataType.INTEGER })
-  statusId: number;
-
-  @BelongsTo(() => Status)
-  status: Status;
-
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  publisherId: number;
-
-  @ForeignKey(() => PublisherMessages)
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  messageId: number;
-
-  @BelongsTo(() => PublisherMessages)
-  message: PublisherMessages;
-
-  @HasMany(() => Payment)
-  payment: Payment;
 }

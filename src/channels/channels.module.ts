@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -12,6 +12,8 @@ import { Slots } from '../slots/models/slots.model';
 import { SlotsModule } from '../slots/slots.module';
 import { FormatChannel } from './models/format-channel.model';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
+import { AdvertisementModule } from 'src/advertisement/advertisement.module';
+import { Payment } from 'src/payments/models/payment.model';
 
 @Module({
   imports: [
@@ -24,9 +26,11 @@ import { CategoriesChannel } from '../categories/models/categories-channel.model
       Slots,
       FormatChannel,
       CategoriesChannel,
+      Payment,
     ]),
     UserModule,
     SlotsModule,
+    AdvertisementModule,
   ],
   providers: [ChannelsService],
   controllers: [ChannelsController],

@@ -16,9 +16,9 @@ export class PaymentsService {
     private channelService: ChannelsService,
   ) {}
 
-  async addPayment({ price, slotId, userId }: PaymentCreateDto) {
-    const payment = await this.paymentRepository.create({ price });
-    await payment.$set('slot', slotId);
+  async addPayment({ price, slotId, userId, productId }: PaymentCreateDto) {
+    const payment = await this.paymentRepository.create({ price, productId });
+    await payment.$set('advertisement', slotId);
     await payment.$set('status', StatusStore.PAID);
     await payment.$set('user', userId);
   }
@@ -45,9 +45,9 @@ export class PaymentsService {
     for (let i = 0; i < payments.length; i++) {
       const payment = payments[i];
       const channelSlot = await this.channelService.findById(
-        payment.slot.channelId,
+        payment.advertisement.channelId,
       );
-      const datetime = payment.slot.timestamp;
+      const datetime = payment.advertisement.timestamp;
       const channel = {
         name: channelSlot.name,
       };
@@ -60,5 +60,11 @@ export class PaymentsService {
     }
 
     return list;
+  }
+
+  async findPaymentBySlotId(advertisementId: number) {
+    return await this.paymentRepository.findOne({
+      where: { advertisementId },
+    });
   }
 }

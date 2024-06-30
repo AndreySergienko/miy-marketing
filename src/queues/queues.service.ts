@@ -1,31 +1,33 @@
+import { BotService } from './../bot/bot.service';
 import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/sequelize';
-import { Slots } from '../slots/models/slots.model';
 import { StatusStore } from '../status/StatusStore';
 import { Op } from 'sequelize';
 import {
   convertDateTimeToMoscow,
-  convertNextDay,
   fifthMinuteLater,
+  hourLast,
   towMinuteLast,
 } from '../utils/date';
 import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
-import { User } from '../user/models/user.model';
-import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelsService } from 'src/channels/channels.service';
 
 @Injectable()
 export class QueuesService {
   constructor(
-    @InjectModel(Slots) private slotsRepository: typeof Slots,
-    @InjectModel(User) private usersRepository: typeof User,
+    @InjectModel(Advertisement)
+    private advertisementRepository: typeof Advertisement,
+    private botService: BotService,
     private userService: UserService,
     private botEvent: BotEvent,
+    private channelsService: ChannelsService,
   ) {}
 
   private async sendNotifications(
-    slot: Slots,
+    slot: Advertisement,
     method: 'sendAfterPublicMessage' | 'sendAfterDeleteMessage',
   ) {
     const publisher = await this.userService.findOneById(slot.message.userId);
@@ -39,11 +41,11 @@ export class QueuesService {
     });
   }
 
-  private findSlots(statusId: number) {
-    return this.slotsRepository.findAll({
+  private findSlots(statusId: number, key: 'timestamp' | 'timestampFinish') {
+    return this.advertisementRepository.findAll({
       where: {
         statusId,
-        timestamp: {
+        [key]: {
           /** Дата публикации **/
           [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
           /** Дата публикации с погрешностью в 1 минуту **/
@@ -56,18 +58,18 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES, {
+  @Cron(CronExpression.EVERY_30_SECONDS, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
     try {
-      const finishedSlots = await this.findSlots(StatusStore.FINISH);
+      const finishedSlots = await this.findSlots(StatusStore.FINISH, 'timestampFinish');
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
         const chatId = slot.channel.chatId;
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
-        await this.slotsRepository.destroy({ where: { id: slot.id } });
+        await this.advertisementRepository.destroy({ where: { id: slot.id } });
         if (user.isNotification) {
           await this.sendNotifications(
             slot,
@@ -77,14 +79,14 @@ export class QueuesService {
         }
       }
 
-      const activeSlots = await this.findSlots(StatusStore.PROCESS);
+      const activeSlots = await this.findSlots(StatusStore.PROCESS, 'timestamp');
       for (let i = 0; i < activeSlots.length; i++) {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
         const text = await global.bot.sendMessage(chatId, slot.message.message);
         const user = await this.userService.findByChannelId(slot.channel.id);
-        await this.slotsRepository.update(
+        await this.advertisementRepository.update(
           { messageBotId: text.message_id },
           { where: { id: slot.id } },
         );
@@ -102,45 +104,39 @@ export class QueuesService {
     }
   }
 
-  @Cron(CronExpression.EVERY_DAY_AT_1AM, {
+  @Cron(CronExpression.EVERY_30_SECONDS, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async sendResetCash() {
     try {
-      const invalidSlots = await this.slotsRepository.findAll({
-        where: { statusId: StatusStore.FINISH },
+      const invalidAdvertisements = await this.advertisementRepository.findAll({
+        where: { statusId: StatusStore.FINISH, timestampFinish: {
+          [Op.lte]: String(convertDateTimeToMoscow(hourLast())),
+        } },
         include: { all: true },
       });
 
-      for (let i = 0; i < invalidSlots.length; i++) {
-        const invalidSlot = invalidSlots[i];
-        const publisher = await this.userService.findOneById(
-          invalidSlot.message.userId,
-        );
+      await this.botService.sendMessageReset(invalidAdvertisements);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
-        const info = {
-          price: invalidSlot.payment.price,
-          email: publisher.email,
-          card: publisher.card.number,
-          id: invalidSlot.id,
-          fio: publisher.fio,
-        };
-
-        if (
-          invalidSlot.timestampFinish <
-          convertNextDay(invalidSlot.timestampFinish)
-        ) {
-          await this.slotsRepository.destroy({ where: { id: invalidSlot.id } });
-        }
-
-        const admins = await this.userService.getAllAdmins();
-        await global.bot.sendMessage(
-          admins[0].chatId,
-          MessagesChannel.RESET_CASH(info),
-        );
+  @Cron(CronExpression.EVERY_DAY_AT_3AM, {
+    timeZone: 'Asia/Yekaterinburg',
+  })
+  public async checkCancelChannel() {
+    try {
+      const channels = await this.channelsService.findAllPublic();
+      for (let i = 0; i < channels.length; i++) {
+        const channel = channels[i];
+        channel.days;
       }
     } catch (e) {
       console.log(e);
     }
   }
+
+  // TODO Вынести отсюда
+  private hasInvalidDay() {}
 }

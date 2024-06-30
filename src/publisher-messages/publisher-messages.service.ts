@@ -21,7 +21,7 @@ export class PublisherMessagesService {
       message,
       userId,
     });
-    await msg.$set('slot', slotId);
+    await msg.$set('advertisement', slotId);
     return msg;
   }
 

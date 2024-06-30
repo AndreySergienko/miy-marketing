@@ -183,8 +183,13 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
       <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:40px 30px 20px 40px;font-family:'Montserrat',sans-serif;" align="left">
 
   <div style="font-size: 14px; color: #4b4a4a; line-height: 190%; text-align: left; word-wrap: break-word;">
-    <p style="font-size: 14px; line-height: 190%;"><span style="font-size: 18px; line-height: 34.2px;"><strong><span style="line-height: 34.2px; font-size: 18px;">Dear Georgia,</span></strong></span></p>
-<p style="font-size: 14px; line-height: 190%;"><span style="font-size: 16px; line-height: 30.4px;">We have successfully scheduled your next appointment for:</span></p>
+    <p style="font-size: 14px; line-height: 190%;"><span style="font-size: 18px; line-height: 34.2px;"><strong><span style="line-height: 34.2px; font-size: 18px;">Дорогой пользователь,</span></strong></span></p>
+<p style="font-size: 14px; line-height: 190%;"><span style="font-size: 16px; line-height: 30.4px;">Благодорим вас за регистрацию на платформе
+  <div style="font-size: 14px; color: #27187e; line-height: 200%; text-align: center; word-wrap: break-word;">
+        <p style="font-size: 14px; line-height: 200%;"><span style="font-size: 18px; line-height: 36px;"><strong>ON-DEVELOPER</strong></span></p>
+    <p style="font-size: 14px; line-height: 200%;"><span style="font-size: 18px; line-height: 36px;"><strong></strong></span></p>
+  </div>
+</span></p>
   </div>
 
       </td>
@@ -218,12 +223,9 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
 <table id="u_content_text_3" style="font-family:'Montserrat',sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
   <tbody>
     <tr>
-      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;" align="left">
+      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:10px;font-family:'Montserrat',sans-serif;" align="center">
 
-  <div style="font-size: 14px; color: #27187e; line-height: 200%; text-align: center; word-wrap: break-word;">
-    <p style="font-size: 14px; line-height: 200%;"><span style="font-size: 18px; line-height: 36px;"><strong>Thursday, November 11</strong></span></p>
-<p style="font-size: 14px; line-height: 200%;"><span style="font-size: 18px; line-height: 36px;"><strong>at 10.30 AM</strong></span></p>
-  </div>
+        <h4 style="margin: 0px; color: #27187e; line-height: 140%; text-align: center; word-wrap: break-word; font-family: arial,helvetica,sans-serif; font-size: 18px; font-weight: 400;"><strong>Для подтверждения почты необходимо</strong></h4>
 
       </td>
     </tr>
@@ -238,8 +240,8 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
   <!--[if mso]><style>.v-button {background: transparent !important;}</style><![endif]-->
 <div align="center">
   <!--[if mso]><v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="${process.env.API_URL}auth/confirm-email/${link}" style="height:49px; v-text-anchor:middle; width:224px;" arcsize="0%"  stroke="f" fillcolor="#ff8600"><w:anchorlock/><center style="color:#FFFFFF;"><![endif]-->
-    <a href="${process.env.API_URL}auth/confirm-email/${link}" target="_blank" class="v-button" style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #ff8600; border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
-      <span style="display:block;padding:16px 50px;line-height:120%;"><strong><span style="font-size: 14px; line-height: 16.8px;">Н А Ж М И&nbsp; &nbsp;С Ю Д А</span></strong></span>
+    <a href="${process.env.API_URL}auth/confirm-email/${link}" target="_blank" class="v-button" style="box-sizing: border-box;display: inline-block;text-decoration: none;-webkit-text-size-adjust: none;text-align: center;color: #FFFFFF; background-color: #190ae9; border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px; width:auto; max-width:100%; overflow-wrap: break-word; word-break: break-word; word-wrap:break-word; mso-border-alt: none;font-size: 14px;">
+      <span style="display:block;padding:16px 50px;line-height:120%;"><strong><span style="font-size: 14px; line-height: 16.8px;">К Л И К Н У Т Ь&nbsp; &nbsp;С Ю Д А</span></strong></span>
     </a>
     <!--[if mso]></center></v:roundrect><![endif]-->
 </div>
@@ -254,45 +256,6 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
 </div>
 <!--[if (mso)|(IE)]></td><![endif]-->
 <!--[if (mso)|(IE)]><td align="center" width="300" style="width: 300px;padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;" valign="top"><![endif]-->
-<div class="u-col u-col-50" style="max-width: 320px;min-width: 300px;display: table-cell;vertical-align: top;">
-  <div style="height: 100%;width: 100% !important;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;">
-  <!--[if (!mso)&(!IE)]><!--><div style="box-sizing: border-box; height: 100%; padding: 0px;border-top: 0px solid transparent;border-left: 0px solid transparent;border-right: 0px solid transparent;border-bottom: 0px solid transparent;border-radius: 0px;-webkit-border-radius: 0px; -moz-border-radius: 0px;"><!--<![endif]-->
-
-<table style="font-family:'Montserrat',sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-  <tbody>
-    <tr>
-      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:15px 10px 0px;font-family:'Montserrat',sans-serif;" align="left">
-
-  <!--[if mso]><table width="100%"><tr><td><![endif]-->
-    <h4 style="margin: 0px; color: #27187e; line-height: 140%; text-align: left; word-wrap: break-word; font-family: arial,helvetica,sans-serif; font-size: 18px; font-weight: 400;"><strong>Please Remember to bring:</strong></h4>
-  <!--[if mso]></td></tr></table><![endif]-->
-
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-<table style="font-family:'Montserrat',sans-serif;" role="presentation" cellpadding="0" cellspacing="0" width="100%" border="0">
-  <tbody>
-    <tr>
-      <td class="v-container-padding-padding" style="overflow-wrap:break-word;word-break:break-word;padding:0px 10px 30px;font-family:'Montserrat',sans-serif;" align="left">
-
-  <div style="font-size: 14px; line-height: 180%; text-align: left; word-wrap: break-word;">
-    <ul style="list-style-type: circle;">
-<li style="font-size: 14px; line-height: 25.2px;">Lorem ipsum dolor sit amet, consectetur.</li>
-<li style="font-size: 14px; line-height: 25.2px;">Lorem ipsum dolor sit amet,</li>
-<li style="font-size: 14px; line-height: 25.2px;">Lorem ipsum dolor sit amet. </li>
-</ul>
-  </div>
-
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-  <!--[if (!mso)&(!IE)]><!--></div><!--<![endif]-->
-  </div>
-</div>
 <!--[if (mso)|(IE)]></td><![endif]-->
       <!--[if (mso)|(IE)]></tr></table></td></tr></table><![endif]-->
     </div>
@@ -321,8 +284,6 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
 <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr>
     <td style="padding-right: 0px;padding-left: 0px;" align="center">
-
-      <img align="center" border="0" src="images/image-1.png" alt="border" title="border" style="outline: none;text-decoration: none;-ms-interpolation-mode: bicubic;clear: both;display: inline-block !important;border: none;height: auto;float: none;width: 100%;max-width: 600px;" width="600"/>
 
     </td>
   </tr>
@@ -396,9 +357,7 @@ table, td { color: #000000; } #u_body a { color: #0000ee; text-decoration: under
   <!--[if IE]></div><![endif]-->
 </body>
 
-</html>
-`,
-      // `
+</html>`,
       //
       // Перейдите по ссылке для подтверждения: ${process.env.API_URL}auth/confirm-email/${link}`,
       'Подтверждение почты',

@@ -30,8 +30,10 @@ import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
 import { Card } from './payments/models/card.model';
 import { ScheduleModule } from '@nestjs/schedule';
-import { QueuesService } from './queues/queues.service';
 import { QueuesModule } from './queues/queues.module';
+import { Advertisement } from './advertisement/models/advertisement.model';
+import { AdvertisementModule } from './advertisement/advertisement.module';
+import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { QueuesModule } from './queues/queues.module';
         Payment,
         UserPayment,
         Card,
+        Advertisement,
+        AdvertisementPayment,
       ]),
     ),
     ScheduleModule.forRoot(),
@@ -70,6 +74,7 @@ import { QueuesModule } from './queues/queues.module';
     PublisherMessagesModule,
     PaymentsModule,
     QueuesModule,
+    AdvertisementModule,
   ],
 
   controllers: [],

@@ -1,3 +1,5 @@
+import { AdvertisementService } from './../advertisement/advertisement.service';
+import { SlotsService } from './../slots/slots.service';
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as TelegramBot from 'node-telegram-bot-api';
 import * as process from 'process';
@@ -10,6 +12,9 @@ import { UserService } from '../user/user.service';
 import { BotRequestService } from './bot-request.service';
 import { StatusStore } from '../status/StatusStore';
 import { connect } from '../bot.connect';
+import { MessagesChannel } from 'src/modules/extensions/bot/messages/MessagesChannel';
+import { PaymentsService } from 'src/payments/payments.service';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -17,9 +22,38 @@ export class BotService implements OnModuleInit {
     private authService: AuthService,
     private channelsService: ChannelsService,
     private botRequestService: BotRequestService,
+    private slotsService: SlotsService,
+    private advertisementService: AdvertisementService,
     private userService: UserService,
-  ) {
-    global.bot = connect(process.env.TOKEN_BOT);
+    private paymentService: PaymentsService,
+  ) {}
+
+  async sendMessageReset(invalidAdvertisements: Advertisement[]) {
+    if (!invalidAdvertisements) return;
+    for (let i = 0; i < invalidAdvertisements.length; i++) {
+      const invalidAdvertisement = invalidAdvertisements[i];
+
+      const publisher = await this.userService.findOneById(
+        invalidAdvertisement.publisherId,
+      );
+      const payment = await this.paymentService.findPaymentBySlotId(
+        invalidAdvertisement.id,
+      );
+      const info = {
+        price: payment.price,
+        email: publisher.email,
+        productId: payment.productId,
+        id: invalidAdvertisement.id,
+        fio: publisher.fio,
+      };
+
+      const admins = await this.userService.getAllAdmins();
+      await global.bot.sendMessage(
+        admins[0].chatId,
+        MessagesChannel.RESET_CASH(info),
+      );
+      await this.advertisementService.destroy(invalidAdvertisement.id);
+    }
   }
 
   private connectAndKickedBot() {
@@ -68,7 +102,13 @@ export class BotService implements OnModuleInit {
             }
           }
           if (leaveStatuses.includes(currentBotStatus) && channel) {
+            // Здесь надо получить все активные рекламные посты и по ним отписать админу на возврат средств
+            const advertisements =
+              await this.advertisementService.findAllActive(channel.id);
+            if (advertisements) await this.sendMessageReset(advertisements);
             await this.channelsService.removeChannel(chatId);
+            await this.slotsService.removeSlots(channel.id);
+            await this.advertisementService.removeAdvertisement(channel.id);
           }
         },
       );
@@ -105,6 +145,7 @@ export class BotService implements OnModuleInit {
 
     global.bot.on('successful_payment', async (msg: TelegramBot.Message) => {
       try {
+        console.log('SUCCES PAYMENT===========================', msg)
         await this.botRequestService.afterBuyAdvertising(msg);
       } catch (e) {
         console.log(e);
@@ -155,6 +196,8 @@ export class BotService implements OnModuleInit {
   }
 
   async onModuleInit() {
+    if (global.bot) return;
+    global.bot = connect(process.env.TOKEN_BOT);
     await this.startBot();
   }
 }

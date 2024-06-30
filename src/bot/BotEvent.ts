@@ -5,7 +5,6 @@ import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChan
 import { Channel } from '../channels/models/channels.model';
 import {
   convertTimestampToTime,
-  convertUtcDateToFullDate,
   convertUtcDateToFullDateMoscow,
 } from '../utils/date';
 import type {
@@ -49,11 +48,29 @@ export class BotEvent {
   }
 
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
+    const price = (dto.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }).split('₽')
+    const provider_data = JSON.stringify({
+      receipt: {
+        email: dto.email,
+        items: [
+          {
+            description: 'Покупка рекламной интеграции',
+            quantity: '1.00',
+            amount: {
+              value: price[0].trim().replace(/,/g, '.'),
+              currency: 'RUB'
+            },
+            // TODO вынести в env
+            vat_code: 1
+          }
+        ]
+      }
+    })
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',
       MessagesChannel.BUY_ADVERTISING(dto),
-      `${dto.slotId}`,
+      `${dto.channelId}:${dto.date}:${dto.format}:${dto.slotId}`,
       process.env.PAYMENT_TOKEN,
       'RUB',
       [
@@ -62,6 +79,9 @@ export class BotEvent {
           amount: dto.price * 100,
         },
       ],
+      {
+        provider_data
+      }
     );
   }
 
@@ -127,28 +147,25 @@ export class BotEvent {
     {
       chatId,
       name,
-      day,
       description,
       price,
       link,
       subscribers,
       categories,
+      days,
       slots,
       formatChannel,
       conditionCheck,
     }: Channel,
   ) {
-    const full_day = convertUtcDateToFullDate(+day);
     const categoriesNames = categories.map((category) => category.value);
     const slotDate = slots.map((slot) =>
       convertTimestampToTime(+slot.timestamp),
     );
-
     return await global.bot.sendMessage(
       adminId,
       MessagesChannel.REGISTRATION({
         name,
-        day: full_day,
         description,
         price,
         link,
@@ -157,6 +174,7 @@ export class BotEvent {
         slots: slotDate,
         format: formatChannel.value,
         conditionCheck,
+        days,
       }),
       useSendMessage({
         inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),

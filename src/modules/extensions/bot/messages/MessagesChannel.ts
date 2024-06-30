@@ -15,9 +15,9 @@ export interface MessageChannelRegistrationDto {
   name: string;
   description: string;
   subscribers: number;
+  days: string[];
   link: string;
   price: number;
-  day: string;
   slots: string[];
   format: string;
   categories: string[];
@@ -33,14 +33,14 @@ export class MessagesChannel {
     return 'Вернуться в личный кабинет';
   }
 
-  static RESET_CASH({ id, fio, email, card, price }: IResetCashMessage) {
+  static RESET_CASH({ id, fio, email, productId, price }: IResetCashMessage) {
     return `Реклама не состоялась, пожалуйста, верните средства пользователю:
 
 ID слота: ${id}
 Сумма: ${price}
 Email: ${email}
 ФИО: ${fio}
-Номер карты: ${card}`;
+Номер заказа: ${productId}`;
   }
 
   static MESSAGE_IS_VALIDATION(role: string) {
@@ -67,8 +67,8 @@ Email: ${email}
     return '❌Вы отклонили регистрацию канала. Аргументируйте свое решение: ';
   }
 
-  static ACCEPT_REGISTRATION({ name, day }: IValidationChannelDto) {
-    return `🎉Ура! Канал ${name}:${day} успешно добавлен на платформу!
+  static ACCEPT_REGISTRATION({ name }: IValidationChannelDto) {
+    return `🎉Ура! Канал ${name} успешно добавлен на платформу!
 
 Возвращайтесь на сайт и создавайте новые выгодные рекламные интеграции!
 
@@ -78,19 +78,15 @@ Email: ${email}
   }
 
   static get MODER_ACCEPT_REGISTRATION() {
-    return `✅Вы одобрили регистрацию  канала N на платформу ON-DEVELOPER`;
+    return `✅Вы одобрили регистрацию канала на платформу ON-DEVELOPER`;
   }
 
   static get MODER_CANCEL_REGISTRATION() {
     return `💬Ваш комментарий отправлен паблишеру`;
   }
 
-  static CANCEL_REGISTRATION({
-    name,
-    day,
-    reason,
-  }: IValidationCancelChannelDto) {
-    return `Отмена публикации канала: ${name} слота на день: ${day} по причине ${reason}`;
+  static CANCEL_REGISTRATION({ name, reason }: IValidationCancelChannelDto) {
+    return `Отмена публикации канала: ${name} по причине ${reason}`;
   }
 
   static VALIDATE_MESSAGE(msg: string, conditionCheck: string) {
@@ -206,11 +202,11 @@ ON-Developer
     subscribers,
     link,
     price,
-    day,
     slots,
     categories,
     format,
     conditionCheck,
+    days,
   }: MessageChannelRegistrationDto) {
     return `🆕Новая заявка на регистрацию канала на платформу ON-DEVELOPER:
 
@@ -220,7 +216,7 @@ ON-Developer
 Подписчики: ${subscribers}
 Ссылка: ${link}
 Цена за слот: ${price}
-Дата публикации: ${day}
+Даты: ${days}
 Формат сообщения: ${format}
 Доступные слоты:  [${slots}]
 Категории: [${categories}]

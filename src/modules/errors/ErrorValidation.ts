@@ -5,6 +5,10 @@ export default class ErrorValidation {
     return createError('Поле должно быть строкой');
   }
 
+  static IS_DAYS_INCORRECT() {
+    return createError('Некорректная дата');
+  }
+
   static IS_PASSWORD() {
     return createError(
       'Пароль должен содержать минимум 1 цифру, заглавную букву и спец символ',

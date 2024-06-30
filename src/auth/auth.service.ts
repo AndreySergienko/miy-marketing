@@ -159,7 +159,6 @@ export class AuthService {
     const passwordEquals = await bcrypt.compare(password, candidate.password);
     if (!passwordEquals) return;
     const token = await this.tokenService.generateToken(candidate);
-    console.log(token);
     return token;
   }
 
