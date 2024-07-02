@@ -147,12 +147,12 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-      if (channel.statusId !== StatusStore.PUBLIC)
-        throw new HttpException(
-          ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-          HttpStatus.BAD_REQUEST,
+    if (channel.statusId !== StatusStore.PUBLIC)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
       );
-    
+
     const date = channel.days[dateIdx];
     if (!date)
       throw new HttpException(
@@ -162,12 +162,17 @@ export class ChannelsService {
 
     const [day, month] = date.split('.');
     const newDate = new Date(+slot.timestamp);
-    const advertisementTimestampWithMonthAndDay = createDate(newDate, month, day)
-
-    if (advertisementTimestampWithMonthAndDay < Date.now()) throw new HttpException(
-      ChannelsErrorMessages.DATE_INCORRECT,
-      HttpStatus.BAD_REQUEST,
+    const advertisementTimestampWithMonthAndDay = createDate(
+      newDate,
+      month,
+      day,
     );
+
+    if (advertisementTimestampWithMonthAndDay < Date.now())
+      throw new HttpException(
+        ChannelsErrorMessages.DATE_INCORRECT,
+        HttpStatus.BAD_REQUEST,
+      );
 
     const advertisement =
       await this.advertisementService.findByTimestampAndChannelId(
@@ -191,7 +196,7 @@ export class ChannelsService {
       conditionCheck: channel.conditionCheck,
       link: channel.link || '',
       slotId: slot.id,
-      email: user.email
+      email: user.email,
     });
 
     return SlotsSuccessMessages.SLOT_IN_BOT;
@@ -220,7 +225,6 @@ export class ChannelsService {
       where: {
         id: channelIds,
         statusId: StatusStore.PUBLIC,
-
       },
     });
   }
@@ -245,11 +249,12 @@ export class ChannelsService {
       list.push({
         slots,
         channel: {
-          days: channel.days.filter((date) => {
-            const [day, month, year] = date.split('.')
-            const timestamp = +new Date(`${month}/${day}/${year}`)
-            return new Date().setHours(0, 0, 0, 0) < timestamp
-          }) || [],
+          days:
+            channel.days.filter((date) => {
+              const [day, month, year] = date.split('.');
+              const timestamp = +new Date(`${month}/${day}/${year}`);
+              return new Date().setHours(0, 0, 0, 0) < timestamp;
+            }) || [],
           id: channel.id,
           name: channel.name,
           subscribers: channel.subscribers,
@@ -360,7 +365,7 @@ export class ChannelsService {
 
   public async checkConnectChannel(userId: number, chatName: string) {
     const user = await this.userService.getUserById(userId);
-    console.log(user)
+    console.log(user);
     const channel = await this.findOneByChatName(chatName);
     if (!channel)
       throw new HttpException(
@@ -444,7 +449,12 @@ export class ChannelsService {
     await channel.$set('categories', categoriesId);
     const id = channel.id;
 
-    const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
+    const shortedDays =
+      days.map((day) =>
+        new Date(+day).toLocaleDateString('ru-RU', {
+          timeZone: 'Asia/Yekaterinburg',
+        }),
+      ) || [];
 
     await this.channelRepository.update(
       {
@@ -499,7 +509,6 @@ export class ChannelsService {
     };
   }
 
-
   public async updateRegistrationChannel(
     {
       categoriesId,
@@ -546,8 +555,9 @@ export class ChannelsService {
 
     const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
 
-    const advertisements =
-    await this.advertisementService.findAllActive(channel.id);
+    const advertisements = await this.advertisementService.findAllActive(
+      channel.id,
+    );
     if (advertisements) await this.sendMessageReset(advertisements);
     await this.slotService.removeSlots(channel.id);
     await this.advertisementService.removeAdvertisement(channel.id);
@@ -673,7 +683,7 @@ export class ChannelsService {
   public async findAllPublic() {
     return await this.channelRepository.findAll({
       where: { statusId: StatusStore.PUBLIC },
-      include: User
+      include: User,
     });
   }
 }
