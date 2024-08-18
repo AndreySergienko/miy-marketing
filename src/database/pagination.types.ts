@@ -5,6 +5,7 @@ export interface IQueryPagination {
 
 export interface IQueryFilter {
   categories?: string;
+  dates?: string
 }
 
 export interface IQueryFilterAndPagination

@@ -206,6 +206,7 @@ export class ChannelsService {
     page = '1',
     size = '10',
     categories,
+    dates
   }: IQueryFilterAndPagination) {
     const where: Record<string, unknown> = {};
     if (categories) {
@@ -214,6 +215,19 @@ export class ChannelsService {
         [Op.or]: categoriesValue,
       };
     }
+
+    if (dates) {
+      const splitedString = dates.split(',')
+      if (!splitedString) return
+      if (splitedString.length > 2) return
+      if (splitedString.some(str => isNaN(+str))) return
+      const [gte, lte] = splitedString
+      where.timestamp = {
+        [Op.gte]: +gte,
+        [Op.lte]: +lte
+      }
+    }
+
     const categoriesChannels = await this.categoriesChannelRepository.findAll({
       ...pagination({ page, size }),
       where,
