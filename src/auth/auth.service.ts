@@ -65,7 +65,7 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 7);
 
-    await this.userService.updateAllFiledUserById({
+    await this.userService.updateAllFilledUserById({
       ...registrationDto,
       password: hashPassword,
       chatId: userBot.chatId,

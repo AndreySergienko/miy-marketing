@@ -15,6 +15,7 @@ import {
 } from '../../constants/validate.value';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
+import { IsWorkTypeValidate } from 'src/modules/extensions/validator/workType';
 
 export class LoginDto {
   @IsString(ErrorValidation.IS_STRING())
@@ -38,6 +39,10 @@ export class LoginDto {
 export class RegistrationDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @IsWorkTypeValidate('workType', ErrorValidation.IS_WORK_TYPE())
+  public readonly workType: 'individual' | 'self-employed';
 
   @IsString(ErrorValidation.IS_STRING())
   @IsInnValidate('inn', ErrorValidation.IS_INN())

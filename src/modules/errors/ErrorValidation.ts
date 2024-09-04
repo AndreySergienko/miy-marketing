@@ -15,6 +15,10 @@ export default class ErrorValidation {
     );
   }
 
+  static IS_WORK_TYPE() {
+    return createError('Некорректный тип лица (ИП или самозанятый)');
+  }
+
   static IS_INN() {
     return createError('Некорректный формат inn');
   }

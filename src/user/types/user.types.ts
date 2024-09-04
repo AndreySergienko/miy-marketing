@@ -13,6 +13,7 @@ import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
 
 export interface UserModelAttrs {
   fio?: string;
+  workType?: string;
   password?: string;
   inn?: string;
   email?: string;
@@ -32,6 +33,7 @@ export class UserRegistrationBotDto {
 
 export class UserCreateDto implements UserModelAttrs {
   chatId: number;
+  workType: string;
   email: string;
   inn: string;
   fio: string;
