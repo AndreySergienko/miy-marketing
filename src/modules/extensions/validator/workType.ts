@@ -1,4 +1,5 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
+import { WORK_TYPES } from 'src/auth/types/auth.types';
 
 const NAME = 'IsWorkType';
 
@@ -14,8 +15,8 @@ export function IsWorkTypeValidate(
       constraints: [property],
       options: validationOptions,
       validator: {
-        validate(value?: string) {
-          const validOptions = ['individual', 'self-employed'];
+        validate(value?: WORK_TYPES) {
+          const validOptions = Object.values(WORK_TYPES);
           return validOptions.includes(value);
         },
       },
