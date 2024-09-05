@@ -180,7 +180,7 @@ export class UserService {
     return await this.userRepository.create({ uniqueBotId, chatId });
   }
 
-  public async updateAllFiledUserById(user: UserCreateDto) {
+  public async updateAllFilledUserById(user: UserCreateDto) {
     return await this.userRepository.update(user, {
       where: { uniqueBotId: user.uniqueBotId },
     });

@@ -15,12 +15,12 @@ export class KeyboardAuthentication {
     ];
   }
 
-  static get GO_SITE(): TInlineKeyboard {
+  static GO_SITE(token: string): TInlineKeyboard {
     return [
       [
         {
           text: MessagesAuthentication.BTN_BACK_SITE,
-          url: goToAuthorization(),
+          url: goToAuthorization(token),
         },
       ],
     ];

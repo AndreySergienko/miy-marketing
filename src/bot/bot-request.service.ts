@@ -112,7 +112,7 @@ export class BotRequestService {
    * **/
   public async afterBuyAdvertising({
     from,
-    successful_payment
+    successful_payment,
   }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
@@ -121,7 +121,8 @@ export class BotRequestService {
     const [channelId, timestamp, formatChannel, slot] =
       successful_payment.invoice_payload.split(':');
 
-    const timestampFinish = +timestamp + 1000 * 60 * 60 * getFormatChannelDuration(formatChannel)
+    const timestampFinish =
+      +timestamp + 1000 * 60 * 60 * getFormatChannelDuration(formatChannel);
 
     const advertisement = await this.advertisementService.createAdvertisement({
       timestamp: +timestamp,
@@ -135,7 +136,7 @@ export class BotRequestService {
       userId: user.id,
       slotId: advertisement.id,
       statusId: StatusStore.PAID,
-      productId: successful_payment.telegram_payment_charge_id
+      productId: successful_payment.telegram_payment_charge_id,
     });
 
     await advertisement.update(
@@ -437,7 +438,7 @@ export class BotRequestService {
         from.id,
         cb(String(id)),
         useSendMessage({
-          inline_keyboard: KeyboardAuthentication.GO_SITE,
+          inline_keyboard: KeyboardAuthentication.GO_SITE(String(id)),
         }),
       );
     isAlready

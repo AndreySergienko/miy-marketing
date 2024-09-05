@@ -39,6 +39,9 @@ export class User extends Model<User, UserModelAttrs> {
   })
   email: string;
 
+  @Column({ type: DataType.STRING, allowNull: true })
+  workType: string;
+
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   isValidEmail: boolean;
 
