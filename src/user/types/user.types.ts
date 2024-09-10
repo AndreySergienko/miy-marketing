@@ -16,7 +16,8 @@ import {
 } from '../../constants/validate.value';
 import { UserBankModelAttrs } from '../../payments/types/types';
 import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
-import { IsPasswordValidate } from 'src/modules/extensions/validator/passwordValidator';
+import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
+import { WORK_TYPES } from '../../auth/types/auth.types';
 
 export interface UserModelAttrs {
   fio?: string;
@@ -132,4 +133,8 @@ export class GetUserDto {
   permissions: string[];
   bank?: UserBankModelAttrs;
   document?: UserDocumentModelAttrs;
+}
+
+export class UploadDocumentDto {
+  workType: WORK_TYPES;
 }

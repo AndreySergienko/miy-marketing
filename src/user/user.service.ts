@@ -9,6 +9,7 @@ import {
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdateUserDto,
+  UploadDocumentDto,
   UserCreateDto,
   UserDocumentVerificationStatus,
   UserRegistrationBotDto,
@@ -186,11 +187,19 @@ export class UserService {
     return UserSuccessMessages.SUCCESS_UPDATE_PASSWORD;
   }
 
-  async updateDocument(token: string, file: Express.Multer.File) {
+  async updateDocument(
+    token: string,
+    file: Express.Multer.File,
+    { workType }: UploadDocumentDto,
+  ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) return;
+
+    if (user.workType !== workType) {
+      await this.userRepository.update({ workType }, { where: { id } });
+    }
 
     const documentData = {
       name: file.filename,

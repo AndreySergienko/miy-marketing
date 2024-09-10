@@ -16,6 +16,7 @@ import {
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdateUserDto,
+  UploadDocumentDto,
 } from './types/user.types';
 import PermissionStore from '../permission/PermissionStore';
 import { getToken } from '../token/token.utils';
@@ -71,8 +72,10 @@ export class UserController {
     @Req() req: Request,
     @UploadedFile()
     file: Express.Multer.File,
+    @Body()
+    dto: UploadDocumentDto,
   ) {
-    return await this.userService.updateDocument(getToken(req), file);
+    return await this.userService.updateDocument(getToken(req), file, dto);
   }
 
   @Get('me')
