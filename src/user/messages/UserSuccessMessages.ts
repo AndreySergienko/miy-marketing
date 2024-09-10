@@ -16,4 +16,8 @@ export default class UserSuccessMessages {
       'Пожалуйста, проверьте почтовый ящик, письмо отправлено. Временно, ваш функционал ограничен',
     );
   }
+
+  static get SUCCESS_UPDATE_PASSWORD() {
+    return createSuccess('Пароль успешно изменён');
+  }
 }

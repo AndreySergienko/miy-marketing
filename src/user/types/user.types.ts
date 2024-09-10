@@ -4,13 +4,19 @@ import {
   IsEmpty,
   IsNumber,
   IsString,
+  MaxLength,
   MinLength,
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import { MIN_LENGTH_NAME } from '../../constants/validate.value';
+import {
+  MAX_LENGTH_PASSWORD,
+  MIN_LENGTH_NAME,
+  MIN_LENGTH_PASSWORD,
+} from '../../constants/validate.value';
 import { UserBankModelAttrs } from '../../payments/types/types';
 import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
+import { IsPasswordValidate } from 'src/modules/extensions/validator/passwordValidator';
 
 export interface UserModelAttrs {
   fio?: string;
@@ -75,6 +81,32 @@ export class BanUserDto {
 export class UpdateEmailDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   email: string;
+}
+
+export class UpdatePasswordDto {
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('password', ErrorValidation.IS_PASSWORD())
+  public readonly password: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('newPassword', ErrorValidation.IS_PASSWORD())
+  public readonly newPassword: string;
 }
 
 export class PardonUserDto {

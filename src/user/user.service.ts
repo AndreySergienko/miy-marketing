@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
@@ -6,6 +7,7 @@ import {
   GetUserDto,
   PardonUserDto,
   UpdateEmailDto,
+  UpdatePasswordDto,
   UpdateUserDto,
   UserCreateDto,
   UserRegistrationBotDto,
@@ -153,6 +155,31 @@ export class UserService {
     }
 
     return resultMessage;
+  }
+
+  async updatePassword(
+    token: string,
+    { password, newPassword }: UpdatePasswordDto,
+  ) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    const hashPassword = await bcrypt.hash(password, 7);
+    if (user.password !== hashPassword) {
+      throw new HttpException(
+        UserErrorMessages.PASSWORD_IS_NOT_EQUAL,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const hashNewPassword = await bcrypt.hash(newPassword, 7);
+    await this.userRepository.update(
+      { password: hashNewPassword },
+      { where: { id } },
+    );
+
+    return UserSuccessMessages.SUCCESS_UPDATE_PASSWORD;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {
