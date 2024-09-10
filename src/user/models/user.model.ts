@@ -15,6 +15,7 @@ import { Channel } from '../../channels/models/channels.model';
 import { UserChannel } from '../../channels/models/user-channel.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
 import { UserBank } from '../../payments/models/user-bank.model';
+import { UserDocument } from './user-document.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -84,4 +85,7 @@ export class User extends Model<User, UserModelAttrs> {
 
   @HasOne(() => UserBank)
   bank: UserBank;
+
+  @HasOne(() => UserDocument)
+  document: UserDocument;
 }

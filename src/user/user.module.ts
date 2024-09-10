@@ -13,6 +13,7 @@ import { Mail } from '../nodemailer/model/nodemailer.model';
 import { Channel } from '../channels/models/channels.model';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserBank } from '../payments/models/user-bank.model';
+import { UserDocument } from './models/user-document.model';
 
 @Module({
   controllers: [UserController],
@@ -27,6 +28,7 @@ import { UserBank } from '../payments/models/user-bank.model';
       Channel,
       UserChannel,
       UserBank,
+      UserDocument,
     ]),
     PermissionModule,
     JwtModule,

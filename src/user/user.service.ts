@@ -281,6 +281,7 @@ export class UserService {
     fio,
     permissions,
     bank,
+    document,
   }: User): GetUserDto {
     return {
       email,
@@ -288,6 +289,7 @@ export class UserService {
       fio,
       permissions: permissions.map((perm) => perm.value),
       bank,
+      document,
     };
   }
 }

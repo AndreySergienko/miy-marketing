@@ -33,6 +33,18 @@ export interface UserModelAttrs {
   lastUpdateEmail?: number;
 }
 
+export enum UserDocumentVerificationStatus {
+  PROCESS = 'process',
+  REJECT = 'reject',
+  ACCEPT = 'accept',
+}
+
+export interface UserDocumentModelAttrs {
+  name: string;
+  url: string;
+  verificationStatus?: UserDocumentVerificationStatus;
+}
+
 export class UserRegistrationBotDto {
   chatId: number;
   uniqueBotId: string;
@@ -120,4 +132,5 @@ export class GetUserDto {
   fio: string;
   permissions: string[];
   bank?: UserBankModelAttrs;
+  document?: UserDocumentModelAttrs;
 }

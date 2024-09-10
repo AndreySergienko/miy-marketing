@@ -29,6 +29,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
 import { UserBank } from './payments/models/user-bank.model';
+import { UserDocument } from './user/models/user-document.model';
 import { ScheduleModule } from '@nestjs/schedule';
 import { QueuesModule } from './queues/queues.module';
 import { Advertisement } from './advertisement/models/advertisement.model';
@@ -57,6 +58,7 @@ import { AdvertisementPayment } from './payments/models/advertisement-payment.mo
         Payment,
         UserPayment,
         UserBank,
+        UserDocument,
         Advertisement,
         AdvertisementPayment,
       ]),
