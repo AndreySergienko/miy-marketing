@@ -35,3 +35,15 @@ export function validatePassword(string: string) {
   );
   return regex.test(string);
 }
+
+export const validateBik = (value: string) => {
+  return /04[0-9]{4}(000|001|002|(0[5-9][0-9])|([1-9][0-9]{2}))/.test(value);
+};
+
+export const validateCorrespondentAccount = (value: string) => {
+  return /301[0-9]{17}/.test(value);
+};
+
+export const validateCurrentAccount = (value: string) => {
+  return /408[0-9]{17}}/.test(value);
+};

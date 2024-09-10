@@ -1,4 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcryptjs';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './models/user.model';
 import {
@@ -6,8 +7,11 @@ import {
   GetUserDto,
   PardonUserDto,
   UpdateEmailDto,
+  UpdatePasswordDto,
   UpdateUserDto,
+  UploadDocumentDto,
   UserCreateDto,
+  UserDocumentVerificationStatus,
   UserRegistrationBotDto,
 } from './types/user.types';
 import { JwtService } from '@nestjs/jwt';
@@ -16,16 +20,19 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
 import { PermissionService } from '../permission/permission.service';
-import { Card } from '../payments/models/card.model';
+import { UserBank } from '../payments/models/user-bank.model';
 import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
+import { UserDocument } from './models/user-document.model';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
-    @InjectModel(Card) private cardRepository: typeof Card,
+    @InjectModel(UserBank) private userBankRepository: typeof UserBank,
+    @InjectModel(UserDocument)
+    private userDocumentRepository: typeof UserDocument,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
@@ -101,7 +108,7 @@ export class UserService {
 
   public async updateUser(
     token: string,
-    { email, cardNumber, inn, fio, isNotification }: UpdateUserDto,
+    { email, bank, inn, fio, isNotification }: UpdateUserDto,
   ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
@@ -125,19 +132,21 @@ export class UserService {
       { where: { id } },
     );
 
-    const updateCard: Partial<Card> = {
-      number: cardNumber,
-    };
+    const resultMessage = isChangeEmail
+      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
+      : UserSuccessMessages.SUCCESS_UPDATE_USER;
 
-    if (user.card) {
-      await this.cardRepository.update(updateCard, {
+    if (!bank) return resultMessage;
+
+    if (user.bank) {
+      await this.userBankRepository.update(bank, {
         where: {
           userId: user.id,
         },
       });
     } else {
-      await this.cardRepository.create(
-        Object.assign(updateCard, {
+      await this.userBankRepository.create(
+        Object.assign(bank, {
           userId: user.id,
         }),
       );
@@ -150,9 +159,66 @@ export class UserService {
       if (!isChangeEmail) await user.$set('permissions', packedPermissions);
     }
 
-    return isChangeEmail
-      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
-      : UserSuccessMessages.SUCCESS_UPDATE_USER;
+    return resultMessage;
+  }
+
+  async updatePassword(
+    token: string,
+    { password, newPassword }: UpdatePasswordDto,
+  ) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    const hashPassword = await bcrypt.hash(password, 7);
+    if (user.password !== hashPassword) {
+      throw new HttpException(
+        UserErrorMessages.PASSWORD_IS_NOT_EQUAL,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const hashNewPassword = await bcrypt.hash(newPassword, 7);
+    await this.userRepository.update(
+      { password: hashNewPassword },
+      { where: { id } },
+    );
+
+    return UserSuccessMessages.SUCCESS_UPDATE_PASSWORD;
+  }
+
+  async updateDocument(
+    token: string,
+    file: Express.Multer.File,
+    { workType }: UploadDocumentDto,
+  ) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return;
+
+    if (user.workType !== workType) {
+      await this.userRepository.update({ workType }, { where: { id } });
+    }
+
+    const documentData = {
+      name: file.filename,
+      verificationStatus: UserDocumentVerificationStatus.PROCESS,
+    };
+
+    if (!user.document) {
+      await this.userDocumentRepository.create(
+        Object.assign(documentData, {
+          userId: user.id,
+        }),
+      );
+    } else {
+      await this.userDocumentRepository.update(documentData, {
+        where: { id: user.id },
+      });
+    }
+
+    return UserSuccessMessages.SUCCESS_UPDATE_DOCUMENT;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {
@@ -253,14 +319,16 @@ export class UserService {
     inn,
     fio,
     permissions,
-    card,
+    bank,
+    document,
   }: User): GetUserDto {
     return {
       email,
       inn,
       fio,
       permissions: permissions.map((perm) => perm.value),
-      cardNumber: card?.number,
+      bank,
+      document,
     };
   }
 }

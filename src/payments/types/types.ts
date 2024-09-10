@@ -3,8 +3,11 @@ export interface PaymentModelAttrs {
   productId?: string;
 }
 
-export interface CardModelAttrs {
-  number: string;
+export interface UserBankModelAttrs {
+  name: string;
+  bik: string;
+  correspondentAccount: string;
+  currentAccount: string;
 }
 
 export class PaymentCreateDto {

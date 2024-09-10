@@ -9,7 +9,15 @@ import {
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
+import {
+  MAX_LENGTH_PASSWORD,
+  MIN_LENGTH_NAME,
+  MIN_LENGTH_PASSWORD,
+} from '../../constants/validate.value';
+import { UserBankModelAttrs } from '../../payments/types/types';
+import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
+import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
+import { WORK_TYPES } from '../../auth/types/auth.types';
 
 export interface UserModelAttrs {
   fio?: string;
@@ -24,6 +32,17 @@ export interface UserModelAttrs {
   banReason?: string;
   isNotification?: boolean;
   lastUpdateEmail?: number;
+}
+
+export enum UserDocumentVerificationStatus {
+  PROCESS = 'process',
+  REJECT = 'reject',
+  ACCEPT = 'accept',
+}
+
+export interface UserDocumentModelAttrs {
+  name: string;
+  verificationStatus?: UserDocumentVerificationStatus;
 }
 
 export class UserRegistrationBotDto {
@@ -58,10 +77,8 @@ export class UpdateUserDto {
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
-  @MaxLength(CARD_NUMBER, ErrorValidation.MAX_LENGTH(CARD_NUMBER))
-  public readonly cardNumber: string;
+  @IsUserBankValidate('bank', ErrorValidation.IS_BANK())
+  public readonly bank: UserBankModelAttrs;
 }
 
 export class BanUserDto {
@@ -78,6 +95,32 @@ export class UpdateEmailDto {
   email: string;
 }
 
+export class UpdatePasswordDto {
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('password', ErrorValidation.IS_PASSWORD())
+  public readonly password: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('newPassword', ErrorValidation.IS_PASSWORD())
+  public readonly newPassword: string;
+}
+
 export class PardonUserDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   userId: number;
@@ -88,5 +131,10 @@ export class GetUserDto {
   inn: string;
   fio: string;
   permissions: string[];
-  cardNumber?: string;
+  bank?: UserBankModelAttrs;
+  document?: UserDocumentModelAttrs;
+}
+
+export class UploadDocumentDto {
+  workType: WORK_TYPES;
 }

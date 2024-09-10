@@ -1,16 +1,30 @@
-import { Body, Controller, Get, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { Perms } from '../auth/decorators/permission-auth.decorator';
 import {
   BanUserDto,
   PardonUserDto,
   UpdateEmailDto,
+  UpdatePasswordDto,
   UpdateUserDto,
+  UploadDocumentDto,
 } from './types/user.types';
 import PermissionStore from '../permission/PermissionStore';
 import { getToken } from '../token/token.utils';
 import { Public } from '../auth/decorators/public-auth.decorator';
 import * as process from 'node:process';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { documentFileFilter, editFileName } from '../utils/file-upload.utils';
 
 @Controller('user')
 export class UserController {
@@ -37,6 +51,31 @@ export class UserController {
   @Put('update')
   async updateUser(@Req() req: Request, @Body() dto: UpdateUserDto) {
     return await this.userService.updateUser(getToken(req), dto);
+  }
+
+  @Put('update/password')
+  async updatePassword(@Req() req: Request, @Body() dto: UpdatePasswordDto) {
+    return await this.userService.updatePassword(getToken(req), dto);
+  }
+
+  @Post('update/document')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: '/uploads/',
+        filename: editFileName,
+      }),
+      fileFilter: documentFileFilter,
+    }),
+  )
+  async updateDocument(
+    @Req() req: Request,
+    @UploadedFile()
+    file: Express.Multer.File,
+    @Body()
+    dto: UploadDocumentDto,
+  ) {
+    return await this.userService.updateDocument(getToken(req), file, dto);
   }
 
   @Get('me')

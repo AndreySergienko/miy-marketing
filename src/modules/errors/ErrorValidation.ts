@@ -19,6 +19,10 @@ export default class ErrorValidation {
     return createError('Некорректный тип лица (ИП или самозанятый)');
   }
 
+  static IS_BANK() {
+    return createError('Некорректный формат данных о банке');
+  }
+
   static IS_INN() {
     return createError('Некорректный формат inn');
   }

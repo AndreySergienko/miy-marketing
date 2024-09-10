@@ -9,6 +9,10 @@ export default class UserErrorMessages {
     return createError('Смените адрес');
   }
 
+  static get PASSWORD_IS_NOT_EQUAL() {
+    return createError('Пароль не совпадает');
+  }
+
   static get USER_IS_REGISTERED() {
     return createError('Пользователь уже создан');
   }
