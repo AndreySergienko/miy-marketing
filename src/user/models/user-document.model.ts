@@ -25,9 +25,6 @@ export class UserDocument extends Model<UserDocument, UserDocumentModelAttrs> {
   @Column({ type: DataType.STRING })
   name: string;
 
-  @Column({ type: DataType.STRING })
-  url: string;
-
   @Column({ type: DataType.STRING, allowNull: true })
   verificationStatus: UserDocumentVerificationStatus;
 

@@ -20,4 +20,8 @@ export default class UserSuccessMessages {
   static get SUCCESS_UPDATE_PASSWORD() {
     return createSuccess('Пароль успешно изменён');
   }
+
+  static get SUCCESS_UPDATE_DOCUMENT() {
+    return createSuccess('Документ успешно отправлен');
+  }
 }

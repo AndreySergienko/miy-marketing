@@ -10,6 +10,7 @@ import {
   UpdatePasswordDto,
   UpdateUserDto,
   UserCreateDto,
+  UserDocumentVerificationStatus,
   UserRegistrationBotDto,
 } from './types/user.types';
 import { JwtService } from '@nestjs/jwt';
@@ -22,12 +23,15 @@ import { UserBank } from '../payments/models/user-bank.model';
 import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
+import { UserDocument } from './models/user-document.model';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     @InjectModel(UserBank) private userBankRepository: typeof UserBank,
+    @InjectModel(UserDocument)
+    private userDocumentRepository: typeof UserDocument,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
@@ -180,6 +184,32 @@ export class UserService {
     );
 
     return UserSuccessMessages.SUCCESS_UPDATE_PASSWORD;
+  }
+
+  async updateDocument(token: string, file: Express.Multer.File) {
+    const id = this.getId(token);
+    if (typeof id !== 'number') return;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) return;
+
+    const documentData = {
+      name: file.filename,
+      verificationStatus: UserDocumentVerificationStatus.PROCESS,
+    };
+
+    if (!user.document) {
+      await this.userDocumentRepository.create(
+        Object.assign(documentData, {
+          userId: user.id,
+        }),
+      );
+    } else {
+      await this.userDocumentRepository.update(documentData, {
+        where: { id: user.id },
+      });
+    }
+
+    return UserSuccessMessages.SUCCESS_UPDATE_DOCUMENT;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {

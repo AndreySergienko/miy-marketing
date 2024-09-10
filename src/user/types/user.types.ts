@@ -41,7 +41,6 @@ export enum UserDocumentVerificationStatus {
 
 export interface UserDocumentModelAttrs {
   name: string;
-  url: string;
   verificationStatus?: UserDocumentVerificationStatus;
 }
 
