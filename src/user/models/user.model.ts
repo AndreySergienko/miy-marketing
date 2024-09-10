@@ -14,7 +14,7 @@ import { Mail } from '../../nodemailer/model/nodemailer.model';
 import { Channel } from '../../channels/models/channels.model';
 import { UserChannel } from '../../channels/models/user-channel.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
-import { Card } from '../../payments/models/card.model';
+import { UserBank } from '../../payments/models/user-bank.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -82,6 +82,6 @@ export class User extends Model<User, UserModelAttrs> {
   @HasMany(() => PublisherMessages)
   messages: PublisherMessages[];
 
-  @HasOne(() => Card)
-  card: Card;
+  @HasOne(() => UserBank)
+  bank: UserBank;
 }

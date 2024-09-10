@@ -28,7 +28,7 @@ import { FormatChannel } from './channels/models/format-channel.model';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
-import { Card } from './payments/models/card.model';
+import { UserBank } from './payments/models/user-bank.model';
 import { ScheduleModule } from '@nestjs/schedule';
 import { QueuesModule } from './queues/queues.module';
 import { Advertisement } from './advertisement/models/advertisement.model';
@@ -56,7 +56,7 @@ import { AdvertisementPayment } from './payments/models/advertisement-payment.mo
         FormatChannel,
         Payment,
         UserPayment,
-        Card,
+        UserBank,
         Advertisement,
         AdvertisementPayment,
       ]),

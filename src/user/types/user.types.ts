@@ -4,12 +4,13 @@ import {
   IsEmpty,
   IsNumber,
   IsString,
-  MaxLength,
   MinLength,
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
+import { MIN_LENGTH_NAME } from '../../constants/validate.value';
+import { UserBankModelAttrs } from '../../payments/types/types';
+import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
 
 export interface UserModelAttrs {
   fio?: string;
@@ -58,10 +59,8 @@ export class UpdateUserDto {
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
-  @MaxLength(CARD_NUMBER, ErrorValidation.MAX_LENGTH(CARD_NUMBER))
-  public readonly cardNumber: string;
+  @IsUserBankValidate('bank', ErrorValidation.IS_BANK())
+  public readonly bank: UserBankModelAttrs;
 }
 
 export class BanUserDto {
@@ -88,5 +87,5 @@ export class GetUserDto {
   inn: string;
   fio: string;
   permissions: string[];
-  cardNumber?: string;
+  bank?: UserBankModelAttrs;
 }

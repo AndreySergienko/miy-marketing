@@ -16,7 +16,7 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import { UserPermission } from '../permission/models/user-permission.model';
 import PermissionStore from '../permission/PermissionStore';
 import { PermissionService } from '../permission/permission.service';
-import { Card } from '../payments/models/card.model';
+import { UserBank } from '../payments/models/user-bank.model';
 import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
@@ -25,7 +25,7 @@ import { UserChannel } from '../channels/models/user-channel.model';
 export class UserService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
-    @InjectModel(Card) private cardRepository: typeof Card,
+    @InjectModel(UserBank) private userBankRepository: typeof UserBank,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(UserPermission) private userPermissions: typeof UserPermission,
     private jwtService: JwtService,
@@ -101,7 +101,7 @@ export class UserService {
 
   public async updateUser(
     token: string,
-    { email, cardNumber, inn, fio, isNotification }: UpdateUserDto,
+    { email, bank, inn, fio, isNotification }: UpdateUserDto,
   ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
@@ -125,19 +125,21 @@ export class UserService {
       { where: { id } },
     );
 
-    const updateCard: Partial<Card> = {
-      number: cardNumber,
-    };
+    const resultMessage = isChangeEmail
+      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
+      : UserSuccessMessages.SUCCESS_UPDATE_USER;
 
-    if (user.card) {
-      await this.cardRepository.update(updateCard, {
+    if (!bank) return resultMessage;
+
+    if (user.bank) {
+      await this.userBankRepository.update(bank, {
         where: {
           userId: user.id,
         },
       });
     } else {
-      await this.cardRepository.create(
-        Object.assign(updateCard, {
+      await this.userBankRepository.create(
+        Object.assign(bank, {
           userId: user.id,
         }),
       );
@@ -150,9 +152,7 @@ export class UserService {
       if (!isChangeEmail) await user.$set('permissions', packedPermissions);
     }
 
-    return isChangeEmail
-      ? UserSuccessMessages.SUCCESS_UPDATE_USER_EMAIL
-      : UserSuccessMessages.SUCCESS_UPDATE_USER;
+    return resultMessage;
   }
 
   public async banUser({ description, userId: id }: BanUserDto) {
@@ -253,14 +253,14 @@ export class UserService {
     inn,
     fio,
     permissions,
-    card,
+    bank,
   }: User): GetUserDto {
     return {
       email,
       inn,
       fio,
       permissions: permissions.map((perm) => perm.value),
-      cardNumber: card?.number,
+      bank,
     };
   }
 }

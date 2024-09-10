@@ -42,7 +42,7 @@ export class AuthService {
       }
 
     /** Если прошёл, то проверяем проходил ли он второй этап регистрации прежде, отслеживаем по наличии инн/карты **/
-    if (userBot.inn || userBot.card) {
+    if (userBot.inn || userBot.bank) {
       throw new HttpException(
         AuthErrorMessages.INCORRECT_DATA_FOR_REGISTERED,
         HttpStatus.FORBIDDEN,
@@ -116,7 +116,7 @@ export class AuthService {
     const userPermissions =
       await this.permissionService.getIdsUserPermissions(user);
     /** Если прежде пользователь регистрировал карту, то выдать полный набро пользовательских прав **/
-    if (user.card?.number) {
+    if (user.bank?.currentAccount) {
       userPermissions.push(...PermissionStore.USER_CHANNELS_PERMISSIONS);
     }
     const packedPermissions = this.permissionService.updatePermissions(

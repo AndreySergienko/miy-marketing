@@ -7,10 +7,10 @@ import {
   ForeignKey,
 } from 'sequelize-typescript';
 import { User } from '../../user/models/user.model';
-import type { CardModelAttrs } from '../types/types';
+import type { UserBankModelAttrs } from '../types/types';
 
-@Table({ tableName: 'card', updatedAt: false })
-export class Card extends Model<Card, CardModelAttrs> {
+@Table({ tableName: 'user-bank', updatedAt: false })
+export class UserBank extends Model<UserBank, UserBankModelAttrs> {
   @Column({
     type: DataType.INTEGER,
     unique: true,
@@ -20,7 +20,16 @@ export class Card extends Model<Card, CardModelAttrs> {
   id: number;
 
   @Column({ type: DataType.STRING, allowNull: true })
-  number: string;
+  name: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  bik: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  correspondentAccount: string;
+
+  @Column({ type: DataType.STRING, allowNull: true })
+  currentAccount: string;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
