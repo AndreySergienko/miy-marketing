@@ -7,22 +7,16 @@ import type { ICreateSlot } from '../channels/types/types';
 export class SlotsService {
   constructor(@InjectModel(Slots) private slotsRepository: typeof Slots) {}
 
-  async createSlot({ timestamp, channelId }: ICreateSlot) {
+  async createSlot({ timestamp, channelDateId }: ICreateSlot) {
     const slot = await this.slotsRepository.create({
       timestamp,
     });
-    await slot.$set('channel', channelId);
+    await slot.$set('channelDate', channelDateId);
   }
 
-  async removeSlots(channelId: number) {
+  async removeSlots(channelDateId: number) {
     return await this.slotsRepository.destroy({
-      where: { channelId },
-    });
-  }
-
-  async findAllSlotByChannelId(channelId: number) {
-    return await this.slotsRepository.findAll({
-      where: { channelId },
+      where: { channelDateId },
     });
   }
 
@@ -33,7 +27,7 @@ export class SlotsService {
     });
   }
 
-  async findAllByChannelId(channelId: number) {
-    return await this.slotsRepository.findAll({ where: { channelId } });
+  async findAllByChannelDateId(channelDateId: number) {
+    return await this.slotsRepository.findAll({ where: { channelDateId } });
   }
 }

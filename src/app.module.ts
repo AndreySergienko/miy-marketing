@@ -35,6 +35,7 @@ import { QueuesModule } from './queues/queues.module';
 import { Advertisement } from './advertisement/models/advertisement.model';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
+import { ChannelDate } from './channels/models/channel-dates.model';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { AdvertisementPayment } from './payments/models/advertisement-payment.mo
         Categories,
         CategoriesChannel,
         Channel,
+        ChannelDate,
         UserChannel,
         Slots,
         PublisherMessages,

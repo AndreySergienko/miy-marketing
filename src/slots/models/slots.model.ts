@@ -7,9 +7,9 @@ import {
   BelongsTo,
   HasMany,
 } from 'sequelize-typescript';
-import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelDate } from 'src/channels/models/channel-dates.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -27,10 +27,10 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @HasMany(() => Advertisement)
   advertisements: Advertisement[];
 
-  @ForeignKey(() => Channel)
+  @ForeignKey(() => ChannelDate)
   @Column({ type: DataType.BIGINT })
-  channelId: number;
+  channelDateId: number;
 
-  @BelongsTo(() => Channel)
-  channel: Channel;
+  @BelongsTo(() => ChannelDate)
+  channelDate: ChannelDate;
 }
