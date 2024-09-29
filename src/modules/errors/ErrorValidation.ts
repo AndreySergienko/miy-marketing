@@ -31,6 +31,10 @@ export default class ErrorValidation {
     return createError('Некорректная дата слотов');
   }
 
+  static IS_CHANNEL_DATES_INCORRECT() {
+    return createError('Некорректная дата для канала');
+  }
+
   static IS_BOOLEAN() {
     return createError('Поле должно быть булевским значением');
   }

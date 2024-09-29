@@ -1,4 +1,4 @@
-import { convertUtcDateToFullDate, createDate } from './../utils/date';
+import { createDate } from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -31,6 +31,7 @@ import { Categories } from '../categories/models/categories.model';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { Payment } from 'src/payments/models/payment.model';
+import { ChannelDate } from './models/channel-dates.model';
 
 @Injectable()
 export class ChannelsService {
@@ -38,6 +39,7 @@ export class ChannelsService {
     @InjectModel(Channel) private channelRepository: typeof Channel,
     @InjectModel(FormatChannel)
     private formatChannelRepository: typeof FormatChannel,
+    @InjectModel(ChannelDate) private channelDateRepository: typeof ChannelDate,
     @InjectModel(UserChannel) private userChannelRepository: typeof UserChannel,
     @InjectModel(Payment) private paymentRepository: typeof Payment,
     @InjectModel(CategoriesChannel)
@@ -68,22 +70,21 @@ export class ChannelsService {
       },
     });
     const channelsIds = userChannels.map((channel) => channel.channelId);
-    const channels = await this.channelRepository.findAll({
-      where: {
-        id: channelsIds,
-        price: {
-          [Op.gt]: 1,
+    const channels = (
+      await this.channelRepository.findAll({
+        where: {
+          id: channelsIds,
         },
-      },
-      include: Categories,
-    });
+        include: Categories,
+      })
+    ).filter((ch) => ch.channelDates.length);
 
     const transformChannels = [];
     for (let i = 0; i < channels.length; i++) {
       const {
         id,
         statusId,
-        formatChannelId,
+        channelDates,
         name,
         subscribers,
         isCanPostMessage,
@@ -91,26 +92,22 @@ export class ChannelsService {
         description,
         conditionCheck,
         avatar,
-        price,
         categories,
         days,
       } = channels[i];
 
       const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
-      const slots = await this.slotService.findAllByChannelId(id);
       const obj = {
         id,
         statusId,
-        formatChannelId,
+        channelDates,
         name,
         subscribers,
         isCanPostMessage,
-        slots,
         link,
         description,
         conditionCheck,
         avatar: avatarLink,
-        price,
         days,
         categories: categories.map((category) => category.id),
       };
@@ -136,8 +133,13 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
+    const channelDate = await this.channelDateRepository.findOne({
+      where: { id: slot.channelDateId },
+      include: { all: true },
+    });
+
     const channel = await this.channelRepository.findOne({
-      where: { id: slot.channelId },
+      where: { id: channelDate.channelId },
       include: { all: true },
     });
 
@@ -189,9 +191,9 @@ export class ChannelsService {
     await this.botEvent.sendInvoiceBuyAdvertising(user.chatId, {
       name: channel.name,
       subscribers: channel.subscribers,
-      price: channel.price,
+      price: slot.price,
       date: advertisementTimestampWithMonthAndDay,
-      format: channel.formatChannel.value,
+      format: slot.formatChannel.value,
       channelId: channel.id,
       conditionCheck: channel.conditionCheck,
       link: channel.link || '',
@@ -206,7 +208,7 @@ export class ChannelsService {
     page = '1',
     size = '10',
     categories,
-    dates
+    dates,
   }: IQueryFilterAndPagination) {
     const where: Record<string, unknown> = {};
     if (categories) {
@@ -217,15 +219,15 @@ export class ChannelsService {
     }
 
     if (dates) {
-      const splitedString = dates.split(',')
-      if (!splitedString) return
-      if (splitedString.length > 2) return
-      if (splitedString.some(str => isNaN(+str))) return
-      const [gte, lte] = splitedString
+      const splitedString = dates.split(',');
+      if (!splitedString) return;
+      if (splitedString.length > 2) return;
+      if (splitedString.some((str) => isNaN(+str))) return;
+      const [gte, lte] = splitedString;
       where.timestamp = {
         [Op.gte]: +gte,
-        [Op.lte]: +lte
-      }
+        [Op.lte]: +lte,
+      };
     }
 
     const categoriesChannels = await this.categoriesChannelRepository.findAll({
@@ -249,19 +251,9 @@ export class ChannelsService {
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
 
-      // const invalidDate = channel.days.every(el => {
-      //   const [day, month] = el.split('.')
-      //   const updatedDate = createDate(new Date(), month, day)
-      //   return updatedDate < +new Date()
-      // })
-
-      // if (invalidDate) {
-      //   continue;
-      // }
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
-      const slots = await this.slotService.findAllByChannelId(channel.id);
       list.push({
-        slots,
+        channelDates: channel.channelDates,
         channel: {
           days:
             channel.days.filter((date) => {
@@ -275,9 +267,7 @@ export class ChannelsService {
           link: channel.link || '',
           description: channel.description,
           avatar: channel.avatar,
-          price: channel.price,
           conditionCheck: channel.conditionCheck,
-          formatChannelId: channel.formatChannelId,
         },
       });
     }
@@ -420,16 +410,7 @@ export class ChannelsService {
   }
 
   public async registrationChannel(
-    {
-      categoriesId,
-      description,
-      name,
-      days,
-      slots,
-      price,
-      formatChannel,
-      conditionCheck,
-    }: RegistrationChannelDto,
+    { categoriesId, channelDates, name, link }: RegistrationChannelDto,
     userId: number,
   ) {
     const candidate = await this.channelRepository.findOne({
@@ -460,38 +441,35 @@ export class ChannelsService {
         HttpStatus.FORBIDDEN,
       );
 
-    await channel.$set('categories', categoriesId);
     const id = channel.id;
-
-    const shortedDays =
-      days.map((day) =>
-        new Date(+day).toLocaleDateString('ru-RU', {
-          timeZone: 'Asia/Yekaterinburg',
-        }),
-      ) || [];
-
-    await this.channelRepository.update(
-      {
-        description,
-        price,
-        conditionCheck,
-        days: shortedDays,
-      },
-      {
-        where: { id },
-      },
-    );
     const status = StatusStore.AWAIT;
-    await channel.$set('status', status);
-    await channel.$set('formatChannel', formatChannel);
 
-    for (let i = 0; i < slots.length; i++) {
-      const [hours, minutes] = slots[i].split(':');
-      const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
-      await this.slotService.createSlot({
-        timestamp,
-        channelId: id,
+    await channel.$set('link', link);
+    await channel.$set('categories', categoriesId);
+    await channel.$set('status', status);
+
+    // Чистим прошлую инфу о датах канала
+    await this.channelDateRepository.destroy({ where: { channelId: id } });
+    for (let i = 0; i < channelDates.length; i++) {
+      const { date, slots } = channelDates[i];
+
+      const channelDate = await this.channelDateRepository.create({
+        date,
       });
+      channelDate.$set('channel', id);
+
+      for (const slot of slots) {
+        const { time, price, formatChannel } = slot;
+
+        const [hours, minutes] = time.split(':');
+        const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
+        await this.slotService.createSlot({
+          timestamp,
+          price: +price,
+          formatChannel: formatChannel,
+          channelDateId: channelDate.id,
+        });
+      }
     }
 
     const updatedChannel = await this.channelRepository.findOne({
@@ -510,30 +488,18 @@ export class ChannelsService {
     return {
       ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
       channel: {
-        description,
         link: channel.link || '',
-        price,
+        channelDates: updatedChannel.channelDates,
         name,
         statusId: status,
         categoriesId,
         avatar: setBotApiUrlFile(channel.avatar),
-        conditionCheck,
-        days: updatedChannel.days,
       },
     };
   }
 
   public async updateRegistrationChannel(
-    {
-      categoriesId,
-      description,
-      name,
-      days,
-      slots,
-      price,
-      formatChannel,
-      conditionCheck,
-    }: RegistrationChannelDto,
+    { categoriesId, channelDates, name }: RegistrationChannelDto,
     userId: number,
   ) {
     const candidate = await this.channelRepository.findOne({
@@ -566,8 +532,6 @@ export class ChannelsService {
 
     await channel.$set('categories', categoriesId);
     const id = channel.id;
-
-    const shortedDays = days.map((day) => convertUtcDateToFullDate(+day)) || [];
 
     const advertisements = await this.advertisementService.findAllActive(
       channel.id,
@@ -576,28 +540,31 @@ export class ChannelsService {
     await this.slotService.removeSlots(channel.id);
     await this.advertisementService.removeAdvertisement(channel.id);
 
-    await this.channelRepository.update(
-      {
-        description,
-        price,
-        conditionCheck,
-        days: shortedDays,
-      },
-      {
-        where: { id },
-      },
-    );
     const status = StatusStore.AWAIT;
     await channel.$set('status', status);
-    await channel.$set('formatChannel', formatChannel);
 
-    for (let i = 0; i < slots.length; i++) {
-      const [hours, minutes] = slots[i].split(':');
-      const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
-      await this.slotService.createSlot({
-        timestamp,
-        channelId: id,
+    // Чистим прошлую инфу о датах канала
+    await this.channelDateRepository.destroy({ where: { channelId: id } });
+    for (let i = 0; i < channelDates.length; i++) {
+      const { date, slots } = channelDates[i];
+
+      const channelDate = await this.channelDateRepository.create({
+        date,
       });
+      channelDate.$set('channel', id);
+
+      for (const slot of slots) {
+        const { time, price, formatChannel } = slot;
+
+        const [hours, minutes] = time.split(':');
+        const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
+        await this.slotService.createSlot({
+          timestamp,
+          price: +price,
+          formatChannel: formatChannel,
+          channelDateId: channelDate.id,
+        });
+      }
     }
 
     const updatedChannel = await this.channelRepository.findOne({
@@ -616,15 +583,12 @@ export class ChannelsService {
     return {
       ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
       channel: {
-        description,
         link: channel.link || '',
-        price,
+        channelDates: updatedChannel.channelDates,
         name,
         statusId: status,
         categoriesId,
         avatar: setBotApiUrlFile(channel.avatar),
-        conditionCheck,
-        days: updatedChannel.days,
       },
     };
   }
@@ -685,10 +649,6 @@ export class ChannelsService {
     if (!invalidAdvertisements) return;
     for (let i = 0; i < invalidAdvertisements.length; i++) {
       const invalidAdvertisement = invalidAdvertisements[i];
-
-      const publisher = await this.userService.findOneById(
-        invalidAdvertisement.publisherId,
-      );
 
       await this.advertisementService.destroy(invalidAdvertisement.id);
     }

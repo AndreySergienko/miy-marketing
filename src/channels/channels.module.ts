@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ChannelsController } from './channels.controller';
 import { ChannelsService } from './channels.service';
 import { SequelizeModule } from '@nestjs/sequelize';
@@ -14,11 +14,13 @@ import { FormatChannel } from './models/format-channel.model';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
 import { AdvertisementModule } from 'src/advertisement/advertisement.module';
 import { Payment } from 'src/payments/models/payment.model';
+import { ChannelDate } from './models/channel-dates.model';
 
 @Module({
   imports: [
     SequelizeModule.forFeature([
       Channel,
+      ChannelDate,
       UserChannel,
       User,
       Categories,

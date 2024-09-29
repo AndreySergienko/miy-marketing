@@ -14,9 +14,8 @@ import { UserChannel } from './user-channel.model';
 import { Categories } from '../../categories/models/categories.model';
 import { CategoriesChannel } from '../../categories/models/categories-channel.model';
 import { Status } from '../../status/models/status.model';
-import { Slots } from '../../slots/models/slots.model';
-import { FormatChannel } from './format-channel.model';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelDate } from './channel-dates.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -52,10 +51,6 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   avatar: string;
 
-  // Вынести в дальнейшем в заказ
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  price: number;
-
   // Условия для проверки
   @Column({ type: DataType.STRING, allowNull: true })
   conditionCheck: string;
@@ -73,16 +68,10 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @BelongsTo(() => Status)
   status: Status;
 
-  @HasMany(() => Slots)
-  slots: Slots[];
+  // Даты
+  @HasMany(() => ChannelDate)
+  channelDates: ChannelDate[];
 
   @HasMany(() => Advertisement)
   advertisements: Advertisement[];
-
-  @ForeignKey(() => FormatChannel)
-  @Column({ type: DataType.INTEGER })
-  formatChannelId: number;
-
-  @BelongsTo(() => FormatChannel)
-  formatChannel: FormatChannel;
 }

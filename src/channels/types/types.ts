@@ -1,10 +1,8 @@
-import { IsArray, IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
-import { Slots } from '../../slots/models/slots.model';
-import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
-import { MAX_LENGTH_CONDITION } from '../../constants/validate.value';
-import { IsDaysValidate } from 'src/modules/extensions/validator/daysValidator';
+import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
+import { ChannelDate } from '../models/channel-dates.model';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -34,29 +32,26 @@ export class CheckConnectChannelDto {
   channelName: string;
 }
 
-export class RegistrationChannelDto {
-  @IsDaysValidate('', ErrorValidation.IS_DAYS_INCORRECT())
-  days: string[];
+export interface ChannelDateSlotDto {
+  time: string; // 20:00
+  price: number;
+  formatChannel: number;
+}
 
+export interface ChannelDateDto {
+  date: string; // 18.09.2024
+  slots: ChannelDateSlotDto[];
+}
+
+export class RegistrationChannelDto {
+  id?: number;
   @IsString(ErrorValidation.IS_STRING())
   name: string;
-  @IsString(ErrorValidation.IS_STRING())
-  @MaxLength(
-    MAX_LENGTH_CONDITION,
-    ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
-  )
-  conditionCheck: string;
   link?: string;
-  @IsString(ErrorValidation.IS_STRING())
-  description: string;
   @IsArray(ErrorValidation.IS_ARRAY())
   categoriesId: number[];
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  price: number;
-  @IsSlotValidate('', ErrorValidation.IS_SLOT_INCORRECT())
-  slots: string[];
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  formatChannel: number;
+  @IsChannelDatesValidate('', ErrorValidation.IS_CHANNEL_DATES_INCORRECT())
+  channelDates: ChannelDateDto[];
 }
 
 export interface IValidationChannelDto {
@@ -90,15 +85,13 @@ export interface IBuyChannelMessage {
 }
 
 export interface ChannelGetAllRequestDto {
-  slots: Slots[];
+  channelDates: ChannelDate[];
   channel: Pick<
     Channel,
     | 'id'
     | 'name'
-    | 'formatChannelId'
     | 'subscribers'
     | 'avatar'
-    | 'price'
     | 'link'
     | 'description'
     | 'conditionCheck'
@@ -107,8 +100,10 @@ export interface ChannelGetAllRequestDto {
 }
 
 export interface ICreateSlot {
-  channelId: number;
+  channelDateId: number;
   timestamp: number;
+  price: number;
+  formatChannel: number;
 }
 
 export interface ICreateAdvertisementMessage {
