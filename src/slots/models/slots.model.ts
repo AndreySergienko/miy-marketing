@@ -10,6 +10,7 @@ import {
 import type { SlotsModelAttrs } from '../types/types';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelDate } from 'src/channels/models/channel-dates.model';
+import { FormatChannel } from 'src/channels/models/format-channel.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -24,8 +25,20 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @Column({ type: DataType.BIGINT })
   timestamp: number;
 
+  // Цена
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  price: number;
+
   @HasMany(() => Advertisement)
   advertisements: Advertisement[];
+
+  // Интервал
+  @ForeignKey(() => FormatChannel)
+  @Column({ type: DataType.INTEGER })
+  formatChannelId: number;
+
+  @BelongsTo(() => FormatChannel)
+  formatChannel: FormatChannel;
 
   @ForeignKey(() => ChannelDate)
   @Column({ type: DataType.BIGINT })

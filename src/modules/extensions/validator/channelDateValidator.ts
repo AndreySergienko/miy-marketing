@@ -1,27 +1,32 @@
 import { registerDecorator, ValidationOptions } from 'class-validator';
-import type { ChannelDateDto } from 'src/channels/types/types';
+import type {
+  ChannelDateDto,
+  ChannelDateSlotDto,
+} from 'src/channels/types/types';
 
 const NAME = 'IsChannelDates';
 
-const isSlotsValid = (value: string[]) => {
+const isSlotsValid = (value: ChannelDateSlotDto[]) => {
   const isValidArray =
     Array.isArray(value) && value.length && value.length <= 12;
   if (!isValidArray) return false;
 
-  for (let i = 0; i < value.length; i++) {
-    const str = value[i];
-    if (str.length !== 5) return false;
-    if (str[2] !== ':') return false;
-    const [hours, minutes] = str.split(':');
-    const hoursNumber = +hours,
-      minutesNumber = +minutes;
-    if (isNaN(hoursNumber) || isNaN(minutesNumber)) return false;
-    if (hoursNumber < 1 || hoursNumber > 23) return false;
-    const minutesFalse = minutesNumber === 0;
-    if (!minutesFalse) {
-      if (minutesNumber !== 30) return false;
-    }
+  for (const item of value) {
+    const { time, price, formatChannel } = item;
+    if (!price || !formatChannel) return false;
+
+    if (time.length !== 5 || time[2] !== ':') return false;
+    const [hours, minutes] = time.split(':');
+    const hoursNumber = +hours;
+    const minutesNumber = +minutes;
+
+    const isValidNumbers = !isNaN(hoursNumber) && !isNaN(minutesNumber);
+    const isValidHour = hoursNumber >= 1 && hoursNumber <= 23;
+    const isValidMinutes = minutesNumber === 0 || minutesNumber === 30;
+
+    if (!isValidNumbers || !isValidHour || !isValidMinutes) return false;
   }
+
   return true;
 };
 
@@ -56,15 +61,8 @@ export function IsChannelDatesValidate(
 
           for (const item of value) {
             try {
-              const { date, price, slots, formatChannel } = item;
-
-              if (
-                !isDateValid(date) ||
-                !price ||
-                !isSlotsValid(slots) ||
-                !formatChannel
-              )
-                return false;
+              const { date, slots } = item;
+              if (!isDateValid(date) || !isSlotsValid(slots)) return false;
             } catch {
               return false;
             }

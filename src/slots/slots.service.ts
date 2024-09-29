@@ -7,10 +7,18 @@ import type { ICreateSlot } from '../channels/types/types';
 export class SlotsService {
   constructor(@InjectModel(Slots) private slotsRepository: typeof Slots) {}
 
-  async createSlot({ timestamp, channelDateId }: ICreateSlot) {
+  async createSlot({
+    timestamp,
+    price,
+    formatChannel,
+    channelDateId,
+  }: ICreateSlot) {
     const slot = await this.slotsRepository.create({
       timestamp,
+      price,
     });
+
+    await slot.$set('formatChannel', formatChannel);
     await slot.$set('channelDate', channelDateId);
   }
 

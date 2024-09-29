@@ -1,9 +1,7 @@
-import { IsArray, IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
-import { MAX_LENGTH_CONDITION } from '../../constants/validate.value';
-import { IsDaysValidate } from 'src/modules/extensions/validator/daysValidator';
 import { ChannelDate } from '../models/channel-dates.model';
 
 export interface ChannelsModelAttrs {
@@ -34,28 +32,22 @@ export class CheckConnectChannelDto {
   channelName: string;
 }
 
-export interface ChannelDateDto {
-  date: string; // 18.09.2024
+export interface ChannelDateSlotDto {
+  time: string; // 20:00
   price: number;
-  slots: string[];
   formatChannel: number;
 }
 
-export class RegistrationChannelDto {
-  @IsDaysValidate('', ErrorValidation.IS_DAYS_INCORRECT())
-  days: string[];
+export interface ChannelDateDto {
+  date: string; // 18.09.2024
+  slots: ChannelDateSlotDto[];
+}
 
+export class RegistrationChannelDto {
+  id?: number;
   @IsString(ErrorValidation.IS_STRING())
   name: string;
-  @IsString(ErrorValidation.IS_STRING())
-  @MaxLength(
-    MAX_LENGTH_CONDITION,
-    ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
-  )
-  conditionCheck: string;
   link?: string;
-  @IsString(ErrorValidation.IS_STRING())
-  description: string;
   @IsArray(ErrorValidation.IS_ARRAY())
   categoriesId: number[];
   @IsChannelDatesValidate('', ErrorValidation.IS_CHANNEL_DATES_INCORRECT())
@@ -110,6 +102,8 @@ export interface ChannelGetAllRequestDto {
 export interface ICreateSlot {
   channelDateId: number;
   timestamp: number;
+  price: number;
+  formatChannel: number;
 }
 
 export interface ICreateAdvertisementMessage {
