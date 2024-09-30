@@ -45,5 +45,5 @@ export const validateCorrespondentAccount = (value: string) => {
 };
 
 export const validateCurrentAccount = (value: string) => {
-  return /408[0-9]{17}}/.test(value);
+  return /408[0-9]{17}/.test(value);
 };

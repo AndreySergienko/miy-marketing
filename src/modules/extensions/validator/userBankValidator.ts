@@ -25,13 +25,16 @@ export function IsUserBankValidate(
 
           const { name, bik, correspondentAccount, currentAccount } = value;
 
-          const isNameInvalid = name.length < 3;
-          const isBikInvalid = bik.length && !validateBik(bik);
+          const isNameInvalid = name && name.length < 3;
+          const isBikInvalid = bik && bik.length && !validateBik(bik);
           const isCorrespondentAccountInvalid =
+            correspondentAccount &&
             correspondentAccount.length &&
             !validateCorrespondentAccount(correspondentAccount);
           const isCurrentAccountInvalid =
-            currentAccount.length && !validateCurrentAccount(currentAccount);
+            currentAccount &&
+            currentAccount.length &&
+            !validateCurrentAccount(currentAccount);
 
           return (
             !isNameInvalid &&
