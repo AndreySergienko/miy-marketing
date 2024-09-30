@@ -63,7 +63,10 @@ export class QueuesService {
   })
   public async actionMessages() {
     try {
-      const finishedSlots = await this.findSlots(StatusStore.FINISH, 'timestampFinish');
+      const finishedSlots = await this.findSlots(
+        StatusStore.FINISH,
+        'timestampFinish',
+      );
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
         const chatId = slot.channel.chatId;
@@ -79,7 +82,10 @@ export class QueuesService {
         }
       }
 
-      const activeSlots = await this.findSlots(StatusStore.PROCESS, 'timestamp');
+      const activeSlots = await this.findSlots(
+        StatusStore.PROCESS,
+        'timestamp',
+      );
       for (let i = 0; i < activeSlots.length; i++) {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
@@ -110,9 +116,12 @@ export class QueuesService {
   public async sendResetCash() {
     try {
       const invalidAdvertisements = await this.advertisementRepository.findAll({
-        where: { statusId: StatusStore.FINISH, timestampFinish: {
-          [Op.lte]: String(convertDateTimeToMoscow(hourLast())),
-        } },
+        where: {
+          statusId: StatusStore.FINISH,
+          timestampFinish: {
+            [Op.lte]: String(convertDateTimeToMoscow(hourLast())),
+          },
+        },
         include: { all: true },
       });
 
@@ -132,16 +141,19 @@ export class QueuesService {
         const channel = channels[i];
 
         const isDateInvalid = channel.days.every((date) => {
-          const [day, month, year] = date.split('.')
-          const timestamp = +new Date(`${month}/${day}/${year}`)
-          return +new Date() > timestamp
-        })
+          const [day, month, year] = date.split('.');
+          const timestamp = +new Date(`${month}/${day}/${year}`);
+          return +new Date() > timestamp;
+        });
 
         if (isDateInvalid) {
-          await channel.$set('status', StatusStore.CANCEL)
-          await global.bot.sendMessage(channel.users[0].chatId, `Уважаемый администратор!
+          await channel.$set('status', StatusStore.CANCEL);
+          await global.bot.sendMessage(
+            channel.users[0].chatId,
+            `Уважаемый администратор!
 
-Даты публикации канала ${channel.name} устарели, пожалуйста, обновите список актуальных дат.`)
+Даты публикации канала ${channel.name} устарели, пожалуйста, обновите список актуальных дат.`,
+          );
         }
       }
     } catch (e) {

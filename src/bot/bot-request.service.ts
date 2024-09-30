@@ -276,7 +276,7 @@ export class BotRequestService {
     const channelName = channel.name;
     const day = convertUtcDateToFullDate(slot.timestamp);
     const format = await this.channelsService.findFormatById(
-      channel.formatChannelId,
+      slot.slot.formatChannelId,
     );
     const formatName = format.value;
     const dataMessage: ICreateAdvertisementMessage = {
