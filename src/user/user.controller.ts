@@ -24,6 +24,8 @@ import { Public } from '../auth/decorators/public-auth.decorator';
 import * as process from 'node:process';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import type { Express } from 'express';
+import 'multer';
 import { documentFileFilter, editFileName } from '../utils/file-upload.utils';
 
 @Controller('user')
