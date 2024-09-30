@@ -48,7 +48,9 @@ export class BotEvent {
   }
 
   async sendInvoiceBuyAdvertising(chatId: number, dto: IBuyChannelMessage) {
-    const price = (dto.price).toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' }).split('₽')
+    const price = dto.price
+      .toLocaleString('ru-RU', { style: 'currency', currency: 'RUB' })
+      .split('₽');
     const provider_data = JSON.stringify({
       receipt: {
         email: dto.email,
@@ -58,14 +60,14 @@ export class BotEvent {
             quantity: '1.00',
             amount: {
               value: price[0].trim().replace(/,/g, '.'),
-              currency: 'RUB'
+              currency: 'RUB',
             },
             // TODO вынести в env
-            vat_code: 1
-          }
-        ]
-      }
-    })
+            vat_code: 1,
+          },
+        ],
+      },
+    });
     return await global.bot.sendInvoice(
       chatId,
       'Покупка рекламной интеграции в канале',
@@ -80,8 +82,8 @@ export class BotEvent {
         },
       ],
       {
-        provider_data
-      }
+        provider_data,
+      },
     );
   }
 
@@ -148,37 +150,43 @@ export class BotEvent {
       chatId,
       name,
       description,
-      price,
       link,
       subscribers,
       categories,
       days,
-      slots,
-      formatChannel,
+      channelDates,
       conditionCheck,
     }: Channel,
   ) {
     const categoriesNames = categories.map((category) => category.value);
-    const slotDate = slots.map((slot) =>
-      convertTimestampToTime(+slot.timestamp),
-    );
-    return await global.bot.sendMessage(
-      adminId,
-      MessagesChannel.REGISTRATION({
-        name,
-        description,
-        price,
-        link,
-        subscribers,
-        categories: categoriesNames,
-        slots: slotDate,
-        format: formatChannel.value,
-        conditionCheck,
-        days,
-      }),
-      useSendMessage({
-        inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),
-      }),
-    );
+    const promises = [];
+
+    for (const date of channelDates) {
+      for (const slot of date.slots) {
+        const slotDate = convertTimestampToTime(+slot.timestamp);
+
+        promises.push(
+          global.bot.sendMessage(
+            adminId,
+            MessagesChannel.REGISTRATION({
+              name,
+              description,
+              price: slot.price,
+              link,
+              subscribers,
+              categories: categoriesNames,
+              slots: [slotDate],
+              format: slot.formatChannel.value,
+              conditionCheck,
+              days,
+            }),
+            useSendMessage({
+              inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),
+            }),
+          ),
+        );
+      }
+    }
+    return await Promise.all(promises);
   }
 }

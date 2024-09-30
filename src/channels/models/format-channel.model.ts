@@ -1,5 +1,5 @@
 import { Column, DataType, Table, Model, HasMany } from 'sequelize-typescript';
-import { ChannelDate } from './channel-dates.model';
+import { Slots } from 'src/slots/models/slots.model';
 
 @Table({ tableName: 'format-channel', createdAt: false, updatedAt: false })
 export class FormatChannel extends Model<FormatChannel> {
@@ -14,6 +14,6 @@ export class FormatChannel extends Model<FormatChannel> {
   @Column({ type: DataType.STRING })
   value: string;
 
-  @HasMany(() => ChannelDate)
-  channelDates: ChannelDate[];
+  @HasMany(() => Slots)
+  channelDates: Slots[];
 }
