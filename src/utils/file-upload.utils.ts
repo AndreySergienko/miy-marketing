@@ -1,4 +1,6 @@
 import { extname } from 'path';
+import type { Express } from 'express';
+import 'multer';
 
 export const editFileName = (
   _: unknown,
