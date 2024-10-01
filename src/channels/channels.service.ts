@@ -32,6 +32,7 @@ import { AdvertisementService } from 'src/advertisement/advertisement.service';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { Payment } from 'src/payments/models/payment.model';
 import { ChannelDate } from './models/channel-dates.model';
+import { Slots } from 'src/slots/models/slots.model';
 
 @Injectable()
 export class ChannelsService {
@@ -69,15 +70,25 @@ export class ChannelsService {
         userId: userId,
       },
     });
+
     const channelsIds = userChannels.map((channel) => channel.channelId);
     const channels = (
       await this.channelRepository.findAll({
         where: {
           id: channelsIds,
         },
-        include: Categories,
+        include: [Categories, ChannelDate],
       })
     ).filter((ch) => ch.channelDates.length);
+
+    for (const channel of channels) {
+      channel.channelDates = await this.channelDateRepository.findAll({
+        where: {
+          id: channel.channelDates.map((d) => d.id),
+        },
+        include: [Slots],
+      });
+    }
 
     const transformChannels = [];
     for (let i = 0; i < channels.length; i++) {
@@ -445,8 +456,8 @@ export class ChannelsService {
     const status = StatusStore.AWAIT;
 
     await channel.$set('link', link);
-    await channel.$set('categories', categoriesId);
     await channel.$set('status', status);
+    await channel.$set('categories', categoriesId);
 
     // Чистим прошлую инфу о датах канала
     await this.channelDateRepository.destroy({ where: { channelId: id } });
@@ -466,7 +477,7 @@ export class ChannelsService {
         await this.slotService.createSlot({
           timestamp,
           price: +price,
-          formatChannel: formatChannel,
+          formatChannel,
           channelDateId: channelDate.id,
         });
       }
