@@ -107,11 +107,29 @@ export class ChannelsService {
         days,
       } = channels[i];
 
+      const dates = channelDates.map((date) => {
+        const slots = date.slots.map((slot) => {
+          const tempDate = new Date(+slot.timestamp);
+          const hours = `${tempDate.getHours()}`.padStart(2, '0');
+          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
+
+          return {
+            price: slot.price,
+            formatChannelId: slot.formatChannelId,
+            timestamp: `${hours}:${minutes}`,
+          };
+        });
+        return {
+          date: date.date,
+          slots,
+        };
+      });
+
       const avatarLink = avatar ? setBotApiUrlFile(avatar) : '';
       const obj = {
         id,
         statusId,
-        channelDates,
+        channelDates: dates,
         name,
         subscribers,
         isCanPostMessage,
