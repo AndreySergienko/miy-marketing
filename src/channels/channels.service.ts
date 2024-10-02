@@ -247,31 +247,64 @@ export class ChannelsService {
       };
     }
 
+    const channelsIds = (
+      await this.categoriesChannelRepository.findAll({
+        ...pagination({ page, size }),
+        where,
+      })
+    ).map((categoriesChannel) => categoriesChannel.channelId);
+
+    const datesWhere: string[] = [];
+
     if (dates) {
       const splitedString = dates.split(',');
-      if (!splitedString) return;
-      if (splitedString.length > 2) return;
-      if (splitedString.some((str) => isNaN(+str))) return;
-      const [gte, lte] = splitedString;
-      where.timestamp = {
-        [Op.gte]: +gte,
-        [Op.lte]: +lte,
-      };
+      if (!splitedString || splitedString.some((str) => isNaN(+str))) return;
+
+      datesWhere.push(...splitedString);
     }
 
-    const categoriesChannels = await this.categoriesChannelRepository.findAll({
-      ...pagination({ page, size }),
-      where,
-    });
-    const channelIds = categoriesChannels.map(
-      (categoriesChannel: CategoriesChannel) => categoriesChannel.channelId,
-    );
-    return await this.channelRepository.findAll({
+    const channels = await this.channelRepository.findAll({
       where: {
-        id: channelIds,
+        id: channelsIds,
         statusId: StatusStore.PUBLIC,
       },
+      include: [ChannelDate],
     });
+
+    if (!channels) return [];
+
+    const result = [];
+
+    for (const channel of channels) {
+      const channelDates = channel.channelDates.filter((channelDate) => {
+        const [day, month, year] = channelDate.date.split('.');
+        const timestamp = new Date(`${month}/${day}/${year}`);
+        timestamp.setHours(0, 0, 0, 0);
+
+        return datesWhere.includes(timestamp.getTime().toString());
+      });
+      if (!channelDates.length) continue;
+
+      const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
+      const fullChannelDates = await this.channelDateRepository.findAll({
+        where: { id: channelDatesIds },
+        include: [Slots],
+      });
+
+      result.push({
+        days: channel.days ?? [],
+        id: channel.id,
+        name: channel.name,
+        subscribers: channel.subscribers,
+        link: channel.link || '',
+        description: channel.description,
+        avatar: channel.avatar,
+        conditionCheck: channel.conditionCheck,
+        channelDates: fullChannelDates,
+      });
+    }
+
+    return result;
   }
 
   public async getAll(query: IQueryFilterAndPagination) {
@@ -285,7 +318,7 @@ export class ChannelsService {
         channelDates: channel.channelDates,
         channel: {
           days:
-            channel.days.filter((date) => {
+            channel.days?.filter((date) => {
               const [day, month, year] = date.split('.');
               const timestamp = +new Date(`${month}/${day}/${year}`);
               return new Date().setHours(0, 0, 0, 0) < timestamp;
@@ -473,7 +506,7 @@ export class ChannelsService {
     const id = channel.id;
     const status = StatusStore.AWAIT;
 
-    await channel.$set('link', link);
+    channel.set('link', link);
     await channel.$set('status', status);
     await channel.$set('categories', categoriesId);
 

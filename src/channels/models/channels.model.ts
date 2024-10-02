@@ -39,7 +39,7 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isCanPostMessage: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: true, validate: { isUrl: true } })
+  @Column({ type: DataType.STRING, allowNull: true })
   link: string;
 
   @Column({ type: DataType.JSON, allowNull: true })
