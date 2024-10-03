@@ -58,10 +58,10 @@ export class AuthService {
       );
     }
 
-    await this.nodemailerService.sendRegistrationActivateMail(
-      userBot.id,
-      registrationDto.email,
-    );
+    // await this.nodemailerService.sendRegistrationActivateMail(
+    //   userBot.id,
+    //   registrationDto.email,
+    // );
 
     const hashPassword = await bcrypt.hash(password, 7);
 
@@ -170,9 +170,11 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const password = await bcrypt.hash(generatePassword(), 7);
+    const password = generatePassword();
+    const hash = await bcrypt.hash(password, 7);
+
     await this.nodemailerService.sendNewPassword(candidate.email, password);
-    await candidate.$set('password', password);
+    await candidate.$set('password', hash);
     return AuthSuccessMessages.SEND_PASSWORD_RESET;
   }
 }
