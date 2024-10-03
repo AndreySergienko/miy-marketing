@@ -21,7 +21,7 @@ const isSlotsValid = (value: ChannelDateSlotDto[]) => {
     const minutesNumber = +minutes;
 
     const isValidNumbers = !isNaN(hoursNumber) && !isNaN(minutesNumber);
-    const isValidHour = hoursNumber >= 1 && hoursNumber <= 23;
+    const isValidHour = hoursNumber >= 0 && hoursNumber <= 23;
     const isValidMinutes = minutesNumber === 0 || minutesNumber === 30;
 
     if (!isValidNumbers || !isValidHour || !isValidMinutes) return false;
