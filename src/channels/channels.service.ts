@@ -599,7 +599,6 @@ export class ChannelsService {
       channel.id,
     );
     if (advertisements) await this.sendMessageReset(advertisements);
-    await this.slotService.removeSlots(channel.id);
     await this.advertisementService.removeAdvertisement(channel.id);
 
     const status = StatusStore.AWAIT;
