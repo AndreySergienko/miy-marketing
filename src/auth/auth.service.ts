@@ -58,10 +58,10 @@ export class AuthService {
       );
     }
 
-    // await this.nodemailerService.sendRegistrationActivateMail(
-    //   userBot.id,
-    //   registrationDto.email,
-    // );
+    await this.nodemailerService.sendRegistrationActivateMail(
+      userBot.id,
+      registrationDto.email,
+    );
 
     const hashPassword = await bcrypt.hash(password, 7);
 
