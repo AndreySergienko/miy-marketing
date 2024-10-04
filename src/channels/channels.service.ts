@@ -148,10 +148,7 @@ export class ChannelsService {
   }
 
   /** Метод покупки рекламы **/
-  public async buyAdvertising(
-    { dateIdx, slotId }: BuyChannelDto,
-    userId: number,
-  ) {
+  public async buyAdvertising({ slotId }: BuyChannelDto, userId: number) {
     const user = await this.userService.findOneById(userId);
     if (!user) return;
 
@@ -184,14 +181,7 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const date = channel.days[dateIdx];
-    if (!date)
-      throw new HttpException(
-        ChannelsErrorMessages.DATE_INCORRECT,
-        HttpStatus.BAD_REQUEST,
-      );
-
-    const [day, month] = date.split('.');
+    const [day, month] = channelDate.date.split('.');
     const newDate = new Date(+slot.timestamp);
     const advertisementTimestampWithMonthAndDay = createDate(
       newDate,
@@ -276,19 +266,41 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
-      const channelDates = channel.channelDates.filter((channelDate) => {
-        const [day, month, year] = channelDate.date.split('.');
-        const timestamp = new Date(`${month}/${day}/${year}`);
-        timestamp.setHours(0, 0, 0, 0);
+      const channelDates = datesWhere.length
+        ? channel.channelDates.filter((channelDate) => {
+            const [day, month, year] = channelDate.date.split('.');
+            const timestamp = new Date(`${month}/${day}/${year}`);
+            timestamp.setHours(0, 0, 0, 0);
 
-        return datesWhere.includes(timestamp.getTime().toString());
-      });
+            return datesWhere.includes(timestamp.getTime().toString());
+          })
+        : channel.channelDates;
       if (!channelDates.length) continue;
 
       const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
       const fullChannelDates = await this.channelDateRepository.findAll({
         where: { id: channelDatesIds },
         include: [Slots],
+      });
+
+      const dates = fullChannelDates.map((date) => {
+        const slots = date.slots.map((slot) => {
+          const tempDate = new Date(+slot.timestamp);
+          const hours = `${tempDate.getHours()}`.padStart(2, '0');
+          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
+
+          return {
+            id: slot.id,
+            price: slot.price,
+            formatChannelId: slot.formatChannelId,
+            timestamp: `${hours}:${minutes}`,
+          };
+        });
+        return {
+          id: date.id,
+          date: date.date,
+          slots,
+        };
       });
 
       result.push({
@@ -300,7 +312,7 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: fullChannelDates,
+        channelDates: dates,
       });
     }
 
@@ -315,22 +327,20 @@ export class ChannelsService {
 
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       list.push({
+        days:
+          channel.days?.filter((date) => {
+            const [day, month, year] = date.split('.');
+            const timestamp = +new Date(`${month}/${day}/${year}`);
+            return new Date().setHours(0, 0, 0, 0) < timestamp;
+          }) || [],
+        id: channel.id,
+        name: channel.name,
+        subscribers: channel.subscribers,
+        link: channel.link || '',
+        description: channel.description,
+        avatar: channel.avatar,
+        conditionCheck: channel.conditionCheck,
         channelDates: channel.channelDates,
-        channel: {
-          days:
-            channel.days?.filter((date) => {
-              const [day, month, year] = date.split('.');
-              const timestamp = +new Date(`${month}/${day}/${year}`);
-              return new Date().setHours(0, 0, 0, 0) < timestamp;
-            }) || [],
-          id: channel.id,
-          name: channel.name,
-          subscribers: channel.subscribers,
-          link: channel.link || '',
-          description: channel.description,
-          avatar: channel.avatar,
-          conditionCheck: channel.conditionCheck,
-        },
       });
     }
 

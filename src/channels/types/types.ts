@@ -2,7 +2,6 @@ import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
-import { ChannelDate } from '../models/channel-dates.model';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -84,9 +83,8 @@ export interface IBuyChannelMessage {
   slotId: number;
 }
 
-export interface ChannelGetAllRequestDto {
-  channelDates: ChannelDate[];
-  channel: Pick<
+export interface ChannelGetAllRequestDto
+  extends Pick<
     Channel,
     | 'id'
     | 'name'
@@ -96,8 +94,8 @@ export interface ChannelGetAllRequestDto {
     | 'description'
     | 'conditionCheck'
     | 'days'
-  >;
-}
+    | 'channelDates'
+  > {}
 
 export interface ICreateSlot {
   channelDateId: number;
