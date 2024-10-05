@@ -157,7 +157,11 @@ export class AuthService {
       );
     }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
-    if (!passwordEquals) return;
+    if (!passwordEquals)
+      throw new HttpException(
+        AuthErrorMessages.INCORRECT_DATA,
+        HttpStatus.BAD_REQUEST,
+      );
     const token = await this.tokenService.generateToken(candidate);
     return token;
   }
