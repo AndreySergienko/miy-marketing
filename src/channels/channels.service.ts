@@ -547,6 +547,16 @@ export class ChannelsService {
       include: { all: true },
     });
 
+    const updatedChannelDatesIds = updatedChannel.channelDates.map(
+      (channelDate) => channelDate.id,
+    );
+    const dates = await this.channelDateRepository.findAll({
+      where: { id: updatedChannelDatesIds },
+      include: [Slots],
+    });
+
+    updatedChannel.channelDates = dates;
+
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
       await this.botEvent.sendMessageAdminAfterCreateChannel(
@@ -648,6 +658,16 @@ export class ChannelsService {
       where: { id },
       include: { all: true },
     });
+
+    const updatedChannelDatesIds = updatedChannel.channelDates.map(
+      (channelDate) => channelDate.id,
+    );
+    const dates = await this.channelDateRepository.findAll({
+      where: { id: updatedChannelDatesIds },
+      include: [Slots],
+    });
+
+    updatedChannel.channelDates = dates;
 
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
