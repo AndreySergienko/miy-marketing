@@ -542,20 +542,7 @@ export class ChannelsService {
       }
     }
 
-    const updatedChannel = await this.channelRepository.findOne({
-      where: { id },
-      include: { all: true },
-    });
-
-    const updatedChannelDatesIds = updatedChannel.channelDates.map(
-      (channelDate) => channelDate.id,
-    );
-    const dates = await this.channelDateRepository.findAll({
-      where: { id: updatedChannelDatesIds },
-      include: [Slots],
-    });
-
-    updatedChannel.channelDates = dates;
+    const updatedChannel = await this.findById(id);
 
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
@@ -654,20 +641,7 @@ export class ChannelsService {
       }
     }
 
-    const updatedChannel = await this.channelRepository.findOne({
-      where: { id },
-      include: { all: true },
-    });
-
-    const updatedChannelDatesIds = updatedChannel.channelDates.map(
-      (channelDate) => channelDate.id,
-    );
-    const dates = await this.channelDateRepository.findAll({
-      where: { id: updatedChannelDatesIds },
-      include: [Slots],
-    });
-
-    updatedChannel.channelDates = dates;
+    const updatedChannel = await this.findById(id);
 
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
@@ -691,27 +665,90 @@ export class ChannelsService {
   }
 
   /** Найти один канала по ID */
-  public findById(id: number) {
-    return this.channelRepository.findOne({
+  public async findById(id: number) {
+    const baseChannel = await this.channelRepository.findOne({
       where: { id },
       include: { all: true },
     });
+
+    if (!baseChannel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const channelDates = await this.channelDateRepository.findAll({
+      where: { channelId: id },
+      include: { all: true },
+    });
+
+    for (let i = 0; i < channelDates.length; i++) {
+      const { id: channelDateId } = channelDates[i];
+      const slots =
+        await this.slotService.findAllByChannelDateId(channelDateId);
+      channelDates[i].slots = slots;
+    }
+    baseChannel.channelDates = channelDates;
+
+    return baseChannel;
   }
 
   /** Найти один канала по ChatID */
   public async findOneByChatId(chatId: number) {
-    return await this.channelRepository.findOne({
+    const baseChannel = await this.channelRepository.findOne({
       where: { chatId },
       include: { all: true },
     });
+
+    if (!baseChannel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const channelDates = await this.channelDateRepository.findAll({
+      where: { channelId: baseChannel.id },
+      include: { all: true },
+    });
+
+    for (let i = 0; i < channelDates.length; i++) {
+      const { id: channelDateId } = channelDates[i];
+      const slots =
+        await this.slotService.findAllByChannelDateId(channelDateId);
+      channelDates[i].slots = slots;
+    }
+    baseChannel.channelDates = channelDates;
+
+    return baseChannel;
   }
 
   /** Найти один канала по названию канала */
   public async findOneByChatName(name: string) {
-    return await this.channelRepository.findOne({
+    const baseChannel = await this.channelRepository.findOne({
       where: { name },
       include: { all: true },
     });
+
+    if (!baseChannel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const channelDates = await this.channelDateRepository.findAll({
+      where: { channelId: baseChannel.id },
+      include: { all: true },
+    });
+
+    for (let i = 0; i < channelDates.length; i++) {
+      const { id: channelDateId } = channelDates[i];
+      const slots =
+        await this.slotService.findAllByChannelDateId(channelDateId);
+      channelDates[i].slots = slots;
+    }
+    baseChannel.channelDates = channelDates;
+
+    return baseChannel;
   }
 
   public async createChannel(channel: ChannelCreateDto) {

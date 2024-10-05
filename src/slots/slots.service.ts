@@ -36,6 +36,9 @@ export class SlotsService {
   }
 
   async findAllByChannelDateId(channelDateId: number) {
-    return await this.slotsRepository.findAll({ where: { channelDateId } });
+    return await this.slotsRepository.findAll({
+      where: { channelDateId },
+      include: { all: true },
+    });
   }
 }
