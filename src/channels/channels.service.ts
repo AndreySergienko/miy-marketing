@@ -671,11 +671,7 @@ export class ChannelsService {
       include: { all: true },
     });
 
-    if (!baseChannel)
-      throw new HttpException(
-        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-        HttpStatus.BAD_REQUEST,
-      );
+    if (!baseChannel) return;
 
     const channelDates = await this.channelDateRepository.findAll({
       where: { channelId: id },
@@ -700,11 +696,7 @@ export class ChannelsService {
       include: { all: true },
     });
 
-    if (!baseChannel)
-      throw new HttpException(
-        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-        HttpStatus.BAD_REQUEST,
-      );
+    if (!baseChannel) return;
 
     const channelDates = await this.channelDateRepository.findAll({
       where: { channelId: baseChannel.id },
@@ -729,11 +721,7 @@ export class ChannelsService {
       include: { all: true },
     });
 
-    if (!baseChannel)
-      throw new HttpException(
-        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-        HttpStatus.BAD_REQUEST,
-      );
+    if (!baseChannel) return;
 
     const channelDates = await this.channelDateRepository.findAll({
       where: { channelId: baseChannel.id },
@@ -770,11 +758,7 @@ export class ChannelsService {
   public async removeChannel(chatId: number) {
     const channel = await this.findOneByChatId(chatId);
 
-    if (!channel)
-      throw new HttpException(
-        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
-        HttpStatus.BAD_REQUEST,
-      );
+    if (!channel) return;
 
     const channelDates = await this.channelDateRepository.findAll({
       where: { channelId: channel.id },
