@@ -520,8 +520,6 @@ export class ChannelsService {
     await channel.$set('status', status);
     await channel.$set('categories', categoriesId);
 
-    // Чистим прошлую инфу о датах канала
-    await this.channelDateRepository.destroy({ where: { channelId: id } });
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
 
@@ -577,9 +575,10 @@ export class ChannelsService {
     const candidate = await this.channelRepository.findOne({
       where: {
         name,
-        statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
+        statusId: [StatusStore.PUBLIC],
       },
     });
+
     if (candidate)
       throw new HttpException(
         ChannelsErrorMessages.CREATED,
@@ -615,7 +614,14 @@ export class ChannelsService {
     await channel.$set('status', status);
 
     // Чистим прошлую инфу о датах канала
+    const channelDatesIds = channel.channelDates.map((date) => date.id);
+    const promises = [];
+    for (const channelDateId of channelDatesIds) {
+      promises.push(this.slotService.removeSlots(channelDateId));
+    }
+    await Promise.allSettled(promises);
     await this.channelDateRepository.destroy({ where: { channelId: id } });
+
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
 
