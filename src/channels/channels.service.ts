@@ -731,10 +731,44 @@ export class ChannelsService {
   }
 
   public async removeChannel(chatId: number) {
+    const channel = await this.findOneByChatId(chatId);
+
+    if (!channel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const channelDates = await this.channelDateRepository.findAll({
+      where: { channelId: channel.id },
+      include: [Slots],
+    });
+
+    for (const channelDate of channelDates) {
+      await this.slotService.removeSlots(channelDate.id);
+    }
+
+    await this.channelDateRepository.destroy({
+      where: { channelId: channel.id },
+    });
+
     return await this.channelRepository.destroy({ where: { chatId } });
   }
 
   public async removeChannelById(id: number) {
+    const channelDates = await this.channelDateRepository.findAll({
+      where: { channelId: id },
+      include: [Slots],
+    });
+
+    for (const channelDate of channelDates) {
+      await this.slotService.removeSlots(channelDate.id);
+    }
+
+    await this.channelDateRepository.destroy({
+      where: { channelId: id },
+    });
+
     return await this.channelRepository.destroy({ where: { id } });
   }
 

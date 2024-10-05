@@ -107,7 +107,6 @@ export class BotService implements OnModuleInit {
               await this.advertisementService.findAllActive(channel.id);
             if (advertisements) await this.sendMessageReset(advertisements);
             await this.channelsService.removeChannel(chatId);
-            await this.slotsService.removeSlots(channel.id);
             await this.advertisementService.removeAdvertisement(channel.id);
           }
         },
