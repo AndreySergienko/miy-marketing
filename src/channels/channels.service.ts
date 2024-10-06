@@ -283,8 +283,27 @@ export class ChannelsService {
         include: [Slots],
       });
 
-      const dates = fullChannelDates.map((date) => {
-        const slots = date.slots.map((slot) => {
+      const dates = [];
+
+      for (const date of fullChannelDates) {
+        const filteredSlots = [];
+
+        for (const slot of date.slots) {
+          const advertisments =
+            await this.advertisementService.findAllBySlotIdAndChannelId({
+              slotId: slot.id,
+              channelId: channel.id,
+            });
+          if (advertisments?.length) {
+            continue;
+          }
+
+          filteredSlots.push(slot);
+        }
+
+        if (!filteredSlots.length) continue;
+
+        const slots = filteredSlots.map((slot) => {
           const tempDate = new Date(+slot.timestamp);
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
@@ -296,12 +315,13 @@ export class ChannelsService {
             timestamp: `${hours}:${minutes}`,
           };
         });
-        return {
+
+        dates.push({
           id: date.id,
           date: date.date,
           slots,
-        };
-      });
+        });
+      }
 
       result.push({
         days: channel.days ?? [],
@@ -488,7 +508,7 @@ export class ChannelsService {
     const candidate = await this.channelRepository.findOne({
       where: {
         name,
-        statusId: [StatusStore.PUBLIC, StatusStore.AWAIT],
+        statusId: [StatusStore.PUBLIC],
       },
     });
     if (candidate)
