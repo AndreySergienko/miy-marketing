@@ -13,7 +13,6 @@ export interface ChannelsModelAttrs {
   link?: string;
   day?: number;
   price?: number;
-  days?: string[];
 }
 
 export class ChannelCreateDto implements ChannelsModelAttrs {
@@ -93,7 +92,6 @@ export interface ChannelGetAllRequestDto
     | 'link'
     | 'description'
     | 'conditionCheck'
-    | 'days'
     | 'channelDates'
   > {}
 

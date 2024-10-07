@@ -10,16 +10,14 @@ import {
   convertUtcDateToFullDate,
 } from '../../../../utils/date';
 import { goToFront, mailSupport } from '../../../../utils/links';
+import { ChannelDate } from 'src/channels/models/channel-dates.model';
 
 export interface MessageChannelRegistrationDto {
   name: string;
   description: string;
   subscribers: number;
-  days: string[];
+  dates: ChannelDate[];
   link: string;
-  price: number;
-  slots: string[];
-  format: string;
   categories: string[];
   conditionCheck?: string;
 }
@@ -201,13 +199,16 @@ ON-Developer
     description,
     subscribers,
     link,
-    price,
-    slots,
+    dates,
     categories,
-    format,
     conditionCheck,
-    days,
   }: MessageChannelRegistrationDto) {
+    const formattedDates = dates.map((date) => {
+      return date.slots.map((slot) => {
+        return `${date.date} - ${convertTimestampToTime(+slot.timestamp)} - ${slot.formatChannel.value} - ${slot.price}`;
+      });
+    });
+
     return `🆕Новая заявка на регистрацию канала на платформу ON-DEVELOPER:
 
 Запрос на регистрацию канала:
@@ -215,10 +216,7 @@ ON-Developer
 Описание: ${description}
 Подписчики: ${subscribers}
 Ссылка: ${link}
-Цена за слот: ${price}
-Даты: ${days}
-Формат сообщения: ${format}
-Доступные слоты:  [${slots}]
+Даты: [${formattedDates}]
 Категории: [${categories}]
 Условия оценки: ${conditionCheck}`;
   }
