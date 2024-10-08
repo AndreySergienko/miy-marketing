@@ -3,10 +3,7 @@ import { useSendMessage } from '../hooks/useSendMessage';
 import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChannel';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 import { Channel } from '../channels/models/channels.model';
-import {
-  convertTimestampToTime,
-  convertUtcDateToFullDateMoscow,
-} from '../utils/date';
+import { convertUtcDateToFullDateMoscow } from '../utils/date';
 import type {
   IBuyChannelMessage,
   IValidationCancelChannelDto,
@@ -153,40 +150,26 @@ export class BotEvent {
       link,
       subscribers,
       categories,
-      days,
       channelDates,
       conditionCheck,
     }: Channel,
   ) {
     const categoriesNames = categories.map((category) => category.value);
-    const promises = [];
 
-    for (const date of channelDates) {
-      for (const slot of date.slots) {
-        const slotDate = convertTimestampToTime(+slot.timestamp);
-
-        promises.push(
-          global.bot.sendMessage(
-            adminId,
-            MessagesChannel.REGISTRATION({
-              name,
-              description,
-              price: slot.price,
-              link,
-              subscribers,
-              categories: categoriesNames,
-              slots: [slotDate],
-              format: slot.formatChannel.value,
-              conditionCheck,
-              days,
-            }),
-            useSendMessage({
-              inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),
-            }),
-          ),
-        );
-      }
-    }
-    return await Promise.all(promises);
+    return await global.bot.sendMessage(
+      adminId,
+      MessagesChannel.REGISTRATION({
+        name,
+        description,
+        link,
+        subscribers,
+        categories: categoriesNames,
+        dates: channelDates,
+        conditionCheck,
+      }),
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.AFTER_CREATE_CHANNEL(chatId),
+      }),
+    );
   }
 }

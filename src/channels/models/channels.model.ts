@@ -42,9 +42,6 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.STRING, allowNull: true })
   link: string;
 
-  @Column({ type: DataType.JSON, allowNull: true })
-  days: string[];
-
   @Column({ type: DataType.STRING, allowNull: true })
   description: string;
 

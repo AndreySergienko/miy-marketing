@@ -140,8 +140,8 @@ export class QueuesService {
       for (let i = 0; i < channels.length; i++) {
         const channel = channels[i];
 
-        const isDateInvalid = channel.days.every((date) => {
-          const [day, month, year] = date.split('.');
+        const isDateInvalid = channel.channelDates.every((date) => {
+          const [day, month, year] = date.date.split('.');
           const timestamp = +new Date(`${month}/${day}/${year}`);
           return +new Date() > timestamp;
         });

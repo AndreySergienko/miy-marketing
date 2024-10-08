@@ -104,7 +104,6 @@ export class ChannelsService {
         conditionCheck,
         avatar,
         categories,
-        days,
       } = channels[i];
 
       const dates = channelDates.map((date) => {
@@ -137,7 +136,6 @@ export class ChannelsService {
         description,
         conditionCheck,
         avatar: avatarLink,
-        days,
         categories: categories.map((category) => category.id),
       };
 
@@ -324,7 +322,6 @@ export class ChannelsService {
       }
 
       result.push({
-        days: channel.days ?? [],
         id: channel.id,
         name: channel.name,
         subscribers: channel.subscribers,
@@ -347,12 +344,6 @@ export class ChannelsService {
 
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       list.push({
-        days:
-          channel.days?.filter((date) => {
-            const [day, month, year] = date.split('.');
-            const timestamp = +new Date(`${month}/${day}/${year}`);
-            return new Date().setHours(0, 0, 0, 0) < timestamp;
-          }) || [],
         id: channel.id,
         name: channel.name,
         subscribers: channel.subscribers,
@@ -360,7 +351,12 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: channel.channelDates,
+        channelDates:
+          channel.channelDates?.filter((date: ChannelDate) => {
+            const [day, month, year] = date.date.split('.');
+            const timestamp = +new Date(`${month}/${day}/${year}`);
+            return new Date().setHours(0, 0, 0, 0) < timestamp;
+          }) || [],
       });
     }
 
@@ -492,7 +488,6 @@ export class ChannelsService {
 
     await channel.$set('users', [userId]);
     return {
-      days: channel.days,
       name: channel.name,
       subscribers: channel.subscribers,
       description: channel.description,
