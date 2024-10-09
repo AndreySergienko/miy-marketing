@@ -270,6 +270,13 @@ export class ChannelsService {
             const timestamp = new Date(`${month}/${day}/${year}`);
             timestamp.setHours(0, 0, 0, 0);
 
+            console.log(
+              'Dates: ',
+              datesWhere,
+              ' | Timestamp: ',
+              timestamp.getTime().toString(),
+            );
+
             return datesWhere.includes(timestamp.getTime().toString());
           })
         : channel.channelDates;
