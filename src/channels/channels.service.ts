@@ -538,9 +538,10 @@ export class ChannelsService {
     const id = channel.id;
     const status = StatusStore.AWAIT;
 
-    channel.set('link', link);
     await channel.$set('status', status);
     await channel.$set('categories', categoriesId);
+    channel.link = link || channel.link;
+    await channel.save();
 
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
@@ -588,7 +589,7 @@ export class ChannelsService {
   }
 
   public async updateRegistrationChannel(
-    { categoriesId, channelDates, name }: RegistrationChannelDto,
+    { categoriesId, channelDates, name, link }: RegistrationChannelDto,
     userId: number,
   ) {
     const candidate = await this.channelRepository.findOne({
@@ -631,6 +632,9 @@ export class ChannelsService {
 
     const status = StatusStore.AWAIT;
     await channel.$set('status', status);
+
+    channel.link = link || channel.link;
+    await channel.save();
 
     // Чистим прошлую инфу о датах канала
     const channelDatesIds = channel.channelDates.map((date) => date.id);
