@@ -246,7 +246,7 @@ export class ChannelsService {
 
     if (dates) {
       const splitedString = dates.split(',');
-      if (!splitedString || splitedString.some((str) => isNaN(+str))) return;
+      if (!splitedString) return;
 
       datesWhere.push(...splitedString);
     }
@@ -265,20 +265,9 @@ export class ChannelsService {
 
     for (const channel of channels) {
       const channelDates = datesWhere.length
-        ? channel.channelDates.filter((channelDate) => {
-            const [day, month, year] = channelDate.date.split('.');
-            const timestamp = new Date(`${month}/${day}/${year}`);
-            timestamp.setHours(0, 0, 0, 0);
-
-            console.log(
-              'Dates: ',
-              datesWhere,
-              ' | Timestamp: ',
-              timestamp.getTime().toString(),
-            );
-
-            return datesWhere.includes(timestamp.getTime().toString());
-          })
+        ? channel.channelDates.filter((channelDate) =>
+            datesWhere.includes(channelDate.date),
+          )
         : channel.channelDates;
       if (!channelDates.length) continue;
 
