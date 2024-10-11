@@ -493,7 +493,13 @@ export class ChannelsService {
   }
 
   public async registrationChannel(
-    { categoriesId, channelDates, name, link }: RegistrationChannelDto,
+    {
+      categoriesId,
+      channelDates,
+      name,
+      link,
+      conditionCheck,
+    }: RegistrationChannelDto,
     userId: number,
   ) {
     const candidate = await this.channelRepository.findOne({
@@ -529,6 +535,8 @@ export class ChannelsService {
 
     await channel.$set('status', status);
     await channel.$set('categories', categoriesId);
+
+    channel.conditionCheck = conditionCheck || channel.conditionCheck;
     channel.link = link || channel.link;
     await channel.save();
 
@@ -578,7 +586,13 @@ export class ChannelsService {
   }
 
   public async updateRegistrationChannel(
-    { categoriesId, channelDates, name, link }: RegistrationChannelDto,
+    {
+      categoriesId,
+      channelDates,
+      name,
+      link,
+      conditionCheck,
+    }: RegistrationChannelDto,
     userId: number,
   ) {
     const candidate = await this.channelRepository.findOne({
@@ -622,6 +636,7 @@ export class ChannelsService {
     const status = StatusStore.AWAIT;
     await channel.$set('status', status);
 
+    channel.conditionCheck = conditionCheck || channel.conditionCheck;
     channel.link = link || channel.link;
     await channel.save();
 

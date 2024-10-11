@@ -46,6 +46,7 @@ export class RegistrationChannelDto {
   @IsString(ErrorValidation.IS_STRING())
   name: string;
   link?: string;
+  conditionCheck?: string;
   @IsArray(ErrorValidation.IS_ARRAY())
   categoriesId: number[];
   @IsChannelDatesValidate('', ErrorValidation.IS_CHANNEL_DATES_INCORRECT())
