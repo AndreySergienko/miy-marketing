@@ -130,6 +130,7 @@ export class GetUserDto {
   email: string;
   inn: string;
   fio: string;
+  isNotification: boolean;
   permissions: string[];
   bank?: UserBankModelAttrs;
   document?: UserDocumentModelAttrs;
