@@ -21,6 +21,7 @@ import { convertUtcDateToFullDate } from '../utils/date';
 import { ICreateAdvertisementMessage } from '../channels/types/types';
 import { AdvertisementService } from 'src/advertisement/advertisement.service';
 import { getFormatChannelDuration } from 'src/channels/utils/getFormatChannelDuration';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Injectable()
 export class BotRequestService {
@@ -209,6 +210,17 @@ export class BotRequestService {
     );
   }
 
+  private async getChannelAdmin(slot: Advertisement) {
+    const channel = await this.channelsService.findById(slot.channel.id);
+    if (!channel.users[0].isNotification) return;
+    const message = await this.publisherMessages.findById(slot.messageId);
+    if (!message) return;
+    const advertiser = await this.userService.findOneById(message.userId);
+    if (!advertiser) return;
+
+    return advertiser;
+  }
+
   /** User
    * Метод срабатывает после отправки рекламного сообщения МОДЕРАТОРУ
    * **/
@@ -232,9 +244,15 @@ export class BotRequestService {
       from.id,
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
-    const ids = await this.userService.getAllAdminsChatIds();
+
+    const advertiser = await this.getChannelAdmin(slot);
+
+    const id = advertiser
+      ? advertiser.chatId
+      : (await this.userService.getAllAdminsChatIds())[0];
+
     await global.bot.sendMessage(
-      ids[0],
+      id,
       MessagesChannel.VALIDATE_MESSAGE(
         slot.message.message,
         slot.channel.conditionCheck,
@@ -253,10 +271,16 @@ export class BotRequestService {
   }: IBotRequestDto) {
     const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
-    const ids = await this.userService.getAllAdminsChatIds();
+
+    const advertiser = await this.getChannelAdmin(slot);
+
+    const id = advertiser
+      ? advertiser.chatId
+      : (await this.userService.getAllAdminsChatIds())[0];
+
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
-        ids[0],
+        id,
         MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
         useSendMessage({
           remove_keyboard: true,
@@ -269,9 +293,7 @@ export class BotRequestService {
     const channelId = slot.channel.id;
     const channel = await this.channelsService.findById(channelId);
     const message = await this.publisherMessages.findById(slot.messageId);
-    if (!message) return;
-    const advertiser = await this.userService.findOneById(message.userId);
-    if (!advertiser) return;
+    if (!message || !advertiser) return;
 
     const channelName = channel.name;
     const day = convertUtcDateToFullDate(slot.timestamp);
@@ -311,7 +333,7 @@ export class BotRequestService {
     }
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
-      ids[0],
+      id,
       MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
       useSendMessage({
         remove_keyboard: true,
@@ -370,9 +392,15 @@ export class BotRequestService {
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE) return;
     await this.publisherMessages.updateMessage(slot.messageId, text);
     await this.userService.clearLastBotActive(from.id);
-    const ids = await this.userService.getAllAdminsChatIds();
+
+    const advertiser = await this.getChannelAdmin(slot);
+
+    const id = advertiser
+      ? advertiser.chatId
+      : (await this.userService.getAllAdminsChatIds())[0];
+
     await global.bot.sendMessage(
-      ids[0],
+      id,
       MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck),
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
@@ -393,9 +421,14 @@ export class BotRequestService {
     const slot = await this.advertisementService.findOneById(id);
     if (!slot) return;
     if (slot.statusId !== StatusStore.AWAIT) {
-      const ids = await this.userService.getAllAdminsChatIds();
+      const advertiser = await this.getChannelAdmin(slot);
+
+      const id = advertiser
+        ? advertiser.chatId
+        : (await this.userService.getAllAdminsChatIds())[0];
+
       await global.bot.sendMessage(
-        ids[0],
+        id,
         MessagesChannel.SLOT_IS_NOT_AWAIT,
         useSendMessage({
           remove_keyboard: true,
