@@ -210,15 +210,11 @@ export class BotRequestService {
     );
   }
 
-  private async getChannelAdmin(slot: Advertisement) {
+  private async getChannelOwner(slot: Advertisement) {
     const channel = await this.channelsService.findById(slot.channel.id);
     if (!channel.users[0].isNotification) return;
-    const message = await this.publisherMessages.findById(slot.messageId);
-    if (!message) return;
-    const advertiser = await this.userService.findOneById(message.userId);
-    if (!advertiser) return;
 
-    return advertiser;
+    return channel.users[0];
   }
 
   /** User
@@ -245,10 +241,10 @@ export class BotRequestService {
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
 
-    const advertiser = await this.getChannelAdmin(slot);
+    const owner = await this.getChannelOwner(slot);
 
-    const id = advertiser
-      ? advertiser.chatId
+    const id = owner
+      ? owner.chatId
       : (await this.userService.getAllAdminsChatIds())[0];
 
     await global.bot.sendMessage(
@@ -272,10 +268,9 @@ export class BotRequestService {
     const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
 
-    const advertiser = await this.getChannelAdmin(slot);
-
-    const id = advertiser
-      ? advertiser.chatId
+    const owner = await this.getChannelOwner(slot);
+    const id = owner
+      ? owner.chatId
       : (await this.userService.getAllAdminsChatIds())[0];
 
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
@@ -293,7 +288,9 @@ export class BotRequestService {
     const channelId = slot.channel.id;
     const channel = await this.channelsService.findById(channelId);
     const message = await this.publisherMessages.findById(slot.messageId);
-    if (!message || !advertiser) return;
+    if (!message) return;
+    const advertiser = await this.userService.findOneById(message.userId);
+    if (!advertiser) return;
 
     const channelName = channel.name;
     const day = convertUtcDateToFullDate(slot.timestamp);
@@ -393,10 +390,10 @@ export class BotRequestService {
     await this.publisherMessages.updateMessage(slot.messageId, text);
     await this.userService.clearLastBotActive(from.id);
 
-    const advertiser = await this.getChannelAdmin(slot);
+    const owner = await this.getChannelOwner(slot);
 
-    const id = advertiser
-      ? advertiser.chatId
+    const id = owner
+      ? owner.chatId
       : (await this.userService.getAllAdminsChatIds())[0];
 
     await global.bot.sendMessage(
@@ -421,10 +418,10 @@ export class BotRequestService {
     const slot = await this.advertisementService.findOneById(id);
     if (!slot) return;
     if (slot.statusId !== StatusStore.AWAIT) {
-      const advertiser = await this.getChannelAdmin(slot);
+      const owner = await this.getChannelOwner(slot);
 
-      const id = advertiser
-        ? advertiser.chatId
+      const id = owner
+        ? owner.chatId
         : (await this.userService.getAllAdminsChatIds())[0];
 
       await global.bot.sendMessage(
