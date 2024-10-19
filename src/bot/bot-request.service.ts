@@ -242,17 +242,18 @@ export class BotRequestService {
     );
 
     const owner = await this.getChannelOwner(slot);
+    const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner
-      ? owner.chatId
-      : (await this.userService.getAllAdminsChatIds())[0];
+    const id = owner ? owner.chatId : admins[0];
+
+    const text = slot.message.message;
+    const message = owner
+      ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
+      : MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck);
 
     await global.bot.sendMessage(
       id,
-      MessagesChannel.VALIDATE_MESSAGE(
-        slot.message.message,
-        slot.channel.conditionCheck,
-      ),
+      message,
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
       }),
@@ -269,9 +270,9 @@ export class BotRequestService {
     if (!slot) return;
 
     const owner = await this.getChannelOwner(slot);
-    const id = owner
-      ? owner.chatId
-      : (await this.userService.getAllAdminsChatIds())[0];
+    const admins = await this.userService.getAllAdminsChatIds();
+
+    const id = owner ? owner.chatId : admins[0];
 
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
@@ -330,7 +331,7 @@ export class BotRequestService {
     }
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
-      id,
+      admins[0],
       MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
       useSendMessage({
         remove_keyboard: true,
@@ -391,14 +392,17 @@ export class BotRequestService {
     await this.userService.clearLastBotActive(from.id);
 
     const owner = await this.getChannelOwner(slot);
+    const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner
-      ? owner.chatId
-      : (await this.userService.getAllAdminsChatIds())[0];
+    const id = owner ? owner.chatId : admins[0];
+
+    const message = owner
+      ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
+      : MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck);
 
     await global.bot.sendMessage(
       id,
-      MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck),
+      message,
       useSendMessage({
         inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
       }),
@@ -419,10 +423,9 @@ export class BotRequestService {
     if (!slot) return;
     if (slot.statusId !== StatusStore.AWAIT) {
       const owner = await this.getChannelOwner(slot);
+      const admins = await this.userService.getAllAdminsChatIds();
 
-      const id = owner
-        ? owner.chatId
-        : (await this.userService.getAllAdminsChatIds())[0];
+      const id = owner ? owner.chatId : admins[0];
 
       await global.bot.sendMessage(
         id,
