@@ -502,17 +502,17 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    const candidate = await this.channelRepository.findOne({
-      where: {
-        name,
-        statusId: [StatusStore.PUBLIC],
-      },
-    });
-    if (candidate)
-      throw new HttpException(
-        ChannelsErrorMessages.CREATED,
-        HttpStatus.BAD_REQUEST,
-      );
+    // const candidate = await this.channelRepository.findOne({
+    //   where: {
+    //     name,
+    //     statusId: [StatusStore.PUBLIC],
+    //   },
+    // });
+    // if (candidate)
+    //   throw new HttpException(
+    //     ChannelsErrorMessages.CREATED,
+    //     HttpStatus.BAD_REQUEST,
+    //   );
     const channel = await this.findOneByChatName(name);
     const admins = await this.userService.getAllAdminsChatIds();
 
@@ -595,18 +595,18 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    const candidate = await this.channelRepository.findOne({
-      where: {
-        name,
-        statusId: [StatusStore.PUBLIC],
-      },
-    });
+    // const candidate = await this.channelRepository.findOne({
+    //   where: {
+    //     name,
+    //     statusId: [StatusStore.PUBLIC],
+    //   },
+    // });
 
-    if (candidate)
-      throw new HttpException(
-        ChannelsErrorMessages.CREATED,
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (candidate)
+    //   throw new HttpException(
+    //     ChannelsErrorMessages.CREATED,
+    //     HttpStatus.BAD_REQUEST,
+    //   );
     const channel = await this.findOneByChatName(name);
     const admins = await this.userService.getAllAdminsChatIds();
 
