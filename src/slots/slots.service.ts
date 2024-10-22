@@ -13,6 +13,15 @@ export class SlotsService {
     formatChannel,
     channelDateId,
   }: ICreateSlot) {
+    const oldSlot = await this.slotsRepository.findOne({
+      where: {
+        timestamp,
+        channelDateId,
+      },
+    });
+
+    if (oldSlot) return;
+
     const slot = await this.slotsRepository.create({
       timestamp,
       price,
@@ -20,6 +29,12 @@ export class SlotsService {
 
     await slot.$set('formatChannel', formatChannel);
     await slot.$set('channelDate', channelDateId);
+  }
+
+  async removeSlotsById(id: number[]) {
+    return await this.slotsRepository.destroy({
+      where: { id },
+    });
   }
 
   async removeSlots(channelDateId: number) {
