@@ -595,18 +595,18 @@ export class ChannelsService {
     }: RegistrationChannelDto,
     userId: number,
   ) {
-    const candidate = await this.channelRepository.findOne({
-      where: {
-        name,
-        statusId: [StatusStore.PUBLIC],
-      },
-    });
+    // const candidate = await this.channelRepository.findOne({
+    //   where: {
+    //     name,
+    //     statusId: [StatusStore.PUBLIC],
+    //   },
+    // });
 
-    if (candidate)
-      throw new HttpException(
-        ChannelsErrorMessages.CREATED,
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (candidate)
+    //   throw new HttpException(
+    //     ChannelsErrorMessages.CREATED,
+    //     HttpStatus.BAD_REQUEST,
+    //   );
     const channel = await this.findOneByChatName(name);
     const admins = await this.userService.getAllAdminsChatIds();
 
@@ -630,8 +630,8 @@ export class ChannelsService {
     const advertisements = await this.advertisementService.findAllActive(
       channel.id,
     );
-    if (advertisements) await this.sendMessageReset(advertisements);
-    await this.advertisementService.removeAdvertisement(channel.id);
+    // if (advertisements) await this.sendMessageReset(advertisements);
+    // await this.advertisementService.removeAdvertisement(channel.id);
 
     const status = StatusStore.AWAIT;
     await channel.$set('status', status);
@@ -644,18 +644,30 @@ export class ChannelsService {
     const channelDatesIds = channel.channelDates.map((date) => date.id);
     const promises = [];
     for (const channelDateId of channelDatesIds) {
-      promises.push(this.slotService.removeSlots(channelDateId));
+      const slots =
+        await this.slotService.findAllByChannelDateId(channelDateId);
+      const notBoughtSlots = slots
+        .filter((slot) => advertisements.find((ad) => ad.slotId === slot.id))
+        .map((slot) => slot.id);
+
+      promises.push(this.slotService.removeSlotsById(notBoughtSlots));
     }
     await Promise.allSettled(promises);
-    await this.channelDateRepository.destroy({ where: { channelId: id } });
+    // await this.channelDateRepository.destroy({ where: { channelId: id } });
 
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
 
-      const channelDate = await this.channelDateRepository.create({
-        date,
-      });
-      channelDate.$set('channel', id);
+      let channelDate = channel.channelDates.find(
+        (cd) => cd.date === date && cd.channelId === id,
+      );
+
+      if (!channelDate) {
+        channelDate = await this.channelDateRepository.create({
+          date,
+        });
+        channelDate.$set('channel', id);
+      }
 
       for (const slot of slots) {
         const { time, price, formatChannel } = slot;
