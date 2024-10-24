@@ -38,8 +38,7 @@ const isDateValid = (value: string) => {
   valueDate.setFullYear(+parts[2], +parts[1] - 1, +parts[0]);
   if (isNaN(valueDate.getTime())) return false;
 
-  const now = new Date();
-  return now <= valueDate;
+  return true;
 };
 
 export function IsChannelDatesValidate(

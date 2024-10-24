@@ -669,11 +669,26 @@ export class ChannelsService {
         channelDate.$set('channel', id);
       }
 
+      let formattedTimes: string[] = [];
+
+      if (channelDate.slots) {
+        formattedTimes = channelDate.slots.map((slot) => {
+          const tempDate = new Date(+slot.timestamp);
+          const hours = `${tempDate.getHours()}`.padStart(2, '0');
+          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
+
+          return `${hours}:${minutes}`;
+        });
+      }
+
       for (const slot of slots) {
         const { time, price, formatChannel } = slot;
 
         const [hours, minutes] = time.split(':');
         const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
+
+        if (formattedTimes.find((fTime) => fTime === time)) continue;
+
         await this.slotService.createSlot({
           timestamp,
           price: +price,
