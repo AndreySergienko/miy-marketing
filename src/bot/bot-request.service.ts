@@ -307,28 +307,25 @@ export class BotRequestService {
     };
 
     /** Сообщение для админа канала **/
-    const isNotificationAdminChannel = channel.users[0].isNotification;
-    if (isNotificationAdminChannel) {
-      await global.bot.sendMessage(
-        channel.users[0].chatId,
-        MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
-    }
+    await global.bot.sendMessage(
+      channel.users[0].chatId,
+      MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
 
     /** Сообщение для рекламодателя **/
-    const isNotificationAdvertiser = advertiser.isNotification;
-    if (isNotificationAdvertiser) {
-      await global.bot.sendMessage(
-        advertiser.chatId,
-        MessagesChannel.ADVERTISER_CREATE_ADVERTISEMENT(dataMessage),
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
-    }
+    await global.bot.sendMessage(
+      advertiser.chatId,
+      MessagesChannel.ADVERTISER_CREATE_ADVERTISEMENT(dataMessage),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+
+    if (owner) return;
+
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
       admins[0],
