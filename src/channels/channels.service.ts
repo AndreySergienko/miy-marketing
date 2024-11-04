@@ -282,7 +282,7 @@ export class ChannelsService {
         include: [Slots],
       });
 
-      const dates = [];
+      const datesNumber = [];
 
       for (const date of fullChannelDates) {
         const filteredSlots = [];
@@ -315,7 +315,7 @@ export class ChannelsService {
           };
         });
 
-        dates.push({
+        datesNumber.push({
           id: date.id,
           date: date.date,
           slots,
@@ -330,7 +330,7 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: dates,
+        channelDates: datesNumber,
       });
     }
 
