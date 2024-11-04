@@ -352,6 +352,7 @@ export class ChannelsService {
             const [day, month, year] = date.date.split('.');
             const transformDay = day?.length === 1 ? `0${day}` : day;
             const timestamp = +new Date(`${month}/${transformDay}/${year}`);
+            console.log(timestamp, month, transformDay, year);
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
