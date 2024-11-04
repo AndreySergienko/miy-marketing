@@ -308,7 +308,7 @@ export class BotRequestService {
 
     /** Сообщение для админа канала **/
     await global.bot.sendMessage(
-      channel.users[0].chatId,
+      owner.chatId,
       MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
       useSendMessage({
         remove_keyboard: true,
@@ -325,13 +325,16 @@ export class BotRequestService {
     );
 
     /** Сообщение для модератора **/
-    await global.bot.sendMessage(
-      admins[0],
-      MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
-      useSendMessage({
-        remove_keyboard: true,
-      }),
-    );
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
   }
 
   /** MODERATOR
