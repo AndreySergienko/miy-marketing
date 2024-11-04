@@ -228,7 +228,6 @@ export class ChannelsService {
     dates,
   }: IQueryFilterAndPagination) {
     const where: Record<string, unknown> = {};
-    console.log('categories===============================', categories);
     if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
       where.categoriesId = {
@@ -242,7 +241,6 @@ export class ChannelsService {
         where,
       })
     ).map((categoriesChannel) => categoriesChannel.channelId);
-
     const datesWhere: string[] = [];
 
     if (dates) {
@@ -251,6 +249,8 @@ export class ChannelsService {
 
       datesWhere.push(...splitedString);
     }
+
+    console.log('changelsIDS=-=============', channelsIds, dates, datesWhere);
 
     const channels = await this.channelRepository.findAll({
       where: {
