@@ -250,6 +250,7 @@ export class ChannelsService {
         if (day?.length === 1) transformDay = `0${day}`;
         return `${transformDay}, ${month}, ${year}`;
       });
+      console.log('splitedString=================', dates, splitedString);
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
