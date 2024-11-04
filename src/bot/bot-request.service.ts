@@ -324,8 +324,6 @@ export class BotRequestService {
       }),
     );
 
-    if (owner) return;
-
     /** Сообщение для модератора **/
     await global.bot.sendMessage(
       admins[0],
