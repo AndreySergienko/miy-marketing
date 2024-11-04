@@ -243,14 +243,19 @@ export class ChannelsService {
     ).map((categoriesChannel) => categoriesChannel.channelId);
     const datesWhere: string[] = [];
 
-    if (dates) {
-      const splitedString = dates.split(',');
+    const transformedDates = dates.map((date) => {
+      const [day, month, year] = date.split('.');
+      let transformDay = day;
+      if (day?.length === 1) transformDay = `0${day}`;
+      return `${transformDay}, ${month}, ${year}`;
+    });
+
+    if (transformedDates) {
+      const splitedString = transformedDates.split(',');
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
     }
-
-    console.log('changelsIDS=-=============', channelsIds, dates, datesWhere);
 
     const channels = await this.channelRepository.findAll({
       where: {
@@ -263,8 +268,6 @@ export class ChannelsService {
     if (!channels) return [];
 
     const result = [];
-
-    console.log(channels);
 
     for (const channel of channels) {
       const channelDates = datesWhere.length
@@ -353,8 +356,7 @@ export class ChannelsService {
         channelDates:
           channel.channelDates?.filter((date: ChannelDate) => {
             const [day, month, year] = date.date.split('.');
-            const transformDay = day?.length === 1 ? `0${day}` : day;
-            const timestamp = +new Date(`${month}/${transformDay}/${year}`);
+            const timestamp = +new Date(`${month}/${day}/${year}`);
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
