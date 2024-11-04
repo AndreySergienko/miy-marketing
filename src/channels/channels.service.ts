@@ -243,15 +243,13 @@ export class ChannelsService {
     ).map((categoriesChannel) => categoriesChannel.channelId);
     const datesWhere: string[] = [];
 
-    const transformedDates = dates.map((date) => {
-      const [day, month, year] = date.split('.');
-      let transformDay = day;
-      if (day?.length === 1) transformDay = `0${day}`;
-      return `${transformDay}, ${month}, ${year}`;
-    });
-
-    if (transformedDates) {
-      const splitedString = transformedDates.split(',');
+    if (dates) {
+      const splitedString = dates.split(',').map((date) => {
+        const [day, month, year] = date.split('.');
+        let transformDay = day;
+        if (day?.length === 1) transformDay = `0${day}`;
+        return `${transformDay}, ${month}, ${year}`;
+      });
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
