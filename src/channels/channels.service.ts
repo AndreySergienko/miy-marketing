@@ -228,7 +228,8 @@ export class ChannelsService {
     dates,
   }: IQueryFilterAndPagination) {
     const where: Record<string, unknown> = {};
-    if (categories?.length) {
+    console.log(categories);
+    if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
       where.categoriesId = {
         [Op.or]: categoriesValue,
