@@ -350,7 +350,8 @@ export class ChannelsService {
         channelDates:
           channel.channelDates?.filter((date: ChannelDate) => {
             const [day, month, year] = date.date.split('.');
-            const timestamp = +new Date(`${month}/${day}/${year}`);
+            const transformDay = day?.length === 1 ? `0${day}` : day;
+            const timestamp = +new Date(`${month}/${transformDay}/${year}`);
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
