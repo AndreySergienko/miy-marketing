@@ -264,6 +264,8 @@ export class ChannelsService {
 
     const result = [];
 
+    console.log(channels);
+
     for (const channel of channels) {
       const channelDates = datesWhere.length
         ? channel.channelDates.filter((channelDate) =>
@@ -335,7 +337,6 @@ export class ChannelsService {
 
   public async getAll(query: IQueryFilterAndPagination) {
     const channels = await this.getChannels(query);
-    console.log('CHANGELS==================', channels);
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
@@ -354,7 +355,6 @@ export class ChannelsService {
             const [day, month, year] = date.date.split('.');
             const transformDay = day?.length === 1 ? `0${day}` : day;
             const timestamp = +new Date(`${month}/${transformDay}/${year}`);
-            console.log(timestamp, month, transformDay, year);
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
