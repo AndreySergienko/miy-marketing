@@ -334,6 +334,7 @@ export class ChannelsService {
 
   public async getAll(query: IQueryFilterAndPagination) {
     const channels = await this.getChannels(query);
+    console.log('CHANGELS==================', channels);
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
