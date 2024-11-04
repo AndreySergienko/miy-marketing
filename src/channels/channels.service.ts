@@ -244,7 +244,7 @@ export class ChannelsService {
     const datesWhere: string[] = [];
 
     if (dates) {
-      const splitedString = transformedDatesdates.split(',');
+      const splitedString = dates.split(',');
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
