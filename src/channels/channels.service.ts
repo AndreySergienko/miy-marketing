@@ -534,7 +534,7 @@ export class ChannelsService {
     const status = StatusStore.AWAIT;
 
     await channel.$set('status', status);
-    await channel.$set('categories', categoriesId);
+    await channel.$set('categories', String(categoriesId));
 
     channel.conditionCheck = conditionCheck || channel.conditionCheck;
     channel.link = link || channel.link;
