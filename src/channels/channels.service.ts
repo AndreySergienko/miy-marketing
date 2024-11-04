@@ -250,7 +250,6 @@ export class ChannelsService {
         if (day?.length === 1) transformDay = `0${day}`;
         return `${transformDay}, ${month}, ${year}`;
       });
-      console.log('splitedString=================', dates, splitedString);
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
@@ -282,7 +281,7 @@ export class ChannelsService {
         include: [Slots],
       });
 
-      const datesNumber = [];
+      const dates = [];
 
       for (const date of fullChannelDates) {
         const filteredSlots = [];
@@ -315,7 +314,7 @@ export class ChannelsService {
           };
         });
 
-        datesNumber.push({
+        dates.push({
           id: date.id,
           date: date.date,
           slots,
@@ -330,7 +329,7 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: datesNumber,
+        channelDates: dates,
       });
     }
 
