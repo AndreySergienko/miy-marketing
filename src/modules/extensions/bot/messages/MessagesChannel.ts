@@ -2,6 +2,7 @@ import {
   IBuyChannelMessage,
   ICreateAdvertisementMessage,
   IResetCashMessage,
+  ISendCashAdminChannelAfterSuccessPostMessage,
   IValidationCancelChannelDto,
   IValidationChannelDto,
 } from '../../../../channels/types/types';
@@ -9,7 +10,12 @@ import {
   convertTimestampToTime,
   convertUtcDateToFullDate,
 } from '../../../../utils/date';
-import { goToFront, mailSupport } from '../../../../utils/links';
+import {
+  goToChannel,
+  goToChatForClient,
+  goToFront,
+  mailSupport,
+} from '../../../../utils/links';
 import { ChannelDate } from 'src/channels/models/channel-dates.model';
 
 export interface MessageChannelRegistrationDto {
@@ -72,7 +78,11 @@ Email: ${email}
 
 Все основную информацию и ответы на популярные вопросы о работе ON-Developer собрали здесь: ${goToFront()}
 
-В случае возникновения вопросов обратитесь в поддержку: ${mailSupport()}`;
+В случае возникновения вопросов обратитесь в поддержку: ${mailSupport()}
+
+Будем на связи:
+📞Чат клиентов: ${goToChatForClient()}
+ℹ️ Канал: ${goToChannel()}`;
   }
 
   static get MODER_ACCEPT_REGISTRATION() {
@@ -225,5 +235,22 @@ ON-Developer
 Даты: [${formattedDates}]
 Категории: [${categories}]
 Условия оценки: ${conditionCheck}`;
+  }
+
+  static sendCashAdminChannelAfterSuccessPost({
+    nameBank,
+    bik,
+    paymentAccount,
+    correspondentAccount,
+    price,
+  }: ISendCashAdminChannelAfterSuccessPostMessage) {
+    return `Рекламная интеграция была успешна совершена.
+Переведите администратору каналу средства:
+
+Название банка: ${nameBank}
+Бик: ${bik}
+Расчётный счёт: ${paymentAccount}
+Корреспондентский счёт: ${correspondentAccount}
+Сумма: ${price}`;
   }
 }

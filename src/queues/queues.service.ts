@@ -14,6 +14,7 @@ import { UserService } from '../user/user.service';
 import { BotEvent } from '../bot/BotEvent';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelsService } from 'src/channels/channels.service';
+import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 
 @Injectable()
 export class QueuesService {
@@ -73,6 +74,26 @@ export class QueuesService {
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
         await this.advertisementRepository.destroy({ where: { id: slot.id } });
+
+        const moderators = await this.userService.getAllAdminsChatIds();
+
+        if (user) {
+          const { bik, correspondentAccount, name, currentAccount } = user.bank;
+          for (let i = 0; i < moderators.length; i++) {
+            const moderator = moderators[i];
+            await global.bot.sendMessage(
+              moderator,
+              MessagesChannel.sendCashAdminChannelAfterSuccessPost({
+                nameBank: name,
+                paymentAccount: currentAccount,
+                price: String(slot.payment.price),
+                bik,
+                correspondentAccount,
+              }),
+            );
+          }
+        }
+
         if (user.isNotification) {
           await this.sendNotifications(
             slot,

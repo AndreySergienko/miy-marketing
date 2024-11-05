@@ -117,3 +117,11 @@ export interface IResetCashMessage {
   id: number;
   fio: string;
 }
+
+export interface ISendCashAdminChannelAfterSuccessPostMessage {
+  bik: string;
+  price: string;
+  nameBank: string;
+  paymentAccount: string;
+  correspondentAccount: string;
+}
