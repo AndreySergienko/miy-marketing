@@ -68,14 +68,17 @@ export class QueuesService {
         StatusStore.FINISH,
         'timestampFinish',
       );
+      const moderators = await this.userService.getAllAdminsChatIds();
+
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
         const chatId = slot.channel.chatId;
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
-        await this.advertisementRepository.destroy({ where: { id: slot.id } });
-
-        const moderators = await this.userService.getAllAdminsChatIds();
+        await this.advertisementRepository.destroy({
+          where: { id: slot.id },
+          cascade: true,
+        });
 
         if (user) {
           const { bik, correspondentAccount, name, currentAccount } = user.bank;
