@@ -52,6 +52,7 @@ export class UserService {
     });
     return await this.userRepository.findOne({
       where: { id: userChannel.userId },
+      include: { all: true },
     });
   }
 
