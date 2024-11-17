@@ -119,6 +119,8 @@ export interface IResetCashMessage {
 }
 
 export interface ISendCashAdminChannelAfterSuccessPostMessage {
+  fio: string;
+  inn: string;
   bik: string;
   price: string;
   nameBank: string;

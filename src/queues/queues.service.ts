@@ -87,6 +87,8 @@ export class QueuesService {
             await global.bot.sendMessage(
               moderator,
               MessagesChannel.sendCashAdminChannelAfterSuccessPost({
+                fio: user.fio,
+                inn: user.inn,
                 nameBank: name,
                 paymentAccount: currentAccount,
                 price: String(slot.payment.price),

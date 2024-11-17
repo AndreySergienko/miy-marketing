@@ -238,6 +238,8 @@ ON-Developer
   }
 
   static sendCashAdminChannelAfterSuccessPost({
+    fio,
+    inn,
     nameBank,
     bik,
     paymentAccount,
@@ -247,6 +249,8 @@ ON-Developer
     return `Рекламная интеграция была успешна совершена.
 Переведите администратору каналу средства:
 
+ФИО: ${fio}
+ИНН: ${inn}
 Название банка: ${nameBank}
 Бик: ${bik}
 Расчётный счёт: ${paymentAccount}
