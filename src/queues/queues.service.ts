@@ -75,15 +75,12 @@ export class QueuesService {
         const chatId = slot.channel.chatId;
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
-        await this.advertisementRepository.destroy({
-          where: { id: slot.id },
-          cascade: true,
-        });
 
         if (user) {
           const { bik, correspondentAccount, name, currentAccount } = user.bank;
           for (let i = 0; i < moderators.length; i++) {
             const moderator = moderators[i];
+            console.log(slot.payment);
             await global.bot.sendMessage(
               moderator,
               MessagesChannel.sendCashAdminChannelAfterSuccessPost({
@@ -98,6 +95,11 @@ export class QueuesService {
             );
           }
         }
+
+        await this.advertisementRepository.destroy({
+          where: { id: slot.id },
+          cascade: true,
+        });
 
         if (user.isNotification) {
           await this.sendNotifications(
