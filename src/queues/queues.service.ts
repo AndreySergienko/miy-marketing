@@ -48,12 +48,12 @@ export class QueuesService {
     return this.advertisementRepository.findAll({
       where: {
         statusId,
-        // [key]: {
-        //   /** Дата публикации **/
-        //   [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
-        //   /** Дата публикации с погрешностью в 1 минуту **/
-        //   [Op.lte]: String(convertDateTimeToMoscow(fifthMinuteLater())),
-        // },
+        [key]: {
+          /** Дата публикации **/
+          [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
+          /** Дата публикации с погрешностью в 1 минуту **/
+          [Op.lte]: String(convertDateTimeToMoscow(fifthMinuteLater())),
+        },
       },
       include: {
         all: true,
@@ -61,7 +61,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_MINUTE, {
+  @Cron(CronExpression.EVERY_30_MINUTES, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
