@@ -80,18 +80,19 @@ export class QueuesService {
           const { bik, correspondentAccount, name, currentAccount } = user.bank;
           for (let i = 0; i < moderators.length; i++) {
             const moderator = moderators[i];
-            await global.bot.sendMessage(
-              moderator,
-              MessagesChannel.sendCashAdminChannelAfterSuccessPost({
-                fio: user.fio,
-                inn: user.inn,
-                nameBank: name,
-                paymentAccount: currentAccount,
-                price: slot.payment,
-                bik,
-                correspondentAccount,
-              }),
-            );
+            await global.bot.sendMessage(moderator, `${slot.payment}`);
+            // await global.bot.sendMessage(
+            //   moderator,
+            //   MessagesChannel.sendCashAdminChannelAfterSuccessPost({
+            //     fio: user.fio,
+            //     inn: user.inn,
+            //     nameBank: name,
+            //     paymentAccount: currentAccount,
+            //     price: slot.payment,
+            //     bik,
+            //     correspondentAccount,
+            //   }),
+            // );
           }
         }
 
