@@ -15,12 +15,14 @@ import { BotEvent } from '../bot/BotEvent';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelsService } from 'src/channels/channels.service';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
+import { Payment } from '../payments/models/payment.model';
 
 @Injectable()
 export class QueuesService {
   constructor(
     @InjectModel(Advertisement)
     private advertisementRepository: typeof Advertisement,
+    private paymentRepository: typeof Payment,
     private botService: BotService,
     private userService: UserService,
     private botEvent: BotEvent,
@@ -73,6 +75,9 @@ export class QueuesService {
       for (let i = 0; i < finishedSlots.length; i++) {
         const slot = finishedSlots[i];
         const chatId = slot.channel.chatId;
+        const payment = await this.paymentRepository.findOne({
+          where: { advertisementId: slot.id },
+        });
         const user = await this.userService.findByChannelId(slot.channel.id);
         await global.bot.deleteMessage(chatId, slot.messageBotId);
 
@@ -80,19 +85,18 @@ export class QueuesService {
           const { bik, correspondentAccount, name, currentAccount } = user.bank;
           for (let i = 0; i < moderators.length; i++) {
             const moderator = moderators[i];
-            await global.bot.sendMessage(moderator, `${slot.payment}`);
-            // await global.bot.sendMessage(
-            //   moderator,
-            //   MessagesChannel.sendCashAdminChannelAfterSuccessPost({
-            //     fio: user.fio,
-            //     inn: user.inn,
-            //     nameBank: name,
-            //     paymentAccount: currentAccount,
-            //     price: slot.payment,
-            //     bik,
-            //     correspondentAccount,
-            //   }),
-            // );
+            await global.bot.sendMessage(
+              moderator,
+              MessagesChannel.sendCashAdminChannelAfterSuccessPost({
+                fio: user.fio,
+                inn: user.inn,
+                nameBank: name,
+                paymentAccount: currentAccount,
+                price: String(payment.price),
+                bik,
+                correspondentAccount,
+              }),
+            );
           }
         }
 
