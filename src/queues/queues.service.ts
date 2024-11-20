@@ -59,7 +59,7 @@ export class QueuesService {
     });
   }
 
-  @Cron(CronExpression.EVERY_30_MINUTES, {
+  @Cron(CronExpression.EVERY_MINUTE, {
     timeZone: 'Asia/Yekaterinburg',
   })
   public async actionMessages() {
@@ -80,7 +80,6 @@ export class QueuesService {
           const { bik, correspondentAccount, name, currentAccount } = user.bank;
           for (let i = 0; i < moderators.length; i++) {
             const moderator = moderators[i];
-            console.log(slot.payment);
             await global.bot.sendMessage(
               moderator,
               MessagesChannel.sendCashAdminChannelAfterSuccessPost({
@@ -88,7 +87,7 @@ export class QueuesService {
                 inn: user.inn,
                 nameBank: name,
                 paymentAccount: currentAccount,
-                price: String(slot.payment.price),
+                price: slot.payment,
                 bik,
                 correspondentAccount,
               }),
