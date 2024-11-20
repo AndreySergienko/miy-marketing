@@ -22,7 +22,7 @@ export class QueuesService {
   constructor(
     @InjectModel(Advertisement)
     private advertisementRepository: typeof Advertisement,
-    private paymentRepository: typeof Payment,
+    @InjectModel(Payment) private paymentRepository: typeof Payment,
     private botService: BotService,
     private userService: UserService,
     private botEvent: BotEvent,
