@@ -8,6 +8,7 @@ import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { BotModule } from 'src/bot/bot.module';
 import { ChannelsModule } from 'src/channels/channels.module';
 import { Payment } from '../payments/models/payment.model';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
   providers: [QueuesService],
@@ -17,6 +18,7 @@ import { Payment } from '../payments/models/payment.model';
     AdvertisementModule,
     BotModule,
     ChannelsModule,
+    PaymentsModule,
   ],
 })
 export class QueuesModule {}
