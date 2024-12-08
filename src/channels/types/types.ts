@@ -94,6 +94,7 @@ export interface ChannelGetAllRequestDto
     | 'description'
     | 'conditionCheck'
     | 'channelDates'
+    | 'categories'
   > {}
 
 export interface ICreateSlot {
