@@ -255,7 +255,7 @@ export class ChannelsService {
         id: channelsIds,
         statusId: StatusStore.PUBLIC,
       },
-      include: [ChannelDate],
+      include: [ChannelDate, Categories],
     });
 
     if (!channels) return [];
