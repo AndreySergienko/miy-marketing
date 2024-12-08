@@ -336,7 +336,7 @@ export class ChannelsService {
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
-
+      console.log('==================', channel.categories);
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       list.push({
         id: channel.id,
