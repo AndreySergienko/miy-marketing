@@ -345,7 +345,7 @@ export class ChannelsService {
         link: channel.link || '',
         description: channel.description,
         avatar: channel.avatar,
-        categories: channel.categories,
+        categories: channel.categories || [],
         conditionCheck: channel.conditionCheck,
         channelDates:
           channel.channelDates?.filter((date: ChannelDate) => {
