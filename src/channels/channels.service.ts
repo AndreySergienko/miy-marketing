@@ -325,6 +325,7 @@ export class ChannelsService {
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
         channelDates: dates,
+        categories: channel.categories,
       });
     }
 
