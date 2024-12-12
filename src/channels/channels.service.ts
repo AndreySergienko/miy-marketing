@@ -253,7 +253,7 @@ export class ChannelsService {
     const channels = await this.channelRepository.findAll({
       where: {
         id: channelsIds,
-        statusId: StatusStore.PUBLIC,
+        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
       },
       include: [ChannelDate, Categories],
     });
@@ -337,7 +337,6 @@ export class ChannelsService {
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
-      console.log('==================', channel.categories);
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
       list.push({
         id: channel.id,
@@ -454,7 +453,6 @@ export class ChannelsService {
 
   public async checkConnectChannel(userId: number, chatName: string) {
     const user = await this.userService.getUserById(userId);
-    console.log(user);
     const channel = await this.findOneByChatName(chatName);
     if (!channel)
       throw new HttpException(

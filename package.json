@@ -29,11 +29,13 @@
     "@nestjs/schedule": "^4.0.2",
     "@nestjs/sequelize": "^10.0.0",
     "@nestjs/swagger": "^7.3.0",
+    "@types/multer": "^1.4.12",
     "bcryptjs": "^2.4.3",
     "bull": "^4.12.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
+    "node-fetch": "^3.3.2",
     "node-telegram-bot-api": "^0.64.0",
     "nodemailer": "^6.9.9",
     "passport": "^0.7.0",
@@ -45,7 +47,6 @@
     "rxjs": "^7.8.1",
     "sequelize": "^6.35.2",
     "sequelize-typescript": "^2.1.6",
-    "@types/multer": "^1.4.12",
     "uuid": "^9.0.1"
   },
   "devDependencies": {

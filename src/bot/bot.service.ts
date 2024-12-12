@@ -15,6 +15,9 @@ import { connect } from '../bot.connect';
 import { MessagesChannel } from 'src/modules/extensions/bot/messages/MessagesChannel';
 import { PaymentsService } from 'src/payments/payments.service';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { createWriteStream, unlink } from 'fs';
+import * as http from 'node:https';
+import * as path from 'path';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -83,8 +86,20 @@ export class BotService implements OnModuleInit {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
-              photo = link.split('/file/')[1];
+              const file = createWriteStream(`public/${chatId}.jpg`);
+              http.get(
+                process.env.GET_AVATAR_API + link?.split('/file/')[1],
+                (response) => {
+                  response.pipe(file);
+
+                  file.on('finish', () => {
+                    file.close();
+                  });
+                },
+              );
+              photo = `${chatId}.jpg`;
             }
+            console.log('PHOTO==============', photo);
             const dto: ChannelCreateDto = {
               avatar: photo,
               name,
@@ -106,6 +121,10 @@ export class BotService implements OnModuleInit {
             const advertisements =
               await this.advertisementService.findAllActive(channel.id);
             if (advertisements) await this.sendMessageReset(advertisements);
+            unlink(`public/${channel.avatar}`, (err) => {
+              if (err) return console.log(err);
+              console.log('file deleted successfully');
+            });
             await this.channelsService.removeChannel(chatId);
             await this.advertisementService.removeAdvertisement(channel.id);
           }
@@ -122,8 +141,8 @@ export class BotService implements OnModuleInit {
       'callback_query',
       async ({ from, id, data }: TelegramBot.CallbackQuery) => {
         try {
-          const { code, channelId } = this.getCodeAndCallbackId(data);
-          await this.botRequestService[code]({ from, id: channelId });
+          const { code, channelId, other } = this.getCodeAndCallbackId(data);
+          await this.botRequestService[code]({ from, id: channelId, other });
           await global.bot.answerCallbackQuery(id);
         } catch (e) {
           console.log(e);
@@ -156,7 +175,7 @@ export class BotService implements OnModuleInit {
         const user = await this.userService.findUserByChatId(message.chat.id);
         // Есть ли последнее событие юзера в классе обработчике
         if (user && user.lastActiveBot) {
-          const { code, channelId } = this.getCodeAndCallbackId(
+          const { code, channelId, other } = this.getCodeAndCallbackId(
             user.lastActiveBot,
           );
 
@@ -164,6 +183,7 @@ export class BotService implements OnModuleInit {
             from: message.from,
             id: channelId,
             text: message.text,
+            other,
           });
           return;
         }
@@ -180,16 +200,19 @@ export class BotService implements OnModuleInit {
   private getCodeAndCallbackId(data?: string) {
     let code: string;
     let channelId: number;
+    let other: string[] = [];
 
     if (data.includes(':')) {
       const partials = data.split(':');
       code = partials[0];
       channelId = +partials[1];
+      other = partials;
     } else code = data;
 
     return {
       code,
       channelId,
+      other,
     };
   }
 

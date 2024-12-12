@@ -329,7 +329,87 @@ export class BotRequestService {
       const adminId = admins[i];
       await global.bot.sendMessage(
         adminId,
-        MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT(dataMessage),
+        MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT({
+          ...dataMessage,
+          advertiser,
+          owner,
+        }),
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.SET_ERID(slotId),
+        }),
+      );
+    }
+  }
+
+  public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
+    await this.userService.updateLastBotActive(
+      from.id,
+      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+    );
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.INPUT_TO_FIELD_ERID,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
+  }
+
+  public async [CallbackDataChannel.AFTER_SET_ERID_HANDLER]({
+    from,
+    id: slotId,
+    text,
+  }) {
+    const advertisement = await this.advertisementService.findOneById(slotId);
+    if (!advertisement) return;
+    const message = await this.publisherMessages.findById(
+      advertisement.messageId,
+    );
+    if (!message) return;
+    const updateMessage = `${message.message}
+
+Erid: ${text}`;
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    await this.userService.clearLastBotActive(from.id);
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(updateMessage),
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
+        }),
+      );
+    }
+  }
+
+  public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({
+    from,
+    id: slotId,
+    other,
+  }) {
+    const lastMessage = other[other.length - 1];
+    if (!lastMessage) return;
+    const advertisement = await this.advertisementService.findOneById(slotId);
+    await this.publisherMessages.updateMessage(
+      advertisement.messageId,
+      lastMessage,
+    );
+    await this.userService.clearLastBotActive(from.id);
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.SUCCESS_MESSAGE_UPDATE,
         useSendMessage({
           remove_keyboard: true,
         }),

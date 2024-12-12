@@ -7,6 +7,8 @@ import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
 import * as cookieParser from 'cookie-parser';
 import * as process from 'node:process';
+import { join } from 'path';
+import * as express from 'express';
 
 function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
@@ -35,6 +37,7 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
   });
   app.use(cookieParser());
+  app.use('/public', express.static(join(__dirname, '..', 'public')));
   const port = process.env.PORT || 5000;
   console.log('Server has been start on port:', port);
   await app.listen(port);
