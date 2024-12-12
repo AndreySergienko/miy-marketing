@@ -315,13 +315,15 @@ export class BotRequestService {
 
     console.log('BEFORE SEND MESSAGE');
     /** Сообщение для админа канала **/
-    await global.bot.sendMessage(
-      owner.chatId,
-      MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
-      useSendMessage({
-        remove_keyboard: true,
-      }),
-    );
+    if (owner.isNotification) {
+      await global.bot.sendMessage(
+        owner.chatId,
+        MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
 
     /** Сообщение для рекламодателя **/
     await global.bot.sendMessage(
