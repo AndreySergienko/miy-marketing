@@ -242,11 +242,13 @@ export class BotRequestService {
     );
 
     console.log('BEFORE OWNER');
-    const owner = await this.getChannelOwner(slot);
+    const channel = await this.channelsService.findById(slot.channel.id);
+    const owner = channel.users[0];
+    // const owner = await this.getChannelOwner(slot);
     console.log('AFTER OWNER', owner);
     const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner ? owner.chatId : admins[0];
+    const id = owner.isNotification ? owner.chatId : admins[0];
 
     const text = slot.message.message;
     const message = owner
