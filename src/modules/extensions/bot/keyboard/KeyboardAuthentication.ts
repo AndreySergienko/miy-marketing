@@ -20,7 +20,8 @@ export class KeyboardAuthentication {
       [
         {
           text: MessagesAuthentication.BTN_BACK_SITE,
-          url: goToAuthorization(token),
+          url: 'https://ya.ru',
+          // url: goToAuthorization(token),
         },
       ],
     ];

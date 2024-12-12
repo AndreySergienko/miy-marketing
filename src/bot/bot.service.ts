@@ -83,12 +83,10 @@ export class BotService implements OnModuleInit {
             // Для получении фотографии
             let photo: string | undefined;
             if (infoChat.photo?.big_file_id) {
-              console.log(infoChat.photo);
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
               const file = createWriteStream(`public/${chatId}.jpg`);
-              // photo = link.split('/file/')[1];
               http.get(
                 process.env.GET_AVATAR_API + link?.split('/file/')[1],
                 (response) => {
@@ -96,13 +94,12 @@ export class BotService implements OnModuleInit {
 
                   file.on('finish', () => {
                     file.close();
-                    console.log('Download Completed');
-                    photo = `${chatId}.jpg`;
                   });
                 },
               );
-              // }
+              photo = `${chatId}.jpg`;
             }
+            console.log('PHOTO==============', photo);
             const dto: ChannelCreateDto = {
               avatar: photo,
               name,
