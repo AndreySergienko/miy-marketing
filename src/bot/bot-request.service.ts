@@ -292,7 +292,6 @@ export class BotRequestService {
       slotId,
       statusId: StatusStore.PROCESS,
     });
-    const channelId = slot.channel.id;
     // const channel = await this.channelsService.findById(channelId);
     const message = await this.publisherMessages.findById(slot.messageId);
     if (!message) return;
@@ -314,15 +313,13 @@ export class BotRequestService {
     };
 
     /** Сообщение для админа канала **/
-    if (owner.isNotification) {
-      await global.bot.sendMessage(
-        owner.chatId,
-        MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
-    }
+    await global.bot.sendMessage(
+      owner.chatId,
+      MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
 
     /** Сообщение для рекламодателя **/
     await global.bot.sendMessage(
