@@ -37,7 +37,7 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
   });
   app.use(cookieParser());
-  app.use('/public', express.static(join(__dirname, '..', 'public')));
+  app.use('/static', express.static(join(__dirname, '..', 'public')));
   const port = process.env.PORT || 5000;
   console.log('Server has been start on port:', port);
   await app.listen(port);

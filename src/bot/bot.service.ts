@@ -17,7 +17,6 @@ import { PaymentsService } from 'src/payments/payments.service';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { createWriteStream, unlink } from 'fs';
 import * as http from 'node:https';
-import * as path from 'path';
 
 @Injectable()
 export class BotService implements OnModuleInit {
@@ -86,7 +85,7 @@ export class BotService implements OnModuleInit {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
-              const file = createWriteStream(`public/${chatId}.jpg`);
+              const file = createWriteStream(`static/${chatId}.jpg`);
               http.get(
                 process.env.GET_AVATAR_API + link?.split('/file/')[1],
                 (response) => {
@@ -121,7 +120,7 @@ export class BotService implements OnModuleInit {
             const advertisements =
               await this.advertisementService.findAllActive(channel.id);
             if (advertisements) await this.sendMessageReset(advertisements);
-            unlink(`public/${channel.avatar}`, (err) => {
+            unlink(`static/${channel.avatar}`, (err) => {
               if (err) return console.log(err);
               console.log('file deleted successfully');
             });
