@@ -241,7 +241,9 @@ export class BotRequestService {
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
 
+    console.log('BEFORE OWNER');
     const owner = await this.getChannelOwner(slot);
+    console.log('AFTER OWNER', owner);
     const admins = await this.userService.getAllAdminsChatIds();
 
     const id = owner ? owner.chatId : admins[0];
@@ -269,7 +271,9 @@ export class BotRequestService {
     const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
 
+    console.log('BEFORE OWNER');
     const owner = await this.getChannelOwner(slot);
+    console.log('AFTER OWNER', owner);
     const admins = await this.userService.getAllAdminsChatIds();
 
     const id = owner ? owner.chatId : admins[0];
@@ -293,6 +297,7 @@ export class BotRequestService {
     const advertiser = await this.userService.findOneById(message.userId);
     if (!advertiser) return;
 
+    console.log('BEFORE CHANNEL NAME 300');
     const channelName = channel.name;
     const day = convertUtcDateToFullDate(slot.timestamp);
     const format = await this.channelsService.findFormatById(
@@ -306,6 +311,7 @@ export class BotRequestService {
       message: message.message,
     };
 
+    console.log('BEFORE SEND MESSAGE');
     /** Сообщение для админа канала **/
     await global.bot.sendMessage(
       owner.chatId,
@@ -324,6 +330,7 @@ export class BotRequestService {
       }),
     );
 
+    console.log('BEFORE SEND MESSAGE MODER');
     /** Сообщение для модератора **/
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
