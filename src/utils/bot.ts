@@ -1,6 +1,7 @@
 import * as process from 'process';
 
-export const setBotApiUrlFile = (string: string) => {
+export const setBotApiUrlFile = (string?: string) => {
+  if (!string) return;
   if (string.includes('file')) {
     return process.env.GET_AVATAR_API + string;
   }
