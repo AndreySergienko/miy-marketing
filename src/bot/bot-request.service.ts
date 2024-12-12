@@ -249,19 +249,33 @@ export class BotRequestService {
     const admins = await this.userService.getAllAdminsChatIds();
 
     const id = owner.isNotification ? owner.chatId : admins[0];
-
+    console.log('ID', id);
     const text = slot.message.message;
-    const message = owner
+    const message = owner.isNotification
       ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
       : MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck);
 
-    await global.bot.sendMessage(
-      id,
-      message,
-      useSendMessage({
-        inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
-      }),
-    );
+    if (owner.isNotification) {
+      await global.bot.sendMessage(
+        id,
+        message,
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+        }),
+      );
+    } else {
+      for (let i = 0; i < admins.length; i++) {
+        const adminId = admins[i];
+
+        await global.bot.sendMessage(
+          adminId,
+          message,
+          useSendMessage({
+            inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+          }),
+        );
+      }
+    }
   }
 
   /** MODERATOR
