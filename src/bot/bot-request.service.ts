@@ -273,12 +273,12 @@ export class BotRequestService {
     const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
 
-    console.log('BEFORE OWNER');
-    const owner = await this.getChannelOwner(slot);
-    console.log('AFTER OWNER', owner);
+    const channel = await this.channelsService.findById(slot.channel.id);
+    const owner = channel.users[0];
+    // const owner = await this.getChannelOwner(slot);
     const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner ? owner.chatId : admins[0];
+    const id = owner.isNotification ? owner.chatId : admins[0];
 
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
@@ -293,7 +293,7 @@ export class BotRequestService {
       statusId: StatusStore.PROCESS,
     });
     const channelId = slot.channel.id;
-    const channel = await this.channelsService.findById(channelId);
+    // const channel = await this.channelsService.findById(channelId);
     const message = await this.publisherMessages.findById(slot.messageId);
     if (!message) return;
     const advertiser = await this.userService.findOneById(message.userId);
@@ -313,7 +313,6 @@ export class BotRequestService {
       message: message.message,
     };
 
-    console.log('BEFORE SEND MESSAGE');
     /** Сообщение для админа канала **/
     if (owner.isNotification) {
       await global.bot.sendMessage(
@@ -334,7 +333,6 @@ export class BotRequestService {
       }),
     );
 
-    console.log('BEFORE SEND MESSAGE MODER');
     /** Сообщение для модератора **/
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
