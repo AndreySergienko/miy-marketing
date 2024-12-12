@@ -33,6 +33,10 @@ export class MessagesChannel {
     return 'Слот уже опубликован или отклонён';
   }
 
+  static get CHECK_CORRECT_MESSAGE() {
+    return 'Итоговой формат сообщения, проверьте на корректность:';
+  }
+
   static get INPUT_TO_FIELD_ERID() {
     return 'Введите erid. Проверьте перед отправкой сообщения';
   }
@@ -53,8 +57,8 @@ export class MessagesChannel {
     return 'Сообщение было успешно изменено.';
   }
 
-  static UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(updateMessage: string) {
-    return `Корректно ли выглядит сообщение? ${updateMessage}`;
+  static UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION() {
+    return `Используйте кнопку изменить, для редактирования сообщения`;
   }
 
   static RESET_CASH({ id, fio, email, productId, price }: IResetCashMessage) {

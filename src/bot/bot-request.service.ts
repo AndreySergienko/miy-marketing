@@ -382,7 +382,12 @@ Erid: ${text}`;
       const adminId = admins[i];
       await global.bot.sendMessage(
         adminId,
-        MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(updateMessage),
+        MessagesChannel.CHECK_CORRECT_MESSAGE,
+      );
+      await global.bot.sendMessage(adminId, updateMessage);
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(),
         useSendMessage({
           inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
         }),
