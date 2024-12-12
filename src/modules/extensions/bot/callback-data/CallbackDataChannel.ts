@@ -43,6 +43,30 @@ export class CallbackDataChannel {
     return 'afterChangeValidateMessage';
   }
 
+  static get SET_ERID_HANDLER() {
+    return 'setErid';
+  }
+
+  static get AFTER_SET_ERID_HANDLER() {
+    return 'aferSetErid';
+  }
+
+  static get ACCEPT_ERID_MESSAGE_HANDLER() {
+    return 'acceptErid';
+  }
+
+  static ACCEPT_ERID_MESSAGE(slotId: number, updateMessage: string) {
+    return `${CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER}:${slotId}:${updateMessage}`;
+  }
+
+  static SET_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.SET_ERID_HANDLER}:${slotId}`;
+  }
+
+  static AFTER_SET_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.AFTER_SET_ERID_HANDLER}:${slotId}`;
+  }
+
   static AFTER_CHANGE_VALIDATE_MESSAGE(slotId: number) {
     return `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER}:${slotId}`;
   }

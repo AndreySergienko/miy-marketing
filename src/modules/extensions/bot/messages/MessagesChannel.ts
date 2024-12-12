@@ -33,8 +33,28 @@ export class MessagesChannel {
     return 'Слот уже опубликован или отклонён';
   }
 
+  static get INPUT_TO_FIELD_ERID() {
+    return 'Введите erid. Проверьте перед отправкой сообщения';
+  }
+
+  static get BTN_SET_ERID() {
+    return 'Добавить erid';
+  }
+
+  static get BTN_CHANGE_ERID() {
+    return 'Изменить erid';
+  }
+
   static get BTN_GO_TO_PERSONAL() {
     return 'Вернуться в личный кабинет';
+  }
+
+  static get SUCCESS_MESSAGE_UPDATE() {
+    return 'Сообщение было успешно изменено.';
+  }
+
+  static UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(updateMessage: string) {
+    return `Корректно ли выглядит сообщение? ${updateMessage}`;
   }
 
   static RESET_CASH({ id, fio, email, productId, price }: IResetCashMessage) {
@@ -141,13 +161,26 @@ ${msg}`;
     day,
     format,
     message,
+    advertiser,
+    owner,
   }: ICreateAdvertisementMessage) {
     return `☝️Рекламная интеграция поставлена в очередь. Необходимо проконтролировать публикацию:
 
 Канал: ${channelName}
 Дата: ${day}
 Формат:  ${format}
-Сообщение: ${message}`;
+Сообщение: ${message}
+
+Данные паблишера:
+ФИО:  ${owner.fio}
+ИНН:  ${owner.inn}
+Тип:  ${owner.workType}
+
+Данные рекламодателя:
+ФИО:  ${advertiser.fio}
+ИНН:  ${advertiser.inn}
+Тип:  ${advertiser.workType}
+`;
   }
 
   static ADVERTISER_CREATE_ADVERTISEMENT({

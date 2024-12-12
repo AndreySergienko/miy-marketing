@@ -2,6 +2,7 @@ import { IsArray, IsNumber, IsString } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
+import { UserModelAttrs } from '../../user/types/user.types';
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -104,11 +105,16 @@ export interface ICreateSlot {
   formatChannel: number;
 }
 
+interface IInfoUserForErid
+  extends Pick<UserModelAttrs, 'inn' | 'fio' | 'workType'> {}
+
 export interface ICreateAdvertisementMessage {
   channelName: string;
   format: string;
   message: string;
   day: string;
+  owner?: IInfoUserForErid;
+  advertiser?: IInfoUserForErid;
 }
 
 export interface IResetCashMessage {

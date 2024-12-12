@@ -65,4 +65,33 @@ export class KeyboardChannel {
       ],
     ];
   }
+
+  static SET_ERID(slotId: number): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_SET_ERID,
+          callback_data: CallbackDataChannel.SET_ERID_MESSAGE(slotId),
+        },
+      ],
+    ];
+  }
+
+  static CHANGE_ERID(slotId: number, updateMessage: string): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_ACCEPT,
+          callback_data: CallbackDataChannel.ACCEPT_ERID_MESSAGE(
+            slotId,
+            updateMessage,
+          ),
+        },
+        {
+          text: MessagesChannel.BTN_CHANGE_ERID,
+          callback_data: CallbackDataChannel.SET_ERID_MESSAGE(slotId),
+        },
+      ],
+    ];
+  }
 }
