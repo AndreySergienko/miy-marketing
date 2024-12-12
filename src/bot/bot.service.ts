@@ -85,7 +85,7 @@ export class BotService implements OnModuleInit {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
-              const file = createWriteStream(`static/${chatId}.jpg`);
+              const file = createWriteStream(`static/${channel.id}.jpg`);
               http.get(
                 process.env.GET_AVATAR_API + link?.split('/file/')[1],
                 (response) => {
@@ -96,9 +96,8 @@ export class BotService implements OnModuleInit {
                   });
                 },
               );
-              photo = `${chatId}.jpg`;
+              photo = `${channel.id}.jpg`;
             }
-            console.log('PHOTO==============', photo);
             const dto: ChannelCreateDto = {
               avatar: photo,
               name,
