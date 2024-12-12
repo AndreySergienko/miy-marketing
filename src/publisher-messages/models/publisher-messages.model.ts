@@ -9,7 +9,7 @@ import {
 import { User } from '../../user/models/user.model';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
-const MAX_LENGTH_MESSAGE = 200;
+const MAX_LENGTH_MESSAGE = 400;
 
 @Table({ tableName: 'publisherMessages', createdAt: false, updatedAt: false })
 export class PublisherMessages extends Model<PublisherMessages> {
