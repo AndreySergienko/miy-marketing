@@ -58,7 +58,7 @@ export class MessagesChannel {
   }
 
   static UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION() {
-    return `Используйте кнопку изменить, для редактирования сообщения`;
+    return `Проверьте сообщение выше на необходимость редактирования:`;
   }
 
   static RESET_CASH({ id, fio, email, productId, price }: IResetCashMessage) {

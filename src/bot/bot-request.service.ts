@@ -400,10 +400,6 @@ Erid: ${text}`;
     await this.userService.clearLastBotActive(from.id);
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
-      await global.bot.sendMessage(
-        adminId,
-        MessagesChannel.CHECK_CORRECT_MESSAGE,
-      );
       await global.bot.sendMessage(adminId, updateMessage);
       await global.bot.sendMessage(
         adminId,
