@@ -13,6 +13,9 @@ export default class SqlDatabase implements IDatabaseSamples {
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       models,
+      sync: {
+        alter: true,
+      },
       autoLoadModels: true,
       define: {
         timestamps: false,
