@@ -31,9 +31,7 @@ export class PublisherMessages extends Model<PublisherMessages> {
 
   @Column({
     type: DataType.STRING,
-    validate: {
-      max: MAX_LENGTH_MESSAGE,
-    },
+    allowNull: true,
   })
   erid: string;
 
