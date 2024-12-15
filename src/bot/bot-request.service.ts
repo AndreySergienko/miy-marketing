@@ -389,6 +389,7 @@ export class BotRequestService {
       advertisement.messageId,
     );
     if (!message) return;
+    console.log('========text', text);
     await this.publisherMessages.updateErid(message.id, text);
     const updateMessage = `${message.message}
 
