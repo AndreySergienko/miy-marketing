@@ -57,7 +57,7 @@ export class MessagesChannel {
     return 'Сообщение было успешно изменено.';
   }
 
-  static UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION() {
+  static get UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION() {
     return `Проверьте сообщение выше на необходимость редактирования:`;
   }
 

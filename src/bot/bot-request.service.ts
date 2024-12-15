@@ -387,27 +387,36 @@ export class BotRequestService {
     text,
   }) {
     const advertisement = await this.advertisementService.findOneById(slotId);
+    console.log('===================advertisement', advertisement);
     if (!advertisement) return;
     const message = await this.publisherMessages.findById(
       advertisement.messageId,
     );
+    console.log('======================message', message);
     if (!message) return;
     const updateMessage = `${message.message}
 
 Erid: ${text}`;
 
+    console.log('======================message', updateMessage);
     const admins = await this.userService.getAllAdminsChatIds();
     await this.userService.clearLastBotActive(from.id);
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];
-      await global.bot.sendMessage(adminId, updateMessage);
       await global.bot.sendMessage(
         adminId,
-        MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION(),
+        updateMessage,
         useSendMessage({
           inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
         }),
       );
+      // await global.bot.sendMessage(
+      //   adminId,
+      //   MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION,
+      //   useSendMessage({
+      //     inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
+      //   }),
+      // );
     }
   }
 
