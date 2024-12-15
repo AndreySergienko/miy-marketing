@@ -179,10 +179,11 @@ export class ChannelsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const [day, month] = channelDate.date.split('.');
+    const [day, month, year] = channelDate.date.split('.');
     const newDate = new Date(+slot.timestamp);
     const advertisementTimestampWithMonthAndDay = createDate(
       newDate,
+      year,
       month,
       day,
     );
