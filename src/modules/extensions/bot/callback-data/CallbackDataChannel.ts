@@ -55,8 +55,8 @@ export class CallbackDataChannel {
     return 'acceptErid';
   }
 
-  static ACCEPT_ERID_MESSAGE(slotId: number, updateMessage: string) {
-    return `${CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER}:${slotId}:${updateMessage}`;
+  static ACCEPT_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER}:${slotId}`;
   }
 
   static SET_ERID_MESSAGE(slotId: number) {

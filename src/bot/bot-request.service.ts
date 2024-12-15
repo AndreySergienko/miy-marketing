@@ -241,15 +241,12 @@ export class BotRequestService {
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
 
-    console.log('BEFORE OWNER');
     const channel = await this.channelsService.findById(slot.channel.id);
     const owner = channel.users[0];
     // const owner = await this.getChannelOwner(slot);
-    console.log('AFTER OWNER', owner);
     const admins = await this.userService.getAllAdminsChatIds();
 
     const id = owner.isNotification ? owner.chatId : admins[0];
-    console.log('ID', id);
     const text = slot.message.message;
     const message = owner.isNotification
       ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
@@ -387,18 +384,16 @@ export class BotRequestService {
     text,
   }) {
     const advertisement = await this.advertisementService.findOneById(slotId);
-    console.log('===================advertisement', advertisement);
     if (!advertisement) return;
     const message = await this.publisherMessages.findById(
       advertisement.messageId,
     );
-    console.log('======================message', message);
     if (!message) return;
+    await this.publisherMessages.updateErid(message.id, text);
     const updateMessage = `${message.message}
 
 Erid: ${text}`;
 
-    console.log('======================message', updateMessage);
     const admins = await this.userService.getAllAdminsChatIds();
     await this.userService.clearLastBotActive(from.id);
     for (let i = 0; i < admins.length; i++) {
@@ -407,7 +402,7 @@ Erid: ${text}`;
         adminId,
         updateMessage,
         useSendMessage({
-          inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
+          inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId),
         }),
       );
       // await global.bot.sendMessage(
@@ -420,20 +415,8 @@ Erid: ${text}`;
     }
   }
 
-  public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({
-    from,
-    id: slotId,
-    other,
-  }) {
-    const lastMessage = other[other.length - 1];
-    if (!lastMessage) return;
-    const advertisement = await this.advertisementService.findOneById(slotId);
-    await this.publisherMessages.updateMessage(
-      advertisement.messageId,
-      lastMessage,
-    );
+  public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({ from }) {
     await this.userService.clearLastBotActive(from.id);
-
     const admins = await this.userService.getAllAdminsChatIds();
     for (let i = 0; i < admins.length; i++) {
       const adminId = admins[i];

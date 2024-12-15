@@ -77,15 +77,12 @@ export class KeyboardChannel {
     ];
   }
 
-  static CHANGE_ERID(slotId: number, updateMessage: string): TInlineKeyboard {
+  static CHANGE_ERID(slotId: number): TInlineKeyboard {
     return [
       [
         {
           text: MessagesChannel.BTN_ACCEPT,
-          callback_data: CallbackDataChannel.ACCEPT_ERID_MESSAGE(
-            slotId,
-            updateMessage,
-          ),
+          callback_data: CallbackDataChannel.ACCEPT_ERID_MESSAGE(slotId),
         },
         {
           text: MessagesChannel.BTN_CHANGE_ERID,

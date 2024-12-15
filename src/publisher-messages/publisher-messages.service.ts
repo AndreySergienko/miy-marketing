@@ -29,6 +29,10 @@ export class PublisherMessagesService {
     return this.publisherMessagesRepository.destroy({ where: { id } });
   }
 
+  public updateErid(id: number, erid: string) {
+    return this.publisherMessagesRepository.update({ erid }, { where: { id } });
+  }
+
   public updateMessage(id: number, message: string) {
     return this.publisherMessagesRepository.update(
       { message },

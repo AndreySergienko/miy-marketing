@@ -122,7 +122,12 @@ export class QueuesService {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
-        const text = await global.bot.sendMessage(chatId, slot.message.message);
+        const text = await global.bot.sendMessage(
+          chatId,
+          `${slot.message.message}
+
+Erid: ${slot.message.erid}`,
+        );
         const user = await this.userService.findByChannelId(slot.channel.id);
         await this.advertisementRepository.update(
           { messageBotId: text.message_id },

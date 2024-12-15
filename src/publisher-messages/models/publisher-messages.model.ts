@@ -10,6 +10,7 @@ import { User } from '../../user/models/user.model';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 const MAX_LENGTH_MESSAGE = 400;
+const MAX_LENGTH_ERID = 20;
 
 @Table({ tableName: 'publisherMessages', createdAt: false, updatedAt: false })
 export class PublisherMessages extends Model<PublisherMessages> {
@@ -28,6 +29,14 @@ export class PublisherMessages extends Model<PublisherMessages> {
     },
   })
   message: string;
+
+  @Column({
+    type: DataType.STRING,
+    validate: {
+      max: MAX_LENGTH_ERID,
+    },
+  })
+  erid: string;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
