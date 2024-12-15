@@ -183,9 +183,9 @@ export class ChannelsService {
     const newDate = new Date(+slot.timestamp);
     const advertisementTimestampWithMonthAndDay = createDate(
       newDate,
-      year,
       month,
       day,
+      year,
     );
 
     if (advertisementTimestampWithMonthAndDay < Date.now())
