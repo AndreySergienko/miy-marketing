@@ -227,7 +227,22 @@ export class ChannelsService {
     size = '10',
     categories,
     dates,
+    filters,
   }: IQueryFilterAndPagination) {
+    const [
+      priceMin,
+      priceMax,
+      dateMin,
+      dateMax,
+      intervalId,
+      subscribersMin,
+      subscribersMax,
+    ] = filters.split('&').map((filter) => {
+      const [key, value] = filter.split('=');
+      return {
+        [key]: value,
+      };
+    });
     const where: Record<string, unknown> = {};
     if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
@@ -255,6 +270,10 @@ export class ChannelsService {
       where: {
         id: channelsIds,
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
+        subscribers: {
+          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
+          [Op.gte]: subscribersMin ? +subscribersMin : 0,
+        },
       },
       include: [ChannelDate, Categories],
     });
@@ -273,7 +292,13 @@ export class ChannelsService {
 
       const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
       const fullChannelDates = await this.channelDateRepository.findAll({
-        where: { id: channelDatesIds },
+        where: {
+          id: channelDatesIds,
+          date: {
+            [Op.lte]: dateMax ? new Date(+dateMax) : '',
+            [Op.gte]: dateMin ? new Date(+dateMin) : '',
+          },
+        },
         include: [Slots],
       });
 
@@ -288,8 +313,27 @@ export class ChannelsService {
               slotId: slot.id,
               channelId: channel.id,
             });
+
           if (advertisments?.length) {
             continue;
+          }
+
+          if (priceMin) {
+            if (slot.price < +priceMin) {
+              continue;
+            }
+          }
+
+          if (priceMax) {
+            if (slot.price > +priceMax) {
+              continue;
+            }
+          }
+
+          if (intervalId) {
+            if (+slot.formatChannelId !== +intervalId) {
+              continue;
+            }
           }
 
           filteredSlots.push(slot);
@@ -633,8 +677,8 @@ export class ChannelsService {
     // if (advertisements) await this.sendMessageReset(advertisements);
     // await this.advertisementService.removeAdvertisement(channel.id);
 
-    const status = StatusStore.AWAIT;
-    await channel.$set('status', status);
+    // const status = StatusStore.AWAIT;
+    // await channel.$set('status', status);
 
     channel.conditionCheck = conditionCheck || channel.conditionCheck;
     channel.link = link || channel.link;
@@ -700,13 +744,13 @@ export class ChannelsService {
 
     const updatedChannel = await this.findById(id);
 
-    for (let i = 0; i < admins.length; i++) {
-      const adminId = admins[i];
-      await this.botEvent.sendMessageAdminAfterCreateChannel(
-        adminId,
-        updatedChannel,
-      );
-    }
+    // for (let i = 0; i < admins.length; i++) {
+    //   const adminId = admins[i];
+    //   await this.botEvent.sendMessageAdminAfterCreateChannel(
+    //     adminId,
+    //     updatedChannel,
+    //   );
+    // }
 
     return {
       ...ChannelsSuccessMessages.SUCCESS_REGISTRATION_CHANNEL,
