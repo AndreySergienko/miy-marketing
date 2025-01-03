@@ -46,7 +46,8 @@ export class BotService implements OnModuleInit {
         email: publisher.email,
         productId: payment.productId,
         id: invalidAdvertisement.id,
-        fio: publisher.fio,
+        fio:
+          publisher.name + ' ' + publisher.surname + ' ' + publisher.lastname,
       };
 
       const admins = await this.userService.getAllAdmins();

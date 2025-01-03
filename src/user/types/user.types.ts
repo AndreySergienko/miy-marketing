@@ -20,7 +20,9 @@ import { IsPasswordValidate } from '../../modules/extensions/validator/passwordV
 import { WORK_TYPES } from '../../auth/types/auth.types';
 
 export interface UserModelAttrs {
-  fio?: string;
+  name: string;
+  surname: string;
+  lastname: string;
   workType?: string;
   password?: string;
   inn?: string;
@@ -55,7 +57,9 @@ export class UserCreateDto implements UserModelAttrs {
   workType: string;
   email: string;
   inn: string;
-  fio: string;
+  name: string;
+  surname: string;
+  lastname: string;
   password: string;
   uniqueBotId: string;
   isValidEmail: boolean;
@@ -72,7 +76,15 @@ export class UpdateUserDto {
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly fio: string;
+  public readonly name: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly surname: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly lastname: string;
 
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
@@ -129,7 +141,9 @@ export class PardonUserDto {
 export class GetUserDto {
   email: string;
   inn: string;
-  fio: string;
+  name: string;
+  surname: string;
+  lastname: string;
   isNotification: boolean;
   permissions: string[];
   bank?: UserBankModelAttrs;
