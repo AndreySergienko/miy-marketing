@@ -14,7 +14,7 @@ export class KeyboardAuthentication {
     ];
   }
 
-  static GO_SITE(): TInlineKeyboard {
+  static GO_SITE(token: string): TInlineKeyboard {
     return [
       [
         {
