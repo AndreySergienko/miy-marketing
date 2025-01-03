@@ -1,5 +1,5 @@
 import { BotService } from './bot.service';
-import { forwardRef, Global, Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { ChannelsModule } from '../channels/channels.module';
 import { BotEvent } from './BotEvent';

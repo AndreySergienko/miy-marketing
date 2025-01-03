@@ -106,7 +106,10 @@ export interface ICreateSlot {
 }
 
 interface IInfoUserForErid
-  extends Pick<UserModelAttrs, 'inn' | 'fio' | 'workType'> {}
+  extends Pick<
+    UserModelAttrs,
+    'inn' | 'name' | 'surname' | 'lastname' | 'workType'
+  > {}
 
 export interface ICreateAdvertisementMessage {
   channelName: string;

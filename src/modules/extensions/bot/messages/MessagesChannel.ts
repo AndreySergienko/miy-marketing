@@ -176,12 +176,12 @@ ${msg}`;
 Сообщение: ${message}
 
 Данные паблишера:
-ФИО:  ${owner.fio}
+ФИО:  ${owner.name} ${owner.lastname} ${owner.surname}
 ИНН:  ${owner.inn}
 Тип:  ${owner.workType}
 
 Данные рекламодателя:
-ФИО:  ${advertiser.fio}
+ФИО:  ${advertiser.name} ${advertiser.lastname} ${advertiser.surname}
 ИНН:  ${advertiser.inn}
 Тип:  ${advertiser.workType}
 `;
