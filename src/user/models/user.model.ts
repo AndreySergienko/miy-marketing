@@ -53,7 +53,13 @@ export class User extends Model<User, UserModelAttrs> {
   password: string;
 
   @Column({ type: DataType.STRING, unique: false, allowNull: true })
-  fio: string;
+  lastname: string;
+
+  @Column({ type: DataType.STRING, unique: false, allowNull: true })
+  surname: string;
+
+  @Column({ type: DataType.STRING, unique: false, allowNull: true })
+  name: string;
 
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isBan: boolean;

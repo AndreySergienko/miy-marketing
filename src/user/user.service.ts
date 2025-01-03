@@ -111,7 +111,15 @@ export class UserService {
 
   public async updateUser(
     token: string,
-    { email, bank, inn, fio, isNotification }: UpdateUserDto,
+    {
+      email,
+      bank,
+      inn,
+      name,
+      lastname,
+      surname,
+      isNotification,
+    }: UpdateUserDto,
   ) {
     const id = this.getId(token);
     if (typeof id !== 'number') return;
@@ -129,7 +137,9 @@ export class UserService {
       {
         email,
         inn,
-        fio,
+        name,
+        lastname,
+        surname,
         isNotification,
       },
       { where: { id } },
@@ -320,7 +330,9 @@ export class UserService {
   private transformGetUser({
     email,
     inn,
-    fio,
+    name,
+    surname,
+    lastname,
     isNotification,
     permissions,
     bank,
@@ -329,7 +341,9 @@ export class UserService {
     return {
       email,
       inn,
-      fio,
+      name,
+      lastname,
+      surname,
       isNotification,
       permissions: permissions.map((perm) => perm.value),
       bank,

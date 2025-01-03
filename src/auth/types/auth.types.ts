@@ -55,7 +55,15 @@ export class RegistrationDto {
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly fio: string;
+  public readonly name: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly surname: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly lastname: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(
