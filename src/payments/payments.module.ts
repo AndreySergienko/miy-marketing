@@ -1,4 +1,4 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Payment } from './models/payment.model';
 import { User } from '../user/models/user.model';
@@ -8,7 +8,6 @@ import { PaymentsController } from './payments.controller';
 import { Status } from '../status/models/status.model';
 import { ChannelsModule } from '../channels/channels.module';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
-import { AdvertisementPayment } from './models/advertisement-payment.model';
 
 @Module({
   controllers: [PaymentsController],

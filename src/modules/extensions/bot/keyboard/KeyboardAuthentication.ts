@@ -1,7 +1,6 @@
 import type { TInlineKeyboard } from '../types';
 import { MessagesAuthentication } from '../messages/MessagesAuthentication';
 import { CallbackDataAuthentication } from '../callback-data/CallbackDataAuthentication';
-import { goToAuthorization } from '../../../../utils/links';
 
 export class KeyboardAuthentication {
   static get GET_TOKEN(): TInlineKeyboard {
@@ -15,7 +14,7 @@ export class KeyboardAuthentication {
     ];
   }
 
-  static GO_SITE(token: string): TInlineKeyboard {
+  static GO_SITE(): TInlineKeyboard {
     return [
       [
         {

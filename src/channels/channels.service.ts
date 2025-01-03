@@ -652,7 +652,7 @@ export class ChannelsService {
     //     HttpStatus.BAD_REQUEST,
     //   );
     const channel = await this.findOneByChatName(name);
-    const admins = await this.userService.getAllAdminsChatIds();
+    // const admins = await this.userService.getAllAdminsChatIds();
 
     if (!channel)
       throw new HttpException(
