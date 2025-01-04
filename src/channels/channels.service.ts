@@ -312,10 +312,12 @@ export class ChannelsService {
 
       const dates = [];
 
+      console.log('priceMin', priceMin);
       for (const date of fullChannelDates) {
         const filteredSlots = [];
 
         for (const slot of date.slots) {
+          console.log('PRICE', slot.price, priceMin);
           const advertisments =
             await this.advertisementService.findAllBySlotIdAndChannelId({
               slotId: slot.id,
