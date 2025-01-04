@@ -229,6 +229,7 @@ export class ChannelsService {
     dates,
     filters,
   }: IQueryFilterAndPagination) {
+    const filtersArray = filters ? filters : '';
     console.log('====FILTER', filters);
     const [
       priceMin,
@@ -238,7 +239,7 @@ export class ChannelsService {
       intervalId,
       subscribersMin,
       subscribersMax,
-    ] = filters.split('&').map((filter) => {
+    ] = filtersArray.split('&').map((filter) => {
       const [key, value] = filter.split('=');
       return {
         [key]: value,
