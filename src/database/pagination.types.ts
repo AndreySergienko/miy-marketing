@@ -6,7 +6,13 @@ export interface IQueryPagination {
 export interface IQueryFilter {
   categories?: string;
   dates?: string;
-  filters?: string;
+  priceMin?: string;
+  priceMax?: string;
+  dateMin?: string;
+  dateMax?: string;
+  intervalId?: string;
+  subscribersMin?: string;
+  subscribersMax?: string;
 }
 
 export interface IQueryFilterAndPagination

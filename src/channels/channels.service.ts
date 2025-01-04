@@ -227,24 +227,30 @@ export class ChannelsService {
     size = '10',
     categories,
     dates,
-    filters,
+    priceMin,
+    priceMax,
+    dateMin,
+    dateMax,
+    intervalId,
+    subscribersMin,
+    subscribersMax,
   }: IQueryFilterAndPagination) {
-    const filtersArray = filters ? filters : '';
-    console.log('====FILTER', filters);
-    const [
-      priceMin,
-      priceMax,
-      dateMin,
-      dateMax,
-      intervalId,
-      subscribersMin,
-      subscribersMax,
-    ] = filtersArray.split('&').map((filter) => {
-      const [key, value] = filter.split('=');
-      return {
-        [key]: value,
-      };
-    });
+    // const filtersArray = filters ? filters : '';
+    // console.log('====FILTER', filters);
+    // const [
+    //   priceMin,
+    //   priceMax,
+    //   dateMin,
+    //   dateMax,
+    //   intervalId,
+    //   subscribersMin,
+    //   subscribersMax,
+    // ] = filtersArray.split('&').map((filter) => {
+    //   const [key, value] = filter.split('=');
+    //   return {
+    //     [key]: value,
+    //   };
+    // });
     const where: Record<string, unknown> = {};
     if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
