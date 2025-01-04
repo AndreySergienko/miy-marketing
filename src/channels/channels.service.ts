@@ -229,6 +229,7 @@ export class ChannelsService {
     dates,
     filters,
   }: IQueryFilterAndPagination) {
+    console.log('====FILTER', filters);
     const [
       priceMin,
       priceMax,
