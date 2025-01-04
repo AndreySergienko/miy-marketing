@@ -299,13 +299,18 @@ export class ChannelsService {
       if (!channelDates.length) continue;
 
       const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
+      const date = {};
+      if (dateMax) {
+        date[Op.lte] = new Date(+dateMax);
+      }
+      if (dateMin) {
+        date[Op.gte] = new Date(+dateMin);
+      }
+
       const fullChannelDates = await this.channelDateRepository.findAll({
         where: {
           id: channelDatesIds,
-          date: {
-            [Op.lte]: dateMax ? new Date(+dateMax) : '',
-            [Op.gte]: dateMin ? new Date(+dateMin) : '',
-          },
+          date,
         },
         include: [Slots],
       });
