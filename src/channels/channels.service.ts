@@ -327,6 +327,7 @@ export class ChannelsService {
           }
 
           if (priceMin) {
+            console.log('PRICE', slot.price, priceMin);
             if (slot.price < +priceMin) {
               continue;
             }
