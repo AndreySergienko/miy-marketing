@@ -303,13 +303,11 @@ export class BotRequestService {
       slotId,
       statusId: StatusStore.PROCESS,
     });
-    // const channel = await this.channelsService.findById(channelId);
     const message = await this.publisherMessages.findById(slot.messageId);
     if (!message) return;
     const advertiser = await this.userService.findOneById(message.userId);
     if (!advertiser) return;
 
-    console.log('BEFORE CHANNEL NAME 300');
     const channelName = channel.name;
     const day = convertUtcDateToFullDate(slot.timestamp);
     const format = await this.channelsService.findFormatById(
@@ -384,6 +382,11 @@ export class BotRequestService {
     text,
   }) {
     const advertisement = await this.advertisementService.findOneById(slotId);
+    const channel = await this.channelsService.findById(
+      advertisement.channel.id,
+    );
+    const owner = channel.users[0];
+
     if (!advertisement) return;
     const message = await this.publisherMessages.findById(
       advertisement.messageId,
@@ -392,6 +395,8 @@ export class BotRequestService {
     await this.publisherMessages.updateErid(message.id, text);
     const updateMessage = `${message.message}
 
+ФИО: ${owner.name} + ${owner.surname} + ${owner.lastname}
+ИНН: ${owner.inn}
 Erid: ${text}`;
 
     const admins = await this.userService.getAllAdminsChatIds();
