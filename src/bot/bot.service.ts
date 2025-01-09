@@ -74,6 +74,9 @@ export class BotService implements OnModuleInit {
           const chatId = chat.id;
           const currentBotStatus = new_chat_member.status;
           const channel = await this.channelsService.findOneByChatId(chatId);
+
+          if (!channel) return;
+
           // Если статус связан с внедрением бота в канал
           if (joinStatus === currentBotStatus) {
             // В случае если прав недостаточно для бота, то удаляем его
