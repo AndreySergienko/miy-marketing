@@ -31,7 +31,6 @@ export class ChannelsController {
   @Public()
   @Get('all')
   async getAll(@Query() query: IQueryFilterAndPagination) {
-    console.log('====QUERY', query);
     return await this.channelService.getAll(query);
   }
 

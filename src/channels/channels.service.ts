@@ -572,6 +572,7 @@ export class ChannelsService {
     const id = channel.id;
     const status = StatusStore.AWAIT;
 
+    console.log(status);
     await channel.$set('status', status);
     await channel.$set('categories', String(categoriesId));
 
@@ -585,7 +586,8 @@ export class ChannelsService {
       const channelDate = await this.channelDateRepository.create({
         date,
       });
-      channelDate.$set('channel', id);
+
+      await channelDate.$set('channel', id);
 
       for (const slot of slots) {
         const { time, price, formatChannel } = slot;
@@ -692,7 +694,7 @@ export class ChannelsService {
       promises.push(this.slotService.removeSlotsById(notBoughtSlots));
     }
     await Promise.allSettled(promises);
-    // await this.channelDateRepository.destroy({ where: { channelId: id } });
+    await this.channelDateRepository.destroy({ where: { channelId: id } });
 
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
@@ -705,7 +707,7 @@ export class ChannelsService {
         channelDate = await this.channelDateRepository.create({
           date,
         });
-        channelDate.$set('channel', id);
+        await channelDate.$set('channel', id);
       }
 
       let formattedTimes: string[] = [];
@@ -753,7 +755,7 @@ export class ChannelsService {
         link: channel.link || '',
         channelDates: updatedChannel.channelDates,
         name,
-        statusId: status,
+        statusId: channel.statusId,
         categoriesId,
         avatar: setBotApiUrlFile(channel.avatar),
       },
