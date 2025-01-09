@@ -694,7 +694,7 @@ export class ChannelsService {
       promises.push(this.slotService.removeSlotsById(notBoughtSlots));
     }
     await Promise.allSettled(promises);
-    // await this.channelDateRepository.destroy({ where: { channelId: id } });
+    await this.channelDateRepository.destroy({ where: { channelId: id } });
 
     for (let i = 0; i < channelDates.length; i++) {
       const { date, slots } = channelDates[i];
