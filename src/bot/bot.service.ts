@@ -70,6 +70,7 @@ export class BotService implements OnModuleInit {
           const validChatType: TelegramBot.ChatType[] = ['channel', 'private'];
           // Мы работаем только с группами или приват группами
           if (!validChatType.includes(chat.type)) return;
+          console.log('========CHAT.ID', chat.id);
           const chatId = chat.id;
           const currentBotStatus = new_chat_member.status;
           const channel = await this.channelsService.findOneByChatId(chatId);
@@ -82,6 +83,11 @@ export class BotService implements OnModuleInit {
             const infoChat = await global.bot.getChat(chatId);
             // Для получении фотографии
             let photo: string | undefined;
+            console.log(
+              '========infoChat.photo?.big_file_id',
+              infoChat.photo?.big_file_id,
+              channel.id,
+            );
             if (infoChat.photo?.big_file_id) {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
