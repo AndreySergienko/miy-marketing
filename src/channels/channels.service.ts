@@ -960,7 +960,10 @@ export class ChannelsService {
     { channelId: id }: RemoveChannelDto,
     userId: number,
   ) {
-    const channel = await this.channelRepository.findOne({ where: { id } });
+    const channel = await this.channelRepository.findOne({
+      where: { id },
+      include: [User],
+    });
 
     if (!channel)
       throw new HttpException(

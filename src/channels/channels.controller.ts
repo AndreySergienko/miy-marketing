@@ -86,7 +86,6 @@ export class ChannelsController {
     // @ts-expect-error;
     const userId = req.user.id;
     if (typeof userId !== 'number') return;
-    console.log('DTO===================', dto);
     return await this.channelService.removeByDeleteButton(dto, userId);
   }
 
