@@ -962,6 +962,12 @@ export class ChannelsService {
   ) {
     const channel = await this.channelRepository.findOne({ where: { id } });
 
+    if (!channel)
+      throw new HttpException(
+        ChannelsErrorMessages.CHANNEL_NOT_FOUND,
+        HttpStatus.FORBIDDEN,
+      );
+
     const isAdmin = channel.users.find((user: User) => +user.id === +userId);
 
     if (!isAdmin)
