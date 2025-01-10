@@ -395,15 +395,10 @@ export class ChannelsService {
   public async getAll(query: IQueryFilterAndPagination) {
     const channels = await this.getChannels(query);
 
-    console.log(channels);
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
       const channel = channels[i];
       channel.avatar = channel.avatar ? setBotApiUrlFile(channel.avatar) : '';
-      console.log(
-        'channel.channelDates====================',
-        channel.channelDates,
-      );
       list.push({
         id: channel.id,
         name: channel.name,
