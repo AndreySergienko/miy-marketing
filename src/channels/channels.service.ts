@@ -283,7 +283,7 @@ export class ChannelsService {
       if (!channelDates.length) continue;
 
       const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
-      const whereChannelDates = {
+      const whereChannelDates: Record<string, string | number[] | object> = {
         id: channelDatesIds,
       };
 
