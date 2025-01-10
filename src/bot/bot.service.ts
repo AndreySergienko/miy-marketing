@@ -120,7 +120,7 @@ export class BotService implements OnModuleInit {
             const advertisements =
               await this.advertisementService.findAllActive(channel.id);
             if (advertisements) await this.sendMessageReset(advertisements);
-            unlink(`static/${channel.avatar}`, (err) => {
+            unlink(`public/${channel.avatar}`, (err) => {
               if (err) return console.log(err);
               console.log('file deleted successfully');
             });
