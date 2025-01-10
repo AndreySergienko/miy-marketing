@@ -23,8 +23,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
   app.enableCors({
-    // origin: process.env.FRONT_URL || '*',
-    origin: '*',
+    origin: process.env.FRONT_URL || '*',
+    // origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: [

@@ -86,7 +86,7 @@ export class BotService implements OnModuleInit {
               const link = await global.bot.getFileLink(
                 infoChat.photo.big_file_id,
               );
-              const file = createWriteStream(`static/${chatId}.jpg`);
+              const file = createWriteStream(`public/${chatId}.jpg`);
               http.get(
                 process.env.GET_AVATAR_API + link?.split('/file/')[1],
                 (response) => {
