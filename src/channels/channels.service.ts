@@ -9,6 +9,7 @@ import {
   IValidationCancelChannelDto,
   IValidationChannelDto,
   RegistrationChannelDto,
+  RemoveChannelDto,
 } from './types/types';
 import TelegramBot from 'node-telegram-bot-api';
 import { UserService } from '../user/user.service';
@@ -33,6 +34,8 @@ import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { Payment } from 'src/payments/models/payment.model';
 import { ChannelDate } from './models/channel-dates.model';
 import { Slots } from 'src/slots/models/slots.model';
+import { unlink } from 'fs';
+import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 
 @Injectable()
 export class ChannelsService {
@@ -873,6 +876,8 @@ export class ChannelsService {
     );
   }
 
+  private async deleteChannel() {}
+
   public async removeChannel(chatId: number) {
     const channel = await this.findOneByChatId(chatId);
 
@@ -915,19 +920,67 @@ export class ChannelsService {
     return await this.formatChannelRepository.findOne({ where: { id } });
   }
 
-  async sendMessageReset(invalidAdvertisements: Advertisement[]) {
-    if (!invalidAdvertisements) return;
-    for (let i = 0; i < invalidAdvertisements.length; i++) {
-      const invalidAdvertisement = invalidAdvertisements[i];
-
-      await this.advertisementService.destroy(invalidAdvertisement.id);
-    }
-  }
-
   public async findAllPublic() {
     return await this.channelRepository.findAll({
       where: { statusId: StatusStore.PUBLIC },
       include: User,
     });
+  }
+
+  private async sendMessageReset(invalidAdvertisements) {
+    if (!invalidAdvertisements) return;
+    for (let i = 0; i < invalidAdvertisements.length; i++) {
+      const invalidAdvertisement = invalidAdvertisements[i];
+
+      const publisher = await this.userService.findOneById(
+        invalidAdvertisement.publisherId,
+      );
+      const payment = await this.paymentRepository.findOne({
+        where: { advertisementId: invalidAdvertisement.id },
+      });
+      const info = {
+        price: payment.price,
+        email: publisher.email,
+        productId: payment.productId,
+        id: invalidAdvertisement.id,
+        fio:
+          publisher.name + ' ' + publisher.surname + ' ' + publisher.lastname,
+      };
+
+      const admins = await this.userService.getAllAdmins();
+      await global.bot.sendMessage(
+        admins[0].chatId,
+        MessagesChannel.RESET_CASH(info),
+      );
+      await this.advertisementService.destroy(invalidAdvertisement.id);
+    }
+  }
+
+  public async removeByDeleteButton(
+    { channelId: id }: RemoveChannelDto,
+    userId: number,
+  ) {
+    const channel = await this.channelRepository.findOne({ where: { id } });
+
+    const isAdmin = channel.users.find((user: User) => +user.id === +userId);
+
+    if (!isAdmin)
+      throw new HttpException(
+        ChannelsErrorMessages.USER_FORBIDDEN,
+        HttpStatus.FORBIDDEN,
+      );
+
+    unlink(`public/${channel.avatar}`, (err) => {
+      if (err) return console.log(err);
+      console.log('file deleted successfully');
+    });
+
+    const advertisements = await this.advertisementService.findAllActive(
+      channel.id,
+    );
+
+    await this.sendMessageReset(advertisements);
+
+    await this.removeChannelById(id);
   }
 }

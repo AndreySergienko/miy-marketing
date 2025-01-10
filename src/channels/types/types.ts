@@ -42,6 +42,10 @@ export interface ChannelDateDto {
   slots: ChannelDateSlotDto[];
 }
 
+export interface RemoveChannelDto {
+  channelId: number;
+}
+
 export class RegistrationChannelDto {
   id?: number;
   @IsString(ErrorValidation.IS_STRING())
