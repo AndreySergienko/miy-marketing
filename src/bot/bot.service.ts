@@ -70,7 +70,6 @@ export class BotService implements OnModuleInit {
           const validChatType: TelegramBot.ChatType[] = ['channel', 'private'];
           // Мы работаем только с группами или приват группами
           if (!validChatType.includes(chat.type)) return;
-          console.log('========CHAT.ID', chat.id);
           const chatId = chat.id;
           const currentBotStatus = new_chat_member.status;
           const channel = await this.channelsService.findOneByChatId(chatId);

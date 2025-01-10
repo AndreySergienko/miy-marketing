@@ -296,12 +296,15 @@ export class ChannelsService {
 
       const dates = [];
 
-      console.log('priceMin', priceMin);
       for (const date of fullChannelDates) {
         const filteredSlots = [];
 
+        const dateDefault = {
+          id: date.id,
+          date: date.date,
+        };
+
         for (const slot of date.slots) {
-          console.log('PRICE', slot.price, priceMin);
           const advertisments =
             await this.advertisementService.findAllBySlotIdAndChannelId({
               slotId: slot.id,
@@ -313,7 +316,6 @@ export class ChannelsService {
           }
 
           if (priceMin) {
-            console.log('PRICE', slot.price, priceMin);
             if (slot.price < +priceMin) {
               continue;
             }
@@ -350,8 +352,7 @@ export class ChannelsService {
         });
 
         dates.push({
-          id: date.id,
-          date: date.date,
+          ...dateDefault,
           slots,
         });
       }
@@ -578,7 +579,6 @@ export class ChannelsService {
     const id = channel.id;
     const status = StatusStore.AWAIT;
 
-    console.log(status);
     await channel.$set('status', status);
     await channel.$set('categories', String(categoriesId));
 
