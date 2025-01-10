@@ -311,18 +311,25 @@ export class ChannelsService {
               channelId: channel.id,
             });
 
+          console.log(
+            '=========================',
+            priceMin,
+            priceMax,
+            intervalId,
+          );
+
           if (advertisments?.length) {
             continue;
           }
 
           if (priceMin) {
-            if (slot.price < +priceMin) {
+            if (+slot.price < +priceMin) {
               continue;
             }
           }
 
           if (priceMax) {
-            if (slot.price > +priceMax) {
+            if (+slot.price > +priceMax) {
               continue;
             }
           }
@@ -333,6 +340,7 @@ export class ChannelsService {
             }
           }
 
+          console.log('=============LAST');
           filteredSlots.push(slot);
         }
 
@@ -351,6 +359,7 @@ export class ChannelsService {
           };
         });
 
+        console.log('=====================DATES PUSH');
         dates.push({
           ...dateDefault,
           slots,
