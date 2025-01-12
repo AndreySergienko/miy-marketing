@@ -309,15 +309,15 @@ export class ChannelsService {
       }
 
       if (priceMin !== undefined) {
-        slotConditions.price[Op.gte] = priceMin;
+        slotConditions.price[Op.gte] = +priceMin;
       }
 
       if (priceMax !== undefined) {
-        slotConditions.price[Op.lte] = priceMax;
+        slotConditions.price[Op.lte] = +priceMax;
       }
 
       if (intervalId !== undefined) {
-        slotConditions.intervalId = intervalId;
+        slotConditions.intervalId = +intervalId;
       }
 
       const fullChannelDates = await this.channelDateRepository.findAll({
