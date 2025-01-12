@@ -338,8 +338,13 @@ export class ChannelsService {
 
       const dates = [];
 
+      console.log('DATESSSSS============', fullChannelDates);
       for (const date of fullChannelDates) {
         const filteredSlots = date.slots;
+
+        console.log('SLOTS===========', date.slots);
+
+        if (!filteredSlots.length) continue;
 
         const dateDefault = {
           id: date.id,
