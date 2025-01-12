@@ -320,7 +320,7 @@ export class ChannelsService {
       }
 
       if (intervalId !== undefined) {
-        slotConditions.intervalId = +intervalId;
+        slotConditions.formatChannelId = +intervalId;
       }
 
       const fullChannelDates = await this.channelDateRepository.findAll({
