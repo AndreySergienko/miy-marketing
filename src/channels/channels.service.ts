@@ -335,15 +335,11 @@ export class ChannelsService {
               },
             },
             include: [Advertisement],
-            // include: [
-            //   {
-            //     model: Advertisement,
-            //     required: true,
-            //   },
-            // ],
           },
         ],
       });
+
+      console.log('FULL_CHANEL', fullChannelDates, slotConditions.price);
 
       const dates = [];
 
