@@ -385,7 +385,6 @@ export class ChannelsService {
       });
     }
 
-    console.log('RESULT====================================', result);
     return result;
   }
 
@@ -409,6 +408,11 @@ export class ChannelsService {
           channel.channelDates?.filter((date: ChannelDate) => {
             const [day, month, year] = date.date.split('.');
             const timestamp = +new Date(`${month}/${day}/${year}`);
+            console.log(
+              'DATE FILTERED',
+              timestamp,
+              new Date().setHours(0, 0, 0, 0),
+            );
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
