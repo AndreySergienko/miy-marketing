@@ -364,6 +364,8 @@ export class ChannelsService {
           };
         });
 
+        console.log('AFTER TRANSFORM SLOTS=================', slots);
+
         dates.push({
           ...dateDefault,
           slots,
