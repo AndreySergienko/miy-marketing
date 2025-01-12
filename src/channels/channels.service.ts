@@ -316,7 +316,6 @@ export class ChannelsService {
       }
 
       if (priceMax !== undefined) {
-        console.log('priceMax=============================+++', priceMax);
         slotConditions.price[Op.lte] = +priceMax;
       }
 
@@ -329,12 +328,7 @@ export class ChannelsService {
         include: [
           {
             model: Slots,
-            where: {
-              ...slotConditions,
-              // '$Slots.Advertisements.id$': {
-              //   [Op.is]: null, // Нет связанных Advertisements
-              // },
-            },
+            where: slotConditions,
             include: [Advertisement],
           },
         ],
@@ -343,7 +337,9 @@ export class ChannelsService {
       const dates = [];
 
       for (const date of fullChannelDates) {
-        const filteredSlots = date.slots;
+        const filteredSlots = date.slots.filter(
+          (slot) => !slot.advertisements.length,
+        );
 
         if (!filteredSlots.length) continue;
 
@@ -407,11 +403,6 @@ export class ChannelsService {
           channel.channelDates?.filter((date: ChannelDate) => {
             const [day, month, year] = date.date.split('.');
             const timestamp = +new Date(`${month}/${day}/${year}`);
-            console.log(
-              'DATE FILTERED',
-              timestamp,
-              new Date().setHours(0, 0, 0, 0),
-            );
             return new Date().setHours(0, 0, 0, 0) < timestamp;
           }) || [],
       });
