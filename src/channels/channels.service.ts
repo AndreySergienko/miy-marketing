@@ -330,9 +330,9 @@ export class ChannelsService {
             model: Slots,
             where: {
               ...slotConditions,
-              '$Slots.Advertisements.id$': {
-                [Op.is]: null, // Нет связанных Advertisements
-              },
+              // '$Slots.Advertisements.id$': {
+              //   [Op.is]: null, // Нет связанных Advertisements
+              // },
             },
             include: [Advertisement],
           },
