@@ -302,62 +302,51 @@ export class ChannelsService {
         whereChannelDates.date[Op.gte] = dateMin;
       }
 
+      const slotConditions = {};
+
+      if (priceMin !== undefined || priceMax !== undefined) {
+        slotConditions.price = {};
+      }
+
+      if (priceMin !== undefined) {
+        slotConditions.price[Op.gte] = priceMin;
+      }
+
+      if (priceMax !== undefined) {
+        slotConditions.price[Op.lte] = priceMax;
+      }
+
+      if (intervalId !== undefined) {
+        slotConditions.intervalId = intervalId;
+      }
+
       const fullChannelDates = await this.channelDateRepository.findAll({
         where: whereChannelDates,
-        include: [Slots],
+        include: [
+          {
+            model: Slots,
+            where: slotConditions,
+            include: [
+              {
+                model: Advertisement,
+                where: {
+                  required: true,
+                },
+              },
+            ],
+          },
+        ],
       });
 
       const dates = [];
 
       for (const date of fullChannelDates) {
-        const filteredSlots = [];
+        const filteredSlots = date.slots;
 
         const dateDefault = {
           id: date.id,
           date: date.date,
         };
-
-        for (const slot of date.slots) {
-          const advertisments =
-            await this.advertisementService.findAllBySlotIdAndChannelId({
-              slotId: slot.id,
-              channelId: channel.id,
-            });
-
-          console.log(
-            '=========================',
-            priceMin,
-            priceMax,
-            intervalId,
-          );
-
-          if (advertisments?.length) {
-            continue;
-          }
-
-          if (priceMin) {
-            if (+slot.price < +priceMin) {
-              continue;
-            }
-          }
-
-          if (priceMax) {
-            if (+slot.price > +priceMax) {
-              continue;
-            }
-          }
-
-          if (intervalId) {
-            if (+slot.formatChannelId !== +intervalId) {
-              continue;
-            }
-          }
-
-          console.log('=============LAST');
-          filteredSlots.push(slot);
-        }
-
-        if (!filteredSlots.length) continue;
 
         const slots = filteredSlots.map((slot) => {
           const tempDate = new Date(+slot.timestamp);
@@ -372,7 +361,6 @@ export class ChannelsService {
           };
         });
 
-        console.log('=====================DATES PUSH');
         dates.push({
           ...dateDefault,
           slots,
