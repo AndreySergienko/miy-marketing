@@ -329,9 +329,7 @@ export class ChannelsService {
             include: [
               {
                 model: Advertisement,
-                where: {
-                  required: true,
-                },
+                required: true,
               },
             ],
           },
