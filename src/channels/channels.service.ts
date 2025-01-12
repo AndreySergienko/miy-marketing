@@ -328,7 +328,13 @@ export class ChannelsService {
         include: [
           {
             model: Slots,
-            where: slotConditions,
+            where: {
+              ...slotConditions,
+              '$Slots.Advertisements.id$': {
+                [Op.is]: null, // Нет связанных Advertisements
+              },
+            },
+            include: [Advertisement],
             // include: [
             //   {
             //     model: Advertisement,
