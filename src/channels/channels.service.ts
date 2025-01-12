@@ -326,12 +326,12 @@ export class ChannelsService {
           {
             model: Slots,
             where: slotConditions,
-            include: [
-              {
-                model: Advertisement,
-                required: true,
-              },
-            ],
+            // include: [
+            //   {
+            //     model: Advertisement,
+            //     required: true,
+            //   },
+            // ],
           },
         ],
       });
