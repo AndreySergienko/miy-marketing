@@ -315,9 +315,9 @@ export class ChannelsService {
         slotConditions.price[Op.gte] = +priceMin;
       }
 
-      if (priceMax !== undefined) {
-        slotConditions.price[Op.lte] = +priceMax;
-      }
+      // if (priceMax !== undefined) {
+      //   slotConditions.price[Op.lte] = +priceMax;
+      // }
 
       if (intervalId !== undefined) {
         slotConditions.intervalId = +intervalId;
