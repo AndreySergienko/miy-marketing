@@ -315,9 +315,10 @@ export class ChannelsService {
         slotConditions.price[Op.gte] = +priceMin;
       }
 
-      // if (priceMax !== undefined) {
-      //   slotConditions.price[Op.lte] = +priceMax;
-      // }
+      if (priceMax !== undefined) {
+        console.log('priceMax=============================+++', priceMax);
+        slotConditions.price[Op.lte] = +priceMax;
+      }
 
       if (intervalId !== undefined) {
         slotConditions.intervalId = +intervalId;
@@ -338,8 +339,6 @@ export class ChannelsService {
           },
         ],
       });
-
-      console.log('FULL_CHANEL', fullChannelDates, slotConditions.price);
 
       const dates = [];
 
