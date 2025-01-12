@@ -385,6 +385,7 @@ export class ChannelsService {
       });
     }
 
+    console.log('RESULT====================================', result);
     return result;
   }
 
