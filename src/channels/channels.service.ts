@@ -338,11 +338,8 @@ export class ChannelsService {
 
       const dates = [];
 
-      console.log('DATESSSSS============', fullChannelDates);
       for (const date of fullChannelDates) {
         const filteredSlots = date.slots;
-
-        console.log('SLOTS===========', date.slots);
 
         if (!filteredSlots.length) continue;
 
@@ -363,8 +360,6 @@ export class ChannelsService {
             timestamp: `${hours}:${minutes}`,
           };
         });
-
-        console.log('AFTER TRANSFORM SLOTS=================', slots);
 
         dates.push({
           ...dateDefault,
