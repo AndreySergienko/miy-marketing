@@ -302,7 +302,10 @@ export class ChannelsService {
         whereChannelDates.date[Op.gte] = dateMin;
       }
 
-      const slotConditions: Record<string, string | number[] | object> = {};
+      const slotConditions: Record<
+        string,
+        string | number[] | object | number
+      > = {};
 
       if (priceMin !== undefined || priceMax !== undefined) {
         slotConditions.price = {};
