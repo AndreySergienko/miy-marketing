@@ -385,6 +385,7 @@ export class ChannelsService {
 
   public async getAll(query: IQueryFilterAndPagination) {
     const channels = await this.getChannels(query);
+    const countChannels = await Channel.count();
 
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
@@ -408,7 +409,10 @@ export class ChannelsService {
       });
     }
 
-    return list;
+    return {
+      countChannels,
+      list,
+    };
   }
 
   public async acceptValidateChannel(chatId: number, adminId: number) {
