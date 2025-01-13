@@ -261,18 +261,27 @@ export class ChannelsService {
       datesWhere.push(...splitedString);
     }
 
-    const { rows: channels, count } =
-      await this.channelRepository.findAndCountAll({
-        where: {
-          id: channelsIds,
-          statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
-          subscribers: {
-            [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
-            [Op.gte]: subscribersMin ? +subscribersMin : 0,
-          },
+    const count = await this.channelRepository.count({
+      where: {
+        id: channelsIds,
+        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
+        subscribers: {
+          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
+          [Op.gte]: subscribersMin ? +subscribersMin : 0,
         },
-        include: [ChannelDate, Categories],
-      });
+      },
+    });
+    const channels = await this.channelRepository.findAll({
+      where: {
+        id: channelsIds,
+        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
+        subscribers: {
+          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
+          [Op.gte]: subscribersMin ? +subscribersMin : 0,
+        },
+      },
+      include: [ChannelDate, Categories],
+    });
 
     if (!channels)
       return {
