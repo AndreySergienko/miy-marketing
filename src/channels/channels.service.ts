@@ -313,12 +313,6 @@ export class ChannelsService {
       }
 
       if (dateMin) {
-        console.log(
-          'DATEMIN===============',
-          new Date(dateMin),
-          dateMin,
-          +new Date(dateMin),
-        );
         whereChannelDates.date[Op.gte] = dateMin;
       }
 
@@ -369,6 +363,11 @@ export class ChannelsService {
         };
 
         const slots = filteredSlots.map((slot) => {
+          console.log(
+            'DATEMIN===============SLOTS',
+            new Date(+dateMin),
+            new Date(+slot.timestamp),
+          );
           const tempDate = new Date(+slot.timestamp);
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
