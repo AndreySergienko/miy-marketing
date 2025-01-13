@@ -313,6 +313,12 @@ export class ChannelsService {
       }
 
       if (dateMin) {
+        console.log(
+          'DATEMIN===============',
+          new Date(dateMin),
+          dateMin,
+          +new Date(dateMin),
+        );
         whereChannelDates.date[Op.gte] = dateMin;
       }
 
