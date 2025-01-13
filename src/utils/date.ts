@@ -64,3 +64,8 @@ export const createDate = (
   const updateMonth = new Date(updateDate).setMonth(+month - 1);
   return new Date(updateMonth).setFullYear(+year);
 };
+
+export function parseCustomDate(dateString: string) {
+  const [day, month, year, hour, minute] = dateString.split('.').map(Number);
+  return new Date(year, month - 1, day, hour, minute); // Преобразуем в объект Date
+}

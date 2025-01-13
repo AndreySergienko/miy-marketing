@@ -1,4 +1,4 @@
-import { createDate } from './../utils/date';
+import { createDate, parseCustomDate } from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -304,17 +304,17 @@ export class ChannelsService {
         id: channelDatesIds,
       };
 
-      if (dateMax || dateMin) {
-        whereChannelDates.date = {};
-      }
-
-      if (dateMax) {
-        whereChannelDates.date[Op.lte] = dateMax;
-      }
-
-      if (dateMin) {
-        whereChannelDates.date[Op.gte] = dateMin;
-      }
+      // if (dateMax || dateMin) {
+      //   whereChannelDates.date = {};
+      // }
+      //
+      // if (dateMax) {
+      //   whereChannelDates.date[Op.lte] = dateMax;
+      // }
+      //
+      // if (dateMin) {
+      //   whereChannelDates.date[Op.gte] = dateMin;
+      // }
 
       const slotConditions: Record<
         string,
@@ -350,6 +350,10 @@ export class ChannelsService {
 
       const dates = [];
 
+      const dateFilter = {
+        min: dateMin ? parseCustomDate(dateMin) : '',
+        max: dateMax ? parseCustomDate(dateMax) : '',
+      };
       for (const date of fullChannelDates) {
         const filteredSlots = date.slots.filter(
           (slot) => !slot.advertisements.length,
@@ -363,12 +367,15 @@ export class ChannelsService {
         };
 
         const slots = filteredSlots.map((slot) => {
-          console.log(
-            'DATEMIN===============SLOTS',
-            new Date(+dateMin),
-            new Date(+slot.timestamp),
-          );
           const tempDate = new Date(+slot.timestamp);
+          if (dateMin) {
+            if (dateFilter.min > tempDate) return;
+          }
+
+          if (dateMax) {
+            if (dateFilter.max < tempDate) return;
+          }
+
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
