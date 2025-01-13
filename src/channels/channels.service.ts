@@ -237,7 +237,7 @@ export class ChannelsService {
     intervalId,
     subscribersMin,
     subscribersMax,
-  }: IQueryFilterAndPagination) {
+  }: IQueryFilterAndPagination): Promise<{ result: Channel[]; count: number }> {
     const where: Record<string, unknown> = {};
     if (categories) {
       const categoriesValue = categories.split(',').map((id) => +id);
@@ -261,19 +261,24 @@ export class ChannelsService {
       datesWhere.push(...splitedString);
     }
 
-    const channels = await this.channelRepository.findAll({
-      where: {
-        id: channelsIds,
-        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
-        subscribers: {
-          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
-          [Op.gte]: subscribersMin ? +subscribersMin : 0,
+    const { rows: channels, count } =
+      await this.channelRepository.findAndCountAll({
+        where: {
+          id: channelsIds,
+          statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
+          subscribers: {
+            [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
+            [Op.gte]: subscribersMin ? +subscribersMin : 0,
+          },
         },
-      },
-      include: [ChannelDate, Categories],
-    });
+        include: [ChannelDate, Categories],
+      });
 
-    if (!channels) return [];
+    if (!channels)
+      return {
+        result: [],
+        count: 0,
+      };
 
     const result = [];
 
@@ -380,12 +385,15 @@ export class ChannelsService {
       });
     }
 
-    return result;
+    return {
+      result,
+      count,
+    };
   }
 
   public async getAll(query: IQueryFilterAndPagination) {
-    const channels = await this.getChannels(query);
-    const countChannels = await Channel.count();
+    const { result: channels, count: countChannels } =
+      await this.getChannels(query);
 
     const list: ChannelGetAllRequestDto[] = [];
     for (let i = 0; i < channels.length; i++) {
