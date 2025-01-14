@@ -286,49 +286,6 @@ export class ChannelsService {
       slotConditions.formatChannelId = +intervalId;
     }
 
-    if (dateMin !== undefined || dateMax !== undefined) {
-      slotConditions.timestamp = {};
-    }
-
-    if (dateMin !== undefined) {
-      const [hours, minutes] = dateMin.split('.');
-      const timeStart = `${hours}:${minutes}`;
-      slotConditions.timestamp[Op.gte] = Sequelize.literal(`
-              UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(ChannelDate.date, ' ', '${timeStart}'), '%d.%m.%Y %H:%i'))
-            `);
-    }
-
-    if (dateMax !== undefined) {
-      const [hours, minutes] = dateMax.split('.');
-      const timeEnd = `${hours}:${minutes}`;
-      slotConditions.timestamp[Op.lte] = Sequelize.literal(`
-              UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(ChannelDate.date, ' ', '${timeEnd}'), '%d.%m.%Y %H:%i'))
-            `);
-    }
-
-    // if (dateMin !== undefined) {
-    //   const [hours, minutes] = dateMin.split('.');
-    //   console.log(
-    //     'DATEMIN===================',
-    //     new Date().setHours(+hours, +minutes, 0),
-    //   );
-    //   slotConditions.timestamp[Op.gte] = new Date().setHours(
-    //     +hours,
-    //     +minutes,
-    //     0,
-    //   );
-    // }
-
-    // if (dateMax !== undefined) {
-    //   const [hours, minutes] = dateMax.split('.');
-    //   console.log(new Date().setHours(+hours, +minutes, 0));
-    //   slotConditions.timestamp[Op.lte] = new Date().setHours(
-    //     +hours,
-    //     +minutes,
-    //     0,
-    //   );
-    // }
-
     const whereChannelDates: Record<string, object> = {};
 
     if (datesWhere.length) {
