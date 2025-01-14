@@ -365,6 +365,7 @@ export class ChannelsService {
 
     for (const channel of channels) {
       const dates = [];
+      let fail = false;
 
       for (const date of channel.channelDates) {
         const filteredSlots = date.slots.filter(
@@ -378,31 +379,29 @@ export class ChannelsService {
           date: date.date,
         };
 
-        const slots = filteredSlots
-          .map((slot) => {
-            const tempDate = new Date(+slot.timestamp);
+        const slots = filteredSlots.map((slot) => {
+          const tempDate = new Date(+slot.timestamp);
 
-            const hours = `${tempDate.getHours()}`.padStart(2, '0');
-            const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
+          const hours = `${tempDate.getHours()}`.padStart(2, '0');
+          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
-            if (dateMin) {
-              if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`))
-                return;
-            }
+          if (dateMin) {
+            if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`))
+              fail = true;
+          }
 
-            if (dateMax) {
-              if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`))
-                return;
-            }
+          if (dateMax) {
+            if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`))
+              fail = true;
+          }
 
-            return {
-              id: slot.id,
-              price: slot.price,
-              formatChannelId: slot.formatChannelId,
-              timestamp: `${hours}:${minutes}`,
-            };
-          })
-          .filter((slot) => slot?.id);
+          return {
+            id: slot.id,
+            price: slot.price,
+            formatChannelId: slot.formatChannelId,
+            timestamp: `${hours}:${minutes}`,
+          };
+        });
 
         if (!slots.length) continue;
 
@@ -412,17 +411,19 @@ export class ChannelsService {
         });
       }
 
-      result.push({
-        id: channel.id,
-        name: channel.name,
-        subscribers: channel.subscribers,
-        link: channel.link || '',
-        description: channel.description,
-        avatar: channel.avatar,
-        conditionCheck: channel.conditionCheck,
-        channelDates: dates,
-        categories: channel.categories,
-      });
+      if (!fail) {
+        result.push({
+          id: channel.id,
+          name: channel.name,
+          subscribers: channel.subscribers,
+          link: channel.link || '',
+          description: channel.description,
+          avatar: channel.avatar,
+          conditionCheck: channel.conditionCheck,
+          channelDates: dates,
+          categories: channel.categories,
+        });
+      }
     }
 
     return {
