@@ -378,22 +378,24 @@ export class ChannelsService {
           date: date.date,
         };
 
-        const slots = filteredSlots.map((slot) => {
-          const tempDate = new Date(+slot.timestamp);
+        const slots = filteredSlots
+          .map((slot) => {
+            const tempDate = new Date(+slot.timestamp);
 
-          const hours = `${tempDate.getHours()}`.padStart(2, '0');
-          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
+            const hours = `${tempDate.getHours()}`.padStart(2, '0');
+            const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
-          if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`)) return;
-          if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`)) return;
+            if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`)) return;
+            if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`)) return;
 
-          return {
-            id: slot.id,
-            price: slot.price,
-            formatChannelId: slot.formatChannelId,
-            timestamp: `${hours}:${minutes}`,
-          };
-        });
+            return {
+              id: slot.id,
+              price: slot.price,
+              formatChannelId: slot.formatChannelId,
+              timestamp: `${hours}:${minutes}`,
+            };
+          })
+          .filter((slot) => slot !== null);
 
         if (!slots.length) continue;
 
