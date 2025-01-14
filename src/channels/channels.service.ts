@@ -285,11 +285,11 @@ export class ChannelsService {
     }
 
     if (dateMin !== undefined) {
+      const [hours, minutes] = dateMin.split('.');
       console.log(
         'DATEMIN===================',
         new Date().setHours(+hours, +minutes, 0),
       );
-      const [hours, minutes] = dateMin.split('.');
       slotConditions.timestamp[Op.gte] = new Date().setHours(
         +hours,
         +minutes,
