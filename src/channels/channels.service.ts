@@ -19,7 +19,7 @@ import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
-import { Op } from 'sequelize';
+import { Op, Sequelize } from 'sequelize';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
 import { setBotApiUrlFile } from '../utils/bot';
 import { UserChannel } from './models/user-channel.model';
@@ -286,25 +286,48 @@ export class ChannelsService {
 
     if (dateMin !== undefined) {
       const [hours, minutes] = dateMin.split('.');
-      console.log(
-        'DATEMIN===================',
-        new Date().setHours(+hours, +minutes, 0),
-      );
-      slotConditions.timestamp[Op.gte] = new Date().setHours(
-        +hours,
-        +minutes,
-        0,
-      );
+      const timeStart = `${hours}:${minutes}`;
+      slotConditions.timestamp[Op.gte] = Sequelize.literal(`
+              UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(ChannelDate.date, ' ', '${timeStart}'), '%d.%m.%Y %H:%i'))
+            `);
     }
 
     if (dateMax !== undefined) {
       const [hours, minutes] = dateMax.split('.');
-      console.log(new Date().setHours(+hours, +minutes, 0));
-      slotConditions.timestamp[Op.lte] = new Date().setHours(
-        +hours,
-        +minutes,
-        0,
-      );
+      const timeEnd = `${hours}:${minutes}`;
+      slotConditions.timestamp[Op.lte] = Sequelize.literal(`
+              UNIX_TIMESTAMP(STR_TO_DATE(CONCAT(ChannelDate.date, ' ', '${timeEnd}'), '%d.%m.%Y %H:%i'))
+            `);
+    }
+
+    // if (dateMin !== undefined) {
+    //   const [hours, minutes] = dateMin.split('.');
+    //   console.log(
+    //     'DATEMIN===================',
+    //     new Date().setHours(+hours, +minutes, 0),
+    //   );
+    //   slotConditions.timestamp[Op.gte] = new Date().setHours(
+    //     +hours,
+    //     +minutes,
+    //     0,
+    //   );
+    // }
+
+    // if (dateMax !== undefined) {
+    //   const [hours, minutes] = dateMax.split('.');
+    //   console.log(new Date().setHours(+hours, +minutes, 0));
+    //   slotConditions.timestamp[Op.lte] = new Date().setHours(
+    //     +hours,
+    //     +minutes,
+    //     0,
+    //   );
+    // }
+
+    const whereChannelDates: Record<string, object> = {};
+
+    if (datesWhere.length) {
+      whereChannelDates.date = {};
+      whereChannelDates.date[Op.in] = datesWhere;
     }
 
     const count = await this.channelRepository.count({
@@ -318,11 +341,7 @@ export class ChannelsService {
       include: [
         {
           model: ChannelDate,
-          where: {
-            date: {
-              [Op.in]: datesWhere,
-            },
-          },
+          where: whereChannelDates,
           include: [
             {
               model: Slots,
@@ -334,13 +353,6 @@ export class ChannelsService {
         Categories,
       ],
     });
-
-    const whereChannelDates: Record<string, object> = {};
-
-    if (datesWhere.length) {
-      whereChannelDates.date = {};
-      whereChannelDates.date[Op.in] = datesWhere;
-    }
 
     const channels = await this.channelRepository.findAll({
       where: {
@@ -376,29 +388,6 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
-      // const channelDates = datesWhere.length
-      //   ? channel.channelDates.filter((channelDate) =>
-      //       datesWhere.includes(channelDate.date),
-      //     )
-      //   : channel.channelDates;
-      // if (!channelDates.length) continue;
-      //
-      // const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
-      // const whereChannelDates: Record<string, string | number[] | object> = {
-      //   id: channelDatesIds,
-      // };
-      //
-      // const fullChannelDates = await this.channelDateRepository.findAll({
-      //   where: whereChannelDates,
-      //   include: [
-      //     {
-      //       model: Slots,
-      //       where: slotConditions,
-      //       include: [Advertisement],
-      //     },
-      //   ],
-      // });
-
       const dates = [];
 
       for (const date of channel.channelDates) {
@@ -419,6 +408,9 @@ export class ChannelsService {
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
+          if (dateMin < hours) {
+          }
+
           return {
             id: slot.id,
             price: slot.price,
@@ -426,6 +418,8 @@ export class ChannelsService {
             timestamp: `${hours}:${minutes}`,
           };
         });
+
+        if (!slots.length) continue;
 
         dates.push({
           ...dateDefault,
