@@ -335,6 +335,13 @@ export class ChannelsService {
       ],
     });
 
+    const whereChannelDates: Record<string, object> = {};
+
+    if (datesWhere.length) {
+      whereChannelDates.date = {};
+      whereChannelDates.date[Op.in] = datesWhere;
+    }
+
     const channels = await this.channelRepository.findAll({
       where: {
         id: channelsIds,
@@ -347,11 +354,7 @@ export class ChannelsService {
       include: [
         {
           model: ChannelDate,
-          where: {
-            date: {
-              [Op.in]: datesWhere,
-            },
-          },
+          where: whereChannelDates,
           include: [
             {
               model: Slots,
