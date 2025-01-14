@@ -360,7 +360,7 @@ export class ChannelsService {
     }
 
     if (dateMax !== undefined) {
-      dateFilters.min = timeToMinutes(dateMax);
+      dateFilters.max = timeToMinutes(dateMax);
     }
 
     for (const channel of channels) {
