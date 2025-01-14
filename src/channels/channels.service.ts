@@ -354,13 +354,13 @@ export class ChannelsService {
         min: dateMin
           ? (() => {
               const [hours, minutes] = dateMin.split('.');
-              return new Date(new Date().setHours(+hours, +minutes));
+              return new Date(new Date().setHours(+hours, +minutes, 0));
             })()
           : '',
         max: dateMax
           ? (() => {
               const [hours, minutes] = dateMax.split('.');
-              return new Date(new Date().setHours(+hours, +minutes));
+              return new Date(new Date().setHours(+hours, +minutes, 0));
             })()
           : '',
       };
