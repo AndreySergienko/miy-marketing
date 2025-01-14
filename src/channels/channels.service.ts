@@ -1,4 +1,10 @@
-import { createDate, formatDate, parseCustomDate } from './../utils/date';
+import {
+  createDate,
+  formatDate,
+  normalizeTime,
+  parseCustomDate,
+  timeToMinutes,
+} from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -387,6 +393,19 @@ export class ChannelsService {
 
     const result = [];
 
+    const dateFilters = {
+      min: 0,
+      max: 0,
+    };
+
+    if (dateMin !== undefined) {
+      dateFilters.min = timeToMinutes(dateMin);
+    }
+
+    if (dateMax !== undefined) {
+      dateFilters.min = timeToMinutes(dateMax);
+    }
+
     for (const channel of channels) {
       const dates = [];
 
@@ -408,8 +427,8 @@ export class ChannelsService {
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
-          if (dateMin < hours) {
-          }
+          if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`)) return;
+          if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`)) return;
 
           return {
             id: slot.id,

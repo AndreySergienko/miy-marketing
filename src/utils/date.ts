@@ -77,3 +77,17 @@ export function formatDate(date: string): string {
   const formattedMonth = month.padStart(2, '0'); // Добавляем ноль к месяцу, если нужно
   return `${formattedDay}.${formattedMonth}.${year}`; // Формируем новую строку
 }
+
+export function normalizeTime(time: string): string {
+  if (!time) return '';
+  // Разделяем число по точке
+  const [hours, minutes = '00'] = time.split('.');
+  // Приводим к формату HH:mm
+  return `${hours.padStart(2, '0')}:${minutes.padEnd(2, '0')}`;
+}
+
+export function timeToMinutes(time: string): number {
+  if (!time) return 0;
+  const [hours, minutes] = time.split('.').map(Number);
+  return hours * 60 + minutes; // Перевод в минуты
+}
