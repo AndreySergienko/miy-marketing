@@ -395,7 +395,7 @@ export class ChannelsService {
               timestamp: `${hours}:${minutes}`,
             };
           })
-          .filter((slot) => !!slot);
+          .filter((slot) => slot?.id);
 
         if (!slots.length) continue;
 
