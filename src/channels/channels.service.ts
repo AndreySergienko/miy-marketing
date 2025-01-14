@@ -285,6 +285,10 @@ export class ChannelsService {
     }
 
     if (dateMin !== undefined) {
+      console.log(
+        'DATEMIN===================',
+        new Date().setHours(+hours, +minutes, 0),
+      );
       const [hours, minutes] = dateMin.split('.');
       slotConditions.timestamp[Op.gte] = new Date().setHours(
         +hours,
@@ -295,6 +299,7 @@ export class ChannelsService {
 
     if (dateMax !== undefined) {
       const [hours, minutes] = dateMax.split('.');
+      console.log(new Date().setHours(+hours, +minutes, 0));
       slotConditions.timestamp[Op.lte] = new Date().setHours(
         +hours,
         +minutes,
