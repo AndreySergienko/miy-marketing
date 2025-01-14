@@ -385,8 +385,15 @@ export class ChannelsService {
             const hours = `${tempDate.getHours()}`.padStart(2, '0');
             const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
 
-            if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`)) return;
-            if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`)) return;
+            if (dateMin) {
+              if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`))
+                return;
+            }
+
+            if (dateMax) {
+              if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`))
+                return;
+            }
 
             return {
               id: slot.id,
