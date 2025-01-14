@@ -258,13 +258,13 @@ export class ChannelsService {
         where,
       })
     ).map((categoriesChannel) => categoriesChannel.channelId);
-    const datesWhere: string[] = [];
+    let datesWhere: string[] = [];
 
     if (dates) {
       const splitedString = formatDate(dates).split(',');
       if (!splitedString) return;
 
-      datesWhere.push(...splitedString);
+      datesWhere = splitedString;
     }
 
     const slotConditions: Record<string, string | number[] | object | number> =
@@ -290,6 +290,10 @@ export class ChannelsService {
 
     if (datesWhere.length) {
       whereChannelDates.date = {};
+      console.log(
+        '!+123=13=121===================================================',
+        datesWhere,
+      );
       whereChannelDates.date[Op.in] = datesWhere;
     }
 
