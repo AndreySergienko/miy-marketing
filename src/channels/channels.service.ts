@@ -261,7 +261,7 @@ export class ChannelsService {
     let datesWhere: string[] = [];
 
     if (dates) {
-      const splitedString = formatDate(dates).split(',');
+      const splitedString = dates.split(',').map(formatDate);
       if (!splitedString) return;
 
       datesWhere = splitedString;
@@ -290,10 +290,6 @@ export class ChannelsService {
 
     if (datesWhere.length) {
       whereChannelDates.date = {};
-      console.log(
-        '!+123=13=121===================================================',
-        datesWhere,
-      );
       whereChannelDates.date[Op.in] = datesWhere;
     }
 
