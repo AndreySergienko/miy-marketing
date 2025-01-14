@@ -261,6 +261,47 @@ export class ChannelsService {
       datesWhere.push(...splitedString);
     }
 
+    const slotConditions: Record<string, string | number[] | object | number> =
+      {};
+
+    if (priceMin !== undefined || priceMax !== undefined) {
+      slotConditions.price = {};
+    }
+
+    if (priceMin !== undefined) {
+      slotConditions.price[Op.gte] = +priceMin;
+    }
+
+    if (priceMax !== undefined) {
+      slotConditions.price[Op.lte] = +priceMax;
+    }
+
+    if (intervalId !== undefined) {
+      slotConditions.formatChannelId = +intervalId;
+    }
+
+    if (dateMin !== undefined || dateMax !== undefined) {
+      slotConditions.timestamp = {};
+    }
+
+    if (dateMin !== undefined) {
+      const [hours, minutes] = dateMin.split('.');
+      slotConditions.timestamp[Op.gte] = new Date().setHours(
+        +hours,
+        +minutes,
+        0,
+      );
+    }
+
+    if (dateMax !== undefined) {
+      const [hours, minutes] = dateMax.split('.');
+      slotConditions.timestamp[Op.lte] = new Date().setHours(
+        +hours,
+        +minutes,
+        0,
+      );
+    }
+
     const count = await this.channelRepository.count({
       where: {
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
@@ -269,7 +310,26 @@ export class ChannelsService {
           [Op.gte]: subscribersMin ? +subscribersMin : 0,
         },
       },
+      include: [
+        {
+          model: ChannelDate,
+          where: {
+            date: {
+              [Op.in]: datesWhere,
+            },
+          },
+          include: [
+            {
+              model: Slots,
+              where: slotConditions,
+              include: [Advertisement],
+            },
+          ],
+        },
+        Categories,
+      ],
     });
+
     const channels = await this.channelRepository.findAll({
       where: {
         id: channelsIds,
@@ -279,7 +339,24 @@ export class ChannelsService {
           [Op.gte]: subscribersMin ? +subscribersMin : 0,
         },
       },
-      include: [ChannelDate, Categories],
+      include: [
+        {
+          model: ChannelDate,
+          where: {
+            date: {
+              [Op.in]: datesWhere,
+            },
+          },
+          include: [
+            {
+              model: Slots,
+              where: slotConditions,
+              include: [Advertisement],
+            },
+          ],
+        },
+        Categories,
+      ],
     });
 
     if (!channels)
@@ -291,89 +368,32 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
-      const channelDates = datesWhere.length
-        ? channel.channelDates.filter((channelDate) =>
-            datesWhere.includes(channelDate.date),
-          )
-        : channel.channelDates;
-      if (!channelDates.length) continue;
-
-      const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
-      const whereChannelDates: Record<string, string | number[] | object> = {
-        id: channelDatesIds,
-      };
-
-      const slotConditions: Record<
-        string,
-        string | number[] | object | number
-      > = {};
-
-      if (priceMin !== undefined || priceMax !== undefined) {
-        slotConditions.price = {};
-      }
-
-      if (priceMin !== undefined) {
-        slotConditions.price[Op.gte] = +priceMin;
-      }
-
-      if (priceMax !== undefined) {
-        slotConditions.price[Op.lte] = +priceMax;
-      }
-
-      if (intervalId !== undefined) {
-        slotConditions.formatChannelId = +intervalId;
-      }
-
-      if (dateMin !== undefined || dateMax !== undefined) {
-        slotConditions.timestamp = {};
-      }
-
-      if (dateMin !== undefined) {
-        const [hours, minutes] = dateMin.split('.');
-        slotConditions.timestamp[Op.gte] = new Date().setHours(
-          +hours,
-          +minutes,
-          0,
-        );
-      }
-
-      if (dateMax !== undefined) {
-        const [hours, minutes] = dateMax.split('.');
-        slotConditions.timestamp[Op.lte] = new Date().setHours(
-          +hours,
-          +minutes,
-          0,
-        );
-      }
-
-      const fullChannelDates = await this.channelDateRepository.findAll({
-        where: whereChannelDates,
-        include: [
-          {
-            model: Slots,
-            where: slotConditions,
-            include: [Advertisement],
-          },
-        ],
-      });
+      // const channelDates = datesWhere.length
+      //   ? channel.channelDates.filter((channelDate) =>
+      //       datesWhere.includes(channelDate.date),
+      //     )
+      //   : channel.channelDates;
+      // if (!channelDates.length) continue;
+      //
+      // const channelDatesIds = channelDates.map((channelDate) => channelDate.id);
+      // const whereChannelDates: Record<string, string | number[] | object> = {
+      //   id: channelDatesIds,
+      // };
+      //
+      // const fullChannelDates = await this.channelDateRepository.findAll({
+      //   where: whereChannelDates,
+      //   include: [
+      //     {
+      //       model: Slots,
+      //       where: slotConditions,
+      //       include: [Advertisement],
+      //     },
+      //   ],
+      // });
 
       const dates = [];
 
-      // const dateFilter = {
-      //   min: dateMin
-      //     ? (() => {
-      //         const [hours, minutes] = dateMin.split('.');
-      //         return new Date(new Date().setHours(+hours, +minutes, 0));
-      //       })()
-      //     : '',
-      //   max: dateMax
-      //     ? (() => {
-      //         const [hours, minutes] = dateMax.split('.');
-      //         return new Date(new Date().setHours(+hours, +minutes, 0));
-      //       })()
-      //     : '',
-      // };
-      for (const date of fullChannelDates) {
+      for (const date of channel.channelDates) {
         const filteredSlots = date.slots.filter(
           (slot) => !slot.advertisements.length,
         );
@@ -387,13 +407,6 @@ export class ChannelsService {
 
         const slots = filteredSlots.map((slot) => {
           const tempDate = new Date(+slot.timestamp);
-          // if (dateMin) {
-          //   if (dateFilter.min > tempDate) return;
-          // }
-          //
-          // if (dateMax) {
-          //   if (dateFilter.max < tempDate) return;
-          // }
 
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
