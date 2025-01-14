@@ -1,4 +1,4 @@
-import { createDate, parseCustomDate } from './../utils/date';
+import { createDate, formatDate, parseCustomDate } from './../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -255,7 +255,7 @@ export class ChannelsService {
     const datesWhere: string[] = [];
 
     if (dates) {
-      const splitedString = dates.split(',');
+      const splitedString = formatDate(dates).split(',');
       if (!splitedString) return;
 
       datesWhere.push(...splitedString);
@@ -263,7 +263,6 @@ export class ChannelsService {
 
     const count = await this.channelRepository.count({
       where: {
-        id: channelsIds,
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
         subscribers: {
           [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
@@ -304,18 +303,6 @@ export class ChannelsService {
         id: channelDatesIds,
       };
 
-      // if (dateMax || dateMin) {
-      //   whereChannelDates.date = {};
-      // }
-      //
-      // if (dateMax) {
-      //   whereChannelDates.date[Op.lte] = dateMax;
-      // }
-      //
-      // if (dateMin) {
-      //   whereChannelDates.date[Op.gte] = dateMin;
-      // }
-
       const slotConditions: Record<
         string,
         string | number[] | object | number
@@ -337,6 +324,28 @@ export class ChannelsService {
         slotConditions.formatChannelId = +intervalId;
       }
 
+      if (dateMin !== undefined || dateMax !== undefined) {
+        slotConditions.timestamp = {};
+      }
+
+      if (dateMin !== undefined) {
+        const [hours, minutes] = dateMin.split('.');
+        slotConditions.timestamp[Op.gte] = new Date().setHours(
+          +hours,
+          +minutes,
+          0,
+        );
+      }
+
+      if (dateMax !== undefined) {
+        const [hours, minutes] = dateMax.split('.');
+        slotConditions.timestamp[Op.lte] = new Date().setHours(
+          +hours,
+          +minutes,
+          0,
+        );
+      }
+
       const fullChannelDates = await this.channelDateRepository.findAll({
         where: whereChannelDates,
         include: [
@@ -350,20 +359,20 @@ export class ChannelsService {
 
       const dates = [];
 
-      const dateFilter = {
-        min: dateMin
-          ? (() => {
-              const [hours, minutes] = dateMin.split('.');
-              return new Date(new Date().setHours(+hours, +minutes, 0));
-            })()
-          : '',
-        max: dateMax
-          ? (() => {
-              const [hours, minutes] = dateMax.split('.');
-              return new Date(new Date().setHours(+hours, +minutes, 0));
-            })()
-          : '',
-      };
+      // const dateFilter = {
+      //   min: dateMin
+      //     ? (() => {
+      //         const [hours, minutes] = dateMin.split('.');
+      //         return new Date(new Date().setHours(+hours, +minutes, 0));
+      //       })()
+      //     : '',
+      //   max: dateMax
+      //     ? (() => {
+      //         const [hours, minutes] = dateMax.split('.');
+      //         return new Date(new Date().setHours(+hours, +minutes, 0));
+      //       })()
+      //     : '',
+      // };
       for (const date of fullChannelDates) {
         const filteredSlots = date.slots.filter(
           (slot) => !slot.advertisements.length,
@@ -378,13 +387,13 @@ export class ChannelsService {
 
         const slots = filteredSlots.map((slot) => {
           const tempDate = new Date(+slot.timestamp);
-          if (dateMin) {
-            if (dateFilter.min > tempDate) return;
-          }
-
-          if (dateMax) {
-            if (dateFilter.max < tempDate) return;
-          }
+          // if (dateMin) {
+          //   if (dateFilter.min > tempDate) return;
+          // }
+          //
+          // if (dateMax) {
+          //   if (dateFilter.max < tempDate) return;
+          // }
 
           const hours = `${tempDate.getHours()}`.padStart(2, '0');
           const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');

@@ -69,3 +69,11 @@ export function parseCustomDate(dateString: string) {
   const [day, month, year, hour, minute] = dateString.split('.').map(Number);
   return new Date(year, month - 1, day, hour, minute); // Преобразуем в объект Date
 }
+
+export function formatDate(date: string): string {
+  if (!date) return '';
+  const [day, month, year] = date.split('.'); // Разделяем дату по точкам
+  const formattedDay = day.padStart(2, '0'); // Добавляем ноль к дню, если нужно
+  const formattedMonth = month.padStart(2, '0'); // Добавляем ноль к месяцу, если нужно
+  return `${formattedDay}.${formattedMonth}.${year}`; // Формируем новую строку
+}
