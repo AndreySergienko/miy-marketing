@@ -3,6 +3,7 @@ import {
   formatDate,
   timeToMinutes,
   convertMinutesToHoursAndMinutes,
+  normalizeTime,
 } from '../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
@@ -391,7 +392,9 @@ export class ChannelsService {
               id: slot.id,
               price: slot.price,
               formatChannelId: slot.formatChannelId,
-              timestamp: min ? `${min.hours}:${min.minutes}` : '',
+              timestamp: min
+                ? normalizeTime(`${min.hours}.${min.minutes}`)
+                : '',
             };
           }),
         });
