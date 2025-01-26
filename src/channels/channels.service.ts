@@ -330,8 +330,8 @@ export class ChannelsService {
           model: Categories,
           where: {
             id: categories.split(','),
-          }
-        }
+          },
+        },
         {
           model: ChannelDate,
           where: whereChannelDates,
