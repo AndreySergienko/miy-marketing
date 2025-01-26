@@ -339,13 +339,7 @@ export class ChannelsService {
             {
               model: Slots,
               where: slotConditions,
-              include: [
-                Advertisement,
-                {
-                  model: Advertisement,
-                  ...includeAdvertisement,
-                },
-              ],
+              include: [Advertisement],
             },
           ],
         },
@@ -369,13 +363,7 @@ export class ChannelsService {
             {
               model: Slots,
               where: slotConditions,
-              include: [
-                Advertisement,
-                {
-                  model: Advertisement,
-                  ...includeAdvertisement,
-                },
-              ],
+              include: [Advertisement],
             },
           ],
         },
@@ -392,20 +380,26 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
-      const channelDates = channel.channelDates.map((date) => ({
-        id: date.id,
-        date: date.date,
-        slots: date.slots.map((slot) => {
-          return {
-            id: slot.id,
-            price: slot.price,
-            formatChannelId: slot.formatChannelId,
-            timestamp: slot.minutes
-              ? convertMinutesToHoursAndMinutes(+slot.minutes)
-              : '',
-          };
-        }),
-      }));
+      const dates = [];
+      for (const date of channel.channelDates) {
+        const filteredSlots = date.slots.filter(
+          (slot) => !slot.advertisements.length,
+        );
+        if (!filteredSlots.length) continue;
+
+        dates.push({
+          id: date.id,
+          date: date.date,
+          slots: date.slots.map((slot) => {
+            return {
+              id: slot.id,
+              price: slot.price,
+              formatChannelId: slot.formatChannelId,
+              timestamp: slot.minutes,
+            };
+          }),
+        });
+      }
 
       result.push({
         id: channel.id,
@@ -415,7 +409,7 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: channelDates,
+        channelDates: dates,
         categories: channel.categories,
       });
     }
