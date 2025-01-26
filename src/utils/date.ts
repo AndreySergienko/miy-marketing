@@ -93,12 +93,8 @@ export function timeToMinutes(time: string): number {
 }
 
 export function convertMinutesToHoursAndMinutes(minutes: number) {
-  // Ограничиваем минуты в пределах суток
-  const totalMinutes = minutes % 1440; // 1440 минут в сутках (24 * 60)
-
-  // Получаем часы и минуты
-  const hours = Math.floor(totalMinutes / 60);
-  const remainingMinutes = totalMinutes % 60;
+  const hours = Math.floor(minutes / 60);
+  const remainingMinutes = minutes % 60;
 
   return { hours, minutes: remainingMinutes };
 }

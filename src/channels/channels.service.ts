@@ -395,7 +395,9 @@ export class ChannelsService {
               id: slot.id,
               price: slot.price,
               formatChannelId: slot.formatChannelId,
-              timestamp: slot.minutes,
+              timestamp: slot.minutes
+                ? convertMinutesToHoursAndMinutes(+slot.minutes)
+                : '',
             };
           }),
         });
@@ -668,7 +670,7 @@ export class ChannelsService {
         const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
         await this.slotService.createSlot({
           timestamp,
-          minutes: +hours * 60 + minutes,
+          minutes: +hours * 60 + +minutes,
           price: +price,
           formatChannel,
           channelDateId: channelDate.id,
@@ -806,7 +808,7 @@ export class ChannelsService {
         await this.slotService.createSlot({
           timestamp,
           price: +price,
-          minutes: +hours * 60 + minutes,
+          minutes: +hours * 60 + +minutes,
           formatChannel: formatChannel,
           channelDateId: channelDate.id,
         });
