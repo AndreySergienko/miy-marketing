@@ -317,6 +317,40 @@ export class ChannelsService {
       },
     };
 
+    const asdsada = await this.channelRepository.findAll({
+      where: {
+        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
+        subscribers: {
+          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
+          [Op.gte]: subscribersMin ? +subscribersMin : 0,
+        },
+      },
+      include: [
+        {
+          model: Categories,
+          where: whereCategories,
+        },
+        {
+          model: ChannelDate,
+          where: whereChannelDates,
+          include: [
+            {
+              model: Slots,
+              where: slotConditions,
+              include: [
+                {
+                  model: Advertisement,
+                  ...includeAdvertisement,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    console.log('CHANNELS', asdsada);
+
     const count = await this.channelRepository.count({
       where: {
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
