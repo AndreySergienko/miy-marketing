@@ -393,6 +393,20 @@ export class ChannelsService {
     for (const channel of channels) {
       const dates = [];
 
+      const channelDates = dates.map((date) => ({
+        id: date.id,
+        date: date.date,
+        slots: date.slots.map((slot) => ({
+          ...slot,
+          timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
+        })),
+      }));
+
+      console.log(
+        'CHANNELDATES======================================',
+        channelDates,
+      );
+
       result.push({
         id: channel.id,
         name: channel.name,
@@ -401,14 +415,7 @@ export class ChannelsService {
         description: channel.description,
         avatar: channel.avatar,
         conditionCheck: channel.conditionCheck,
-        channelDates: dates.map((date) => ({
-          id: date.id,
-          date: date.date,
-          slots: date.slots.map((slot) => ({
-            ...slot,
-            timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
-          })),
-        })),
+        channelDates: channelDates,
         categories: channel.categories,
       });
     }
