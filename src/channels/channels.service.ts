@@ -398,8 +398,11 @@ export class ChannelsService {
         slots: date.slots.map((slot) => {
           console.log('SLOT+====', slot);
           return {
-            ...slot,
-            timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
+            id: slot.id,
+            price: slot.price,
+            timestamp: slot.minutes
+              ? convertMinutesToHoursAndMinutes(+slot.minutes)
+              : '',
           };
         }),
       }));
