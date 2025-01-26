@@ -41,6 +41,7 @@ import { ChannelDate } from './models/channel-dates.model';
 import { Slots } from 'src/slots/models/slots.model';
 import { unlink } from 'fs';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
+import ErrorValidation from '../modules/errors/ErrorValidation';
 
 @Injectable()
 export class ChannelsService {
@@ -340,10 +341,10 @@ export class ChannelsService {
               where: slotConditions,
               include: [
                 Advertisement,
-                // {
-                //   model: Advertisement,
-                //   ...includeAdvertisement,
-                // },
+                {
+                  model: Advertisement,
+                  ...includeAdvertisement,
+                },
               ],
             },
           ],
@@ -370,10 +371,10 @@ export class ChannelsService {
               where: slotConditions,
               include: [
                 Advertisement,
-                // {
-                //   model: Advertisement,
-                //   ...includeAdvertisement,
-                // },
+                {
+                  model: Advertisement,
+                  ...includeAdvertisement,
+                },
               ],
             },
           ],
@@ -391,7 +392,6 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
-      console.log(channel.channelDates);
       const channelDates = channel.channelDates.map((date) => ({
         id: date.id,
         date: date.date,
@@ -621,6 +621,26 @@ export class ChannelsService {
       );
 
     const isAdmin = channel.users.find((user: User) => +user.id === +userId);
+
+    if (
+      channelDates.some((date) => date.slots.some((slot) => slot.price < 100))
+    ) {
+      throw new HttpException(
+        ErrorValidation.MIN_PRICE(100),
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (
+      channelDates.some((date) =>
+        date.slots.some((slot) => slot.price > 100000),
+      )
+    ) {
+      throw new HttpException(
+        ErrorValidation.MAX_PRICE(100000),
+        HttpStatus.FORBIDDEN,
+      );
+    }
 
     if (!isAdmin)
       throw new HttpException(
