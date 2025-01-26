@@ -391,6 +391,7 @@ export class ChannelsService {
     const result = [];
 
     for (const channel of channels) {
+      console.log(channel.channelDates);
       const channelDates = channel.channelDates.map((date) => ({
         id: date.id,
         date: date.date,
