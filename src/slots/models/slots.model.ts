@@ -11,6 +11,7 @@ import type { SlotsModelAttrs } from '../types/types';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelDate } from 'src/channels/models/channel-dates.model';
 import { FormatChannel } from 'src/channels/models/format-channel.model';
+import { Channel } from '../../channels/models/channels.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -51,6 +52,13 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @ForeignKey(() => ChannelDate)
   @Column({ type: DataType.BIGINT })
   channelDateId: number;
+
+  @ForeignKey(() => Channel)
+  @Column({ type: DataType.BIGINT })
+  channelId: number;
+
+  @BelongsTo(() => Channel)
+  channel: Channel;
 
   @BelongsTo(() => ChannelDate)
   channelDate: ChannelDate;

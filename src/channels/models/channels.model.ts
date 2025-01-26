@@ -16,6 +16,7 @@ import { CategoriesChannel } from '../../categories/models/categories-channel.mo
 import { Status } from '../../status/models/status.model';
 import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelDate } from './channel-dates.model';
+import { Slots } from '../../slots/models/slots.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -68,6 +69,9 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   // Даты
   @HasMany(() => ChannelDate)
   channelDates: ChannelDate[];
+
+  @HasMany(() => Slots)
+  slots: Slots[];
 
   @HasMany(() => Advertisement)
   advertisements: Advertisement[];

@@ -324,6 +324,7 @@ export class ChannelsService {
           [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
           [Op.gte]: subscribersMin ? +subscribersMin : 0,
         },
+        categories: categories.split(','),
       },
       include: [
         {
@@ -342,10 +343,7 @@ export class ChannelsService {
             },
           ],
         },
-        {
-          model: Categories,
-          where: whereCategories,
-        },
+        Categories,
       ],
     });
 
