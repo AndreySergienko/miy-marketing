@@ -328,9 +328,7 @@ export class ChannelsService {
       include: [
         {
           model: Categories,
-          where: {
-            id: categories ? categories.split(',') : [],
-          },
+          where: whereCategories,
         },
         {
           model: ChannelDate,
