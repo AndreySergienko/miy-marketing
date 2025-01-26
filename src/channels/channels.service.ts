@@ -395,10 +395,13 @@ export class ChannelsService {
       const channelDates = channel.channelDates.map((date) => ({
         id: date.id,
         date: date.date,
-        slots: date.slots.map((slot) => ({
-          ...slot,
-          timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
-        })),
+        slots: date.slots.map((slot) => {
+          console.log('SLOT+====', slot);
+          return {
+            ...slot,
+            timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
+          };
+        }),
       }));
 
       console.log(
