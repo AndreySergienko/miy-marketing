@@ -35,10 +35,6 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
 
   @Column({
     type: DataType.STRING,
-    validate: {
-      min: 1,
-      max: 4,
-    },
   })
   minutes: string;
 
