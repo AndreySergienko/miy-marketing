@@ -317,38 +317,6 @@ export class ChannelsService {
       },
     };
 
-    const asdsada = await this.channelRepository.findAll({
-      where: {
-        statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
-        subscribers: {
-          [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
-          [Op.gte]: subscribersMin ? +subscribersMin : 0,
-        },
-      },
-      include: [
-        {
-          model: Categories,
-          where: whereCategories,
-        },
-        {
-          model: ChannelDate,
-          where: whereChannelDates,
-          include: [
-            {
-              model: Slots,
-              where: slotConditions,
-              include: [
-                {
-                  model: Advertisement,
-                  ...includeAdvertisement,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
     const count = await this.channelRepository.count({
       distinct: true,
       where: {
@@ -371,19 +339,17 @@ export class ChannelsService {
               model: Slots,
               where: slotConditions,
               include: [
-                {
-                  model: Advertisement,
-                  ...includeAdvertisement,
-                },
+                Advertisement,
+                // {
+                //   model: Advertisement,
+                //   ...includeAdvertisement,
+                // },
               ],
             },
           ],
         },
       ],
     });
-
-    console.log('CHANNELS', asdsada);
-    console.log('COUNT===============', count);
 
     const channels = await this.channelRepository.findAll({
       where: {
@@ -403,10 +369,11 @@ export class ChannelsService {
               model: Slots,
               where: slotConditions,
               include: [
-                {
-                  model: Advertisement,
-                  ...includeAdvertisement,
-                },
+                Advertisement,
+                // {
+                //   model: Advertisement,
+                //   ...includeAdvertisement,
+                // },
               ],
             },
           ],
