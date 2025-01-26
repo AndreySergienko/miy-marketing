@@ -349,8 +349,6 @@ export class ChannelsService {
       ],
     });
 
-    console.log('CHANNELS', asdsada);
-
     const count = await this.channelRepository.count({
       where: {
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
@@ -382,6 +380,9 @@ export class ChannelsService {
         },
       ],
     });
+
+    console.log('CHANNELS', asdsada);
+    console.log('COUNT===============', count);
 
     const channels = await this.channelRepository.findAll({
       where: {
