@@ -390,7 +390,7 @@ export class ChannelsService {
         dates.push({
           id: date.id,
           date: date.date,
-          slots: date.slots.map((slot) => {
+          slots: filteredSlots.map((slot) => {
             return {
               id: slot.id,
               price: slot.price,
