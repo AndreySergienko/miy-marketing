@@ -32,6 +32,14 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @HasMany(() => Advertisement)
   advertisements: Advertisement[];
 
+  @Column({
+    type: DataType.STRING,
+    validate: {
+      len: [1, 4],
+    },
+  })
+  minutes: string;
+
   // Интервал
   @ForeignKey(() => FormatChannel)
   @Column({ type: DataType.INTEGER })

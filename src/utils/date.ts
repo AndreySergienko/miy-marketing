@@ -91,3 +91,14 @@ export function timeToMinutes(time: string): number {
   const [hours, minutes] = time.split('.').map(Number);
   return hours * 60 + minutes; // Перевод в минуты
 }
+
+export function convertMinutesToHoursAndMinutes(minutes: number) {
+  // Ограничиваем минуты в пределах суток
+  const totalMinutes = minutes % 1440; // 1440 минут в сутках (24 * 60)
+
+  // Получаем часы и минуты
+  const hours = Math.floor(totalMinutes / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  return { hours, minutes: remainingMinutes };
+}

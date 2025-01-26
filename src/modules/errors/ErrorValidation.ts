@@ -5,6 +5,14 @@ export default class ErrorValidation {
     return createError('Поле должно быть строкой');
   }
 
+  static MIN_PRICE(price: number) {
+    return createError(`Минимально допустимая сумма слота: ${price}`);
+  }
+
+  static MAX_PRICE(price: number) {
+    return createError(`Максимально допустимая сумма слота: ${price}`);
+  }
+
   static IS_PASSWORD() {
     return createError(
       'Пароль должен содержать минимум 1 цифру, заглавную букву и спец символ',

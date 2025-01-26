@@ -1,10 +1,9 @@
 import {
   createDate,
   formatDate,
-  normalizeTime,
-  parseCustomDate,
   timeToMinutes,
-} from './../utils/date';
+  convertMinutesToHoursAndMinutes,
+} from '../utils/date';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Channel } from './models/channels.model';
@@ -25,7 +24,7 @@ import { SlotsService } from '../slots/slots.service';
 import { BotEvent } from '../bot/BotEvent';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
 import { pagination } from '../database/pagination';
-import { Op, Sequelize } from 'sequelize';
+import { Op } from 'sequelize';
 import { CategoriesChannel } from '../categories/models/categories-channel.model';
 import { setBotApiUrlFile } from '../utils/bot';
 import { UserChannel } from './models/user-channel.model';
@@ -286,12 +285,37 @@ export class ChannelsService {
       slotConditions.formatChannelId = +intervalId;
     }
 
+    if (dateMin !== undefined || dateMax !== undefined) {
+      slotConditions.minutes = {};
+    }
+
+    if (dateMin !== undefined) {
+      slotConditions.minutes[Op.gte] = timeToMinutes(dateMin);
+    }
+
+    if (dateMax !== undefined) {
+      slotConditions.minutes[Op.lte] = timeToMinutes(dateMax);
+    }
+
     const whereChannelDates: Record<string, object> = {};
 
     if (datesWhere.length) {
       whereChannelDates.date = {};
       whereChannelDates.date[Op.in] = datesWhere;
     }
+
+    const whereCategories: Record<string, string[]> = {};
+
+    if (categories) {
+      whereCategories.id = categories.split(',');
+    }
+
+    const includeAdvertisement = {
+      required: false,
+      where: {
+        id: null,
+      },
+    };
 
     const count = await this.channelRepository.count({
       where: {
@@ -309,11 +333,19 @@ export class ChannelsService {
             {
               model: Slots,
               where: slotConditions,
-              include: [Advertisement],
+              include: [
+                {
+                  model: Advertisement,
+                  ...includeAdvertisement,
+                },
+              ],
             },
           ],
         },
-        Categories,
+        {
+          model: Categories,
+          where: whereCategories,
+        },
       ],
     });
 
@@ -334,7 +366,12 @@ export class ChannelsService {
             {
               model: Slots,
               where: slotConditions,
-              include: [Advertisement],
+              include: [
+                {
+                  model: Advertisement,
+                  ...includeAdvertisement,
+                },
+              ],
             },
           ],
         },
@@ -350,80 +387,27 @@ export class ChannelsService {
 
     const result = [];
 
-    const dateFilters = {
-      min: 0,
-      max: 0,
-    };
-
-    if (dateMin !== undefined) {
-      dateFilters.min = timeToMinutes(dateMin);
-    }
-
-    if (dateMax !== undefined) {
-      dateFilters.max = timeToMinutes(dateMax);
-    }
-
     for (const channel of channels) {
       const dates = [];
-      let fail = false;
 
-      for (const date of channel.channelDates) {
-        const filteredSlots = date.slots.filter(
-          (slot) => !slot.advertisements.length,
-        );
-
-        if (!filteredSlots.length) continue;
-
-        const dateDefault = {
+      result.push({
+        id: channel.id,
+        name: channel.name,
+        subscribers: channel.subscribers,
+        link: channel.link || '',
+        description: channel.description,
+        avatar: channel.avatar,
+        conditionCheck: channel.conditionCheck,
+        channelDates: dates.map((date) => ({
           id: date.id,
           date: date.date,
-        };
-
-        const slots = filteredSlots.map((slot) => {
-          const tempDate = new Date(+slot.timestamp);
-
-          const hours = `${tempDate.getHours()}`.padStart(2, '0');
-          const minutes = `${tempDate.getMinutes()}`.padStart(2, '0');
-
-          if (dateMin) {
-            if (dateFilters.min > timeToMinutes(`${hours}.${minutes}`))
-              fail = true;
-          }
-
-          if (dateMax) {
-            if (dateFilters.max < timeToMinutes(`${hours}.${minutes}`))
-              fail = true;
-          }
-
-          return {
-            id: slot.id,
-            price: slot.price,
-            formatChannelId: slot.formatChannelId,
-            timestamp: `${hours}:${minutes}`,
-          };
-        });
-
-        if (!slots.length) continue;
-
-        dates.push({
-          ...dateDefault,
-          slots,
-        });
-      }
-
-      if (!fail) {
-        result.push({
-          id: channel.id,
-          name: channel.name,
-          subscribers: channel.subscribers,
-          link: channel.link || '',
-          description: channel.description,
-          avatar: channel.avatar,
-          conditionCheck: channel.conditionCheck,
-          channelDates: dates,
-          categories: channel.categories,
-        });
-      }
+          slots: date.slots.map((slot) => ({
+            ...slot,
+            timestamp: convertMinutesToHoursAndMinutes(+slot.minutes),
+          })),
+        })),
+        categories: channel.categories,
+      });
     }
 
     return {
@@ -660,6 +644,7 @@ export class ChannelsService {
         const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
         await this.slotService.createSlot({
           timestamp,
+          minutes: +hours * 60 + minutes,
           price: +price,
           formatChannel,
           channelDateId: channelDate.id,
@@ -797,6 +782,7 @@ export class ChannelsService {
         await this.slotService.createSlot({
           timestamp,
           price: +price,
+          minutes: +hours * 60 + minutes,
           formatChannel: formatChannel,
           channelDateId: channelDate.id,
         });

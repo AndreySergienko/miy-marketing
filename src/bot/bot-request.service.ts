@@ -395,7 +395,7 @@ export class BotRequestService {
     await this.publisherMessages.updateErid(message.id, text);
     const updateMessage = `${message.message}
 
-ФИО: ${owner.name} + ${owner.surname} + ${owner.lastname}
+ФИО: ${owner.name} ${owner.surname} ${owner.lastname}
 ИНН: ${owner.inn}
 Erid: ${text}`;
 

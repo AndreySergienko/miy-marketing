@@ -1,8 +1,11 @@
-import { IsArray, IsNumber, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsString, Min } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
 import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
 import { UserModelAttrs } from '../../user/types/user.types';
+
+const MIN_PRICE = 100;
+const MAX_PRICE = 1000000;
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -31,8 +34,11 @@ export class CheckConnectChannelDto {
   channelName: string;
 }
 
-export interface ChannelDateSlotDto {
+export class ChannelDateSlotDto {
   time: string; // 20:00
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @Min(MIN_PRICE, ErrorValidation.MIN_PRICE(MIN_PRICE))
+  @Min(MAX_PRICE, ErrorValidation.MAX_PRICE(MAX_PRICE))
   price: number;
   formatChannel: number;
 }
@@ -107,6 +113,7 @@ export interface ICreateSlot {
   timestamp: number;
   price: number;
   formatChannel: number;
+  minutes: string;
 }
 
 interface IInfoUserForErid

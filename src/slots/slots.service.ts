@@ -12,11 +12,13 @@ export class SlotsService {
     price,
     formatChannel,
     channelDateId,
+    minutes,
   }: ICreateSlot) {
     const oldSlot = await this.slotsRepository.findOne({
       where: {
         timestamp,
         channelDateId,
+        minutes,
       },
     });
 
@@ -25,6 +27,7 @@ export class SlotsService {
     const slot = await this.slotsRepository.create({
       timestamp,
       price,
+      minutes,
     });
 
     await slot.$set('formatChannel', formatChannel);
