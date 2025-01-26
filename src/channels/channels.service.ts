@@ -324,10 +324,10 @@ export class ChannelsService {
           [Op.lte]: subscribersMax ? +subscribersMax : 999999999,
           [Op.gte]: subscribersMin ? +subscribersMin : 0,
         },
-        categories: categories ? categories.split(',') : []
+        categories: categories ? categories.split(',') : [],
       },
       include: [
-        Categories
+        Categories,
         {
           model: ChannelDate,
           where: whereChannelDates,
