@@ -396,21 +396,16 @@ export class ChannelsService {
         id: date.id,
         date: date.date,
         slots: date.slots.map((slot) => {
-          console.log('SLOT+====', slot);
           return {
             id: slot.id,
             price: slot.price,
+            formatChannelId: slot.formatChannelId,
             timestamp: slot.minutes
               ? convertMinutesToHoursAndMinutes(+slot.minutes)
               : '',
           };
         }),
       }));
-
-      console.log(
-        'CHANNELDATES======================================',
-        channelDates,
-      );
 
       result.push({
         id: channel.id,
