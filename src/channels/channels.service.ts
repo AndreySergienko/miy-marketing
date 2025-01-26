@@ -350,6 +350,7 @@ export class ChannelsService {
     });
 
     const count = await this.channelRepository.count({
+      distinct: true,
       where: {
         statusId: [StatusStore.PUBLIC, StatusStore.CANCEL],
         subscribers: {
