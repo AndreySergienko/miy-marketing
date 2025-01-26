@@ -311,13 +311,6 @@ export class ChannelsService {
       whereCategories.id = categories.split(',');
     }
 
-    const includeAdvertisement = {
-      required: false,
-      where: {
-        id: null,
-      },
-    };
-
     const count = await this.channelRepository.count({
       distinct: true,
       where: {
@@ -391,13 +384,14 @@ export class ChannelsService {
           id: date.id,
           date: date.date,
           slots: filteredSlots.map((slot) => {
+            const min = slot.minutes
+              ? convertMinutesToHoursAndMinutes(+slot.minutes)
+              : '';
             return {
               id: slot.id,
               price: slot.price,
               formatChannelId: slot.formatChannelId,
-              timestamp: slot.minutes
-                ? convertMinutesToHoursAndMinutes(+slot.minutes)
-                : '',
+              timestamp: min ? `${min.hours}:${min.minutes}` : '',
             };
           }),
         });
@@ -670,7 +664,7 @@ export class ChannelsService {
         const timestamp = new Date().setHours(+hours, +minutes, 0, 0);
         await this.slotService.createSlot({
           timestamp,
-          minutes: +hours * 60 + +minutes,
+          minutes: String(+hours * 60 + +minutes),
           price: +price,
           formatChannel,
           channelDateId: channelDate.id,
@@ -808,7 +802,7 @@ export class ChannelsService {
         await this.slotService.createSlot({
           timestamp,
           price: +price,
-          minutes: +hours * 60 + +minutes,
+          minutes: String(+hours * 60 + +minutes),
           formatChannel: formatChannel,
           channelDateId: channelDate.id,
         });
