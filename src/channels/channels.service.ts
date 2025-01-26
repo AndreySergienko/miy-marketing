@@ -388,6 +388,11 @@ export class ChannelsService {
         count: 0,
       };
 
+    console.log(
+      'CHANNNNNNNNNNNNNNNNELS==============================',
+      channels,
+    );
+
     const result = [];
 
     for (const channel of channels) {
