@@ -122,11 +122,21 @@ export class QueuesService {
         const slot = activeSlots[i];
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
+
+        const channelForSend = await this.channelsService.findById(
+          slot.channel.id,
+        );
+
+        const owner = channelForSend.users[0];
+
         const text = await global.bot.sendMessage(
           chatId,
           `${slot.message.message}
 
-Erid: ${slot.message.erid}`,
+ФИО: ${owner.name} ${owner.surname} ${owner.lastname}
+ИНН: ${owner.inn}
+Erid: ${slot.message.erid}
+`,
         );
         const user = await this.userService.findByChannelId(slot.channel.id);
         await this.advertisementRepository.update(
