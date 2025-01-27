@@ -123,18 +123,14 @@ export class QueuesService {
         await slot.$set('status', StatusStore.FINISH);
         const chatId = slot.channel.chatId;
 
-        const channelForSend = await this.channelsService.findById(
-          slot.channel.id,
-        );
-
-        const owner = channelForSend.users[0];
+        const publisher = await this.userService.findOneById(slot.publisherId);
 
         const text = await global.bot.sendMessage(
           chatId,
           `${slot.message.message}
 
-ФИО: ${owner.name} ${owner.surname} ${owner.lastname}
-ИНН: ${owner.inn}
+ФИО: ${publisher.name} ${publisher.surname} ${publisher.lastname}
+ИНН: ${publisher.inn}
 Erid: ${slot.message.erid}
 `,
         );
