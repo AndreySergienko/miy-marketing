@@ -48,12 +48,12 @@ export class QueuesService {
     return this.advertisementRepository.findAll({
       where: {
         statusId,
-        // [key]: {
-        //   /** Дата публикации **/
-        //   [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
-        //   /** Дата публикации с погрешностью в 1 минуту **/
-        //   [Op.lte]: String(convertDateTimeToMoscow(fifthMinuteLater())),
-        // },
+        [key]: {
+          /** Дата публикации **/
+          [Op.gte]: String(convertDateTimeToMoscow(towMinuteLast())),
+          /** Дата публикации с погрешностью в 1 минуту **/
+          [Op.lte]: String(convertDateTimeToMoscow(fifthMinuteLater())),
+        },
       },
       include: {
         all: true,
