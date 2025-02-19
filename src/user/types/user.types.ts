@@ -148,8 +148,18 @@ export class GetUserDto {
   permissions: string[];
   bank?: UserBankModelAttrs;
   document?: UserDocumentModelAttrs;
+  taxRate: {
+    id: number;
+    rate: string;
+    userId: number;
+  };
 }
 
 export class UploadDocumentDto {
   workType: WORK_TYPES;
+}
+
+export class TaxRateDto {
+  @IsString()
+  rate: string;
 }

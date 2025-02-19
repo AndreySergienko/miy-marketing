@@ -22,7 +22,7 @@ export class AuthService {
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn } = registrationDto;
+    const { uniqueBotId, password, email, inn, taxRate } = registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
@@ -71,6 +71,9 @@ export class AuthService {
       chatId: userBot.chatId,
       isValidEmail: false,
     });
+
+    // Сохраняем налоговый режим
+    await this.userService.updateTaxRate(userBot.id, taxRate);
 
     return {
       id: userBot.id,

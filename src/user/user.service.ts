@@ -27,6 +27,7 @@ import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserDocument } from './models/user-document.model';
+import { TaxRate } from './models/user-taxrate.model';
 
 @Injectable()
 export class UserService {
@@ -40,6 +41,7 @@ export class UserService {
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
     private permissionService: PermissionService,
+    @InjectModel(TaxRate) private taxRateRepository: typeof TaxRate,
   ) {}
 
   public async findByInn(inn: string) {
@@ -337,6 +339,7 @@ export class UserService {
     permissions,
     bank,
     document,
+    taxRate,
   }: User): GetUserDto {
     return {
       email,
@@ -348,6 +351,29 @@ export class UserService {
       permissions: permissions.map((perm) => perm.value),
       bank,
       document,
+      taxRate,
     };
+  }
+
+  public async updateTaxRate(userId: number, rate: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    let taxRate = await this.taxRateRepository.findOne({ where: { userId } });
+    if (taxRate) {
+      taxRate.rate = rate;
+      await taxRate.save();
+    } else {
+      taxRate = await this.taxRateRepository.create({ userId, rate });
+    }
+
+    return taxRate;
+  }
+
+  public async getTaxRate(userId: number) {
+    const taxRate = await this.taxRateRepository.findOne({ where: { userId } });
+    return taxRate;
   }
 }

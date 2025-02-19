@@ -14,6 +14,7 @@ import { Channel } from '../channels/models/channels.model';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserBank } from '../payments/models/user-bank.model';
 import { UserDocument } from './models/user-document.model';
+import { TaxRate } from './models/user-taxrate.model';
 
 @Module({
   controllers: [UserController],
@@ -29,6 +30,7 @@ import { UserDocument } from './models/user-document.model';
       UserChannel,
       UserBank,
       UserDocument,
+      TaxRate,
     ]),
     PermissionModule,
     JwtModule,

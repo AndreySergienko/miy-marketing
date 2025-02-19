@@ -23,6 +23,10 @@ export default class ErrorValidation {
     return createError('Некорректный тип лица (ИП или самозанятый)');
   }
 
+  static IS_TAX_RATE() {
+    return createError('Некорректный тип налогового режима(6%, 15% или ОСНО)');
+  }
+
   static IS_BANK() {
     return createError('Некорректный формат данных о банке');
   }
