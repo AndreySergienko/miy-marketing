@@ -22,12 +22,6 @@ export enum WORK_TYPES {
   SELF_EMPLOYED = 'self_employed',
 }
 
-export enum TAX_RATE {
-  MIN = '6%',
-  MIDDLE = '15%',
-  MAX = 'ОСНО',
-}
-
 export class LoginDto {
   @IsString(ErrorValidation.IS_STRING())
   @IsEmail({}, ErrorValidation.IS_EMAIL())
