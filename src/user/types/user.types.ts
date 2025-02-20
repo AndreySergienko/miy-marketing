@@ -18,6 +18,7 @@ import { UserBankModelAttrs } from '../../payments/types/types';
 import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
 import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
 import { WORK_TYPES } from '../../auth/types/auth.types';
+import { TaxRate } from 'src/tax-rate/types/tax-rate.types';
 
 export interface UserModelAttrs {
   name: string;
@@ -64,6 +65,7 @@ export class UserCreateDto implements UserModelAttrs {
   uniqueBotId: string;
   isValidEmail: boolean;
   lastUpdateEmail?: number;
+  taxRateId: number;
 }
 
 export class UpdateUserDto {
@@ -148,11 +150,7 @@ export class GetUserDto {
   permissions: string[];
   bank?: UserBankModelAttrs;
   document?: UserDocumentModelAttrs;
-  taxRate: {
-    id: number;
-    rate: string;
-    userId: number;
-  };
+  taxRate: TaxRate;
 }
 
 export class UploadDocumentDto {

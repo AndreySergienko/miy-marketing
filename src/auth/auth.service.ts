@@ -22,7 +22,7 @@ export class AuthService {
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn, taxRate } = registrationDto;
+    const { uniqueBotId, password, email, inn, taxRateId } = registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
@@ -65,15 +65,22 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 7);
 
+    // Находим или создаем налоговый режим
+    const taxRateRecord = await this.userService.getTaxRateById(taxRateId);
+    if (!taxRateRecord) {
+      throw new HttpException(
+        'Налоговый режим не найден',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
     await this.userService.updateAllFilledUserById({
       ...registrationDto,
       password: hashPassword,
       chatId: userBot.chatId,
       isValidEmail: false,
+      taxRateId: taxRateRecord.id,
     });
-
-    // Сохраняем налоговый режим
-    await this.userService.updateTaxRate(userBot.id, taxRate);
 
     return {
       id: userBot.id,

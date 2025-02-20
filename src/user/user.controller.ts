@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
   Post,
   Put,
   Req,
@@ -14,7 +13,6 @@ import { Perms } from '../auth/decorators/permission-auth.decorator';
 import {
   BanUserDto,
   PardonUserDto,
-  TaxRateDto,
   UpdateEmailDto,
   UpdatePasswordDto,
   UpdateUserDto,
@@ -92,31 +90,5 @@ export class UserController {
   setAdmin(@Body() { userId, token }: { userId: number; token: string }) {
     if (token !== process.env.SECRET_TOKEN) return;
     return this.userService.setAdmin(userId);
-  }
-
-  @Put('update/tax-rate')
-  async updateTaxRate(@Req() req: Request, @Body() dto: TaxRateDto) {
-    const userIdOrError = this.userService.getId(getToken(req));
-
-    // Проверяем, является ли userIdOrError числом
-    if (userIdOrError instanceof HttpException) {
-      throw userIdOrError;
-    }
-
-    const userId = userIdOrError as number;
-    return await this.userService.updateTaxRate(userId, dto.rate);
-  }
-
-  @Get('me/tax-rate')
-  async getTaxRate(@Req() req: Request) {
-    const userIdOrError = this.userService.getId(getToken(req));
-
-    // Проверяем, является ли userIdOrError числом
-    if (userIdOrError instanceof HttpException) {
-      throw userIdOrError;
-    }
-
-    const userId = userIdOrError as number;
-    return await this.userService.getTaxRate(userId);
   }
 }

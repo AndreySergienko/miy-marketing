@@ -9,8 +9,7 @@ import { configSecretToken } from './auth.constants';
 import { TokenModule } from '../token/token.module';
 import { TokenService } from '../token/token.service';
 import { NodemailerModule } from '../nodemailer/nodemailer.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { TaxRate } from 'src/user/models/user-taxrate.model';
+import { TaxRateModule } from 'src/tax-rate/tax-rate.module';
 
 @Module({
   controllers: [AuthController],
@@ -23,7 +22,7 @@ import { TaxRate } from 'src/user/models/user-taxrate.model';
     TokenModule,
     NodemailerModule,
     JwtModule.register(configSecretToken),
-    SequelizeModule.forFeature([TaxRate]),
+    TaxRateModule,
   ],
 })
 export class AuthModule {}

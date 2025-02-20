@@ -27,7 +27,7 @@ import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserDocument } from './models/user-document.model';
-import { TaxRate } from './models/user-taxrate.model';
+import { TaxRate } from 'src/tax-rate/tax-rate.model';
 
 @Injectable()
 export class UserService {
@@ -41,7 +41,6 @@ export class UserService {
     private jwtService: JwtService,
     private nodemailerService: NodemailerService,
     private permissionService: PermissionService,
-    @InjectModel(TaxRate) private taxRateRepository: typeof TaxRate,
   ) {}
 
   public async findByInn(inn: string) {
@@ -361,19 +360,21 @@ export class UserService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    let taxRate = await this.taxRateRepository.findOne({ where: { userId } });
-    if (taxRate) {
-      taxRate.rate = rate;
-      await taxRate.save();
-    } else {
-      taxRate = await this.taxRateRepository.create({ userId, rate });
+    // Ищем налоговый режим по значению
+    const taxRate = await TaxRate.findOne({ where: { value: rate } });
+
+    // Если налоговый режим не найден, создаем его
+    if (!taxRate) {
+      throw new HttpException('Tax rate not found', HttpStatus.NOT_FOUND);
     }
+
+    // Привязываем налоговый режим к пользователю
+    await user.$set('taxRate', taxRate.id);
 
     return taxRate;
   }
 
-  public async getTaxRate(userId: number) {
-    const taxRate = await this.taxRateRepository.findOne({ where: { userId } });
-    return taxRate;
+  public async getTaxRateById(taxRateId: number) {
+    return await TaxRate.findOne({ where: { id: taxRateId } });
   }
 }

@@ -36,7 +36,8 @@ import { Advertisement } from './advertisement/models/advertisement.model';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
 import { ChannelDate } from './channels/models/channel-dates.model';
-import { TaxRate } from './user/models/user-taxrate.model';
+import { TaxRate } from './tax-rate/tax-rate.model';
+import { TaxRateModule } from './tax-rate/tax-rate.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { TaxRate } from './user/models/user-taxrate.model';
     PaymentsModule,
     QueuesModule,
     AdvertisementModule,
+    TaxRateModule,
   ],
 
   controllers: [],
