@@ -147,4 +147,5 @@ export interface ISendCashAdminChannelAfterSuccessPostMessage {
   nameBank: string;
   paymentAccount: string;
   correspondentAccount: string;
+  taxRate: string;
 }

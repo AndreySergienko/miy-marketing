@@ -8,8 +8,13 @@ export class TaxRateService {
     @InjectModel(TaxRate) private taxRateRepository: typeof TaxRate,
   ) {}
 
-  // Метод для получения всех налоговых режимов
+  // Получить все налоговых режимов
   public async getAllTaxRates(): Promise<TaxRate[]> {
     return await this.taxRateRepository.findAll();
+  }
+
+  // Получить налоговый режим
+  public async getTaxRateById(taxRateId: number) {
+    return await this.taxRateRepository.findOne({ where: { id: taxRateId } });
   }
 }

@@ -354,26 +354,6 @@ export class UserService {
     };
   }
 
-  public async updateTaxRate(userId: number, rate: string) {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    // Ищем налоговый режим по значению
-    const taxRate = await TaxRate.findOne({ where: { value: rate } });
-
-    // Если налоговый режим не найден, создаем его
-    if (!taxRate) {
-      throw new HttpException('Tax rate not found', HttpStatus.NOT_FOUND);
-    }
-
-    // Привязываем налоговый режим к пользователю
-    await user.$set('taxRate', taxRate.id);
-
-    return taxRate;
-  }
-
   public async getTaxRateById(taxRateId: number) {
     return await TaxRate.findOne({ where: { id: taxRateId } });
   }

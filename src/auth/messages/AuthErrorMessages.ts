@@ -36,4 +36,8 @@ export default class AuthErrorMessages {
   static get MAIL_IS_NOT_VALIDATE() {
     return createError('Почта не подтверждена');
   }
+
+  static get TAX_RATE_IS_NOT_FOUND() {
+    return createError('Налоговый режим не найден');
+  }
 }

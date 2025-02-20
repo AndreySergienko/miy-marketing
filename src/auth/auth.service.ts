@@ -10,6 +10,7 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import PermissionStore from '../permission/PermissionStore';
 import AuthErrorMessages from './messages/AuthErrorMessages';
 import AuthSuccessMessages from './messages/AuthSuccessMessages';
+import { TaxRateService } from 'src/tax-rate/tax-rate.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private permissionService: PermissionService,
     private tokenService: TokenService,
     private nodemailerService: NodemailerService,
+    private taxRateService: TaxRateService,
   ) {}
 
   /** Второй этап регистрации **/
@@ -66,11 +68,11 @@ export class AuthService {
     const hashPassword = await bcrypt.hash(password, 7);
 
     // Находим или создаем налоговый режим
-    const taxRateRecord = await this.userService.getTaxRateById(taxRateId);
+    const taxRateRecord = await this.taxRateService.getTaxRateById(taxRateId);
     if (!taxRateRecord) {
       throw new HttpException(
-        'Налоговый режим не найден',
-        HttpStatus.NOT_FOUND,
+        AuthErrorMessages.TAX_RATE_IS_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
       );
     }
 

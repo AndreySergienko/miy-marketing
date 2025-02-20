@@ -95,6 +95,7 @@ export class QueuesService {
                 price: String(payment.price),
                 bik,
                 correspondentAccount,
+                taxRate: user?.taxRate?.value,
               }),
             );
           }
