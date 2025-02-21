@@ -10,6 +10,7 @@ import { NodemailerService } from '../nodemailer/nodemailer.service';
 import PermissionStore from '../permission/PermissionStore';
 import AuthErrorMessages from './messages/AuthErrorMessages';
 import AuthSuccessMessages from './messages/AuthSuccessMessages';
+import { TaxRateService } from 'src/tax-rate/tax-rate.service';
 
 @Injectable()
 export class AuthService {
@@ -18,11 +19,12 @@ export class AuthService {
     private permissionService: PermissionService,
     private tokenService: TokenService,
     private nodemailerService: NodemailerService,
+    private taxRateService: TaxRateService,
   ) {}
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn } = registrationDto;
+    const { uniqueBotId, password, email, inn, taxRateId } = registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
@@ -70,6 +72,7 @@ export class AuthService {
       password: hashPassword,
       chatId: userBot.chatId,
       isValidEmail: false,
+      taxRateId,
     });
 
     return {

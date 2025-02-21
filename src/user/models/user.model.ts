@@ -6,6 +6,8 @@ import {
   BelongsToMany,
   HasOne,
   HasMany,
+  BelongsTo,
+  ForeignKey,
 } from 'sequelize-typescript';
 import { UserModelAttrs } from '../types/user.types';
 import { Permission } from '../../permission/models/persmissions.model';
@@ -16,6 +18,7 @@ import { UserChannel } from '../../channels/models/user-channel.model';
 import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
 import { UserBank } from '../../payments/models/user-bank.model';
 import { UserDocument } from './user-document.model';
+import { TaxRate } from 'src/tax-rate/tax-rate.model';
 
 @Table({ tableName: 'user' })
 export class User extends Model<User, UserModelAttrs> {
@@ -72,6 +75,13 @@ export class User extends Model<User, UserModelAttrs> {
 
   @Column({ type: DataType.STRING, allowNull: true })
   lastActiveBot: string;
+
+  @BelongsTo(() => TaxRate)
+  taxRate: TaxRate;
+
+  @ForeignKey(() => TaxRate)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  taxRateId: number;
 
   // Уведомлять ли админа тг канала перед публикацией
   @Column({ type: DataType.BOOLEAN, defaultValue: false })

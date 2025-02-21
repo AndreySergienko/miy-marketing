@@ -16,6 +16,7 @@ import { Advertisement } from 'src/advertisement/models/advertisement.model';
 import { ChannelsService } from 'src/channels/channels.service';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 import { Payment } from '../payments/models/payment.model';
+import { TaxRateService } from 'src/tax-rate/tax-rate.service';
 
 @Injectable()
 export class QueuesService {
@@ -27,6 +28,7 @@ export class QueuesService {
     private userService: UserService,
     private botEvent: BotEvent,
     private channelsService: ChannelsService,
+    private taxRateService: TaxRateService,
   ) {}
 
   private async sendNotifications(
@@ -79,6 +81,9 @@ export class QueuesService {
           where: { advertisementId: slot.id },
         });
         const user = await this.userService.findByChannelId(slot.channel.id);
+        const taxRate = await this.taxRateService.getTaxRateById(
+          user.taxRateId,
+        );
         await global.bot.deleteMessage(chatId, slot.messageBotId);
 
         if (user) {
@@ -95,6 +100,7 @@ export class QueuesService {
                 price: String(payment.price),
                 bik,
                 correspondentAccount,
+                taxRate: taxRate.value,
               }),
             );
           }

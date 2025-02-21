@@ -16,6 +16,7 @@ import {
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
 import { IsWorkTypeValidate } from 'src/modules/extensions/validator/workType';
+import { IsTaxRateRequired } from 'src/modules/extensions/validator/taxRateValidator';
 
 export enum WORK_TYPES {
   INDIVIDUAL = 'individual',
@@ -83,6 +84,9 @@ export class RegistrationDto {
 
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
+
+  @IsTaxRateRequired()
+  public readonly taxRateId?: number;
 }
 
 export class ConfirmEmailDto {

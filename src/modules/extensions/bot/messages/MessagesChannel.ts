@@ -282,6 +282,7 @@ ON-Developer
     paymentAccount,
     correspondentAccount,
     price,
+    taxRate,
   }: ISendCashAdminChannelAfterSuccessPostMessage) {
     return `Рекламная интеграция была успешна совершена.
 Переведите администратору каналу средства:
@@ -292,6 +293,7 @@ ON-Developer
 Бик: ${bik}
 Расчётный счёт: ${paymentAccount}
 Корреспондентский счёт: ${correspondentAccount}
-Сумма: ${price}`;
+Сумма: ${price}
+Налог: ${taxRate}`;
   }
 }

@@ -36,6 +36,8 @@ import { Advertisement } from './advertisement/models/advertisement.model';
 import { AdvertisementModule } from './advertisement/advertisement.module';
 import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
 import { ChannelDate } from './channels/models/channel-dates.model';
+import { TaxRate } from './tax-rate/tax-rate.model';
+import { TaxRateModule } from './tax-rate/tax-rate.module';
 
 @Module({
   imports: [
@@ -63,6 +65,7 @@ import { ChannelDate } from './channels/models/channel-dates.model';
         UserDocument,
         Advertisement,
         AdvertisementPayment,
+        TaxRate,
       ]),
     ),
     ScheduleModule.forRoot(),
@@ -79,6 +82,7 @@ import { ChannelDate } from './channels/models/channel-dates.model';
     PaymentsModule,
     QueuesModule,
     AdvertisementModule,
+    TaxRateModule,
   ],
 
   controllers: [],

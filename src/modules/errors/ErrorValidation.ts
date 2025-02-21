@@ -23,6 +23,10 @@ export default class ErrorValidation {
     return createError('Некорректный тип лица (ИП или самозанятый)');
   }
 
+  static IS_TAX_RATE_REQUIRED() {
+    return createError('Налоговый режим обязателен для ИП');
+  }
+
   static IS_BANK() {
     return createError('Некорректный формат данных о банке');
   }

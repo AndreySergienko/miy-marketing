@@ -27,6 +27,7 @@ import UserErrorMessages from './messages/UserErrorMessages';
 import UserSuccessMessages from './messages/UserSuccessMessages';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserDocument } from './models/user-document.model';
+import { TaxRate } from 'src/tax-rate/tax-rate.model';
 
 @Injectable()
 export class UserService {
@@ -337,6 +338,7 @@ export class UserService {
     permissions,
     bank,
     document,
+    taxRate,
   }: User): GetUserDto {
     return {
       email,
@@ -348,6 +350,11 @@ export class UserService {
       permissions: permissions.map((perm) => perm.value),
       bank,
       document,
+      taxRate,
     };
+  }
+
+  public async getTaxRateById(taxRateId: number) {
+    return await TaxRate.findOne({ where: { id: taxRateId } });
   }
 }
