@@ -73,25 +73,12 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 7);
 
-    // Находим налоговый режим
-    let taxRateRecord = null;
-    if (workType === WORK_TYPES.INDIVIDUAL) {
-      // Находим налоговый режим только для ИП
-      taxRateRecord = await this.taxRateService.getTaxRateById(taxRateId);
-      if (!taxRateRecord) {
-        throw new HttpException(
-          AuthErrorMessages.TAX_RATE_IS_NOT_FOUND,
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
-
     await this.userService.updateAllFilledUserById({
       ...registrationDto,
       password: hashPassword,
       chatId: userBot.chatId,
       isValidEmail: false,
-      taxRateId: taxRateRecord?.id,
+      taxRateId,
     });
 
     return {

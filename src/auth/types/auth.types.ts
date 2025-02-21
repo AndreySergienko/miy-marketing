@@ -5,7 +5,6 @@ import {
   IsString,
   MaxLength,
   MinLength,
-  ValidateIf,
 } from 'class-validator';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
 import {
@@ -17,6 +16,7 @@ import {
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
 import { IsWorkTypeValidate } from 'src/modules/extensions/validator/workType';
+import { IsTaxRateRequired } from 'src/modules/extensions/validator/taxRateValidator';
 
 export enum WORK_TYPES {
   INDIVIDUAL = 'individual',
@@ -85,8 +85,7 @@ export class RegistrationDto {
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
-  @ValidateIf((o) => o.workType !== WORK_TYPES.SELF_EMPLOYED)
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsTaxRateRequired()
   public readonly taxRateId?: number;
 }
 
