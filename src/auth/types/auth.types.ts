@@ -5,6 +5,7 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
 import {
@@ -84,8 +85,9 @@ export class RegistrationDto {
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
+  @ValidateIf((o) => o.workType !== WORK_TYPES.SELF_EMPLOYED)
   @IsNumber({}, ErrorValidation.IS_NUMBER())
-  public readonly taxRateId: number;
+  public readonly taxRateId?: number;
 }
 
 export class ConfirmEmailDto {

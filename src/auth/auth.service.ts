@@ -1,5 +1,10 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
+import {
+  ConfirmEmailDto,
+  LoginDto,
+  RegistrationDto,
+  WORK_TYPES,
+} from './types/auth.types';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -24,7 +29,8 @@ export class AuthService {
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn, taxRateId } = registrationDto;
+    const { uniqueBotId, password, email, inn, taxRateId, workType } =
+      registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
@@ -67,13 +73,17 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 7);
 
-    // Находим или создаем налоговый режим
-    const taxRateRecord = await this.taxRateService.getTaxRateById(taxRateId);
-    if (!taxRateRecord) {
-      throw new HttpException(
-        AuthErrorMessages.TAX_RATE_IS_NOT_FOUND,
-        HttpStatus.BAD_REQUEST,
-      );
+    // Находим налоговый режим
+    let taxRateRecord = null;
+    if (workType === WORK_TYPES.INDIVIDUAL) {
+      // Находим налоговый режим только для ИП
+      taxRateRecord = await this.taxRateService.getTaxRateById(taxRateId);
+      if (!taxRateRecord) {
+        throw new HttpException(
+          AuthErrorMessages.TAX_RATE_IS_NOT_FOUND,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
     }
 
     await this.userService.updateAllFilledUserById({
@@ -81,7 +91,7 @@ export class AuthService {
       password: hashPassword,
       chatId: userBot.chatId,
       isValidEmail: false,
-      taxRateId: taxRateRecord.id,
+      taxRateId: taxRateRecord?.id,
     });
 
     return {
