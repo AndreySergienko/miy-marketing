@@ -1,10 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import {
-  ConfirmEmailDto,
-  LoginDto,
-  RegistrationDto,
-  WORK_TYPES,
-} from './types/auth.types';
+import { ConfirmEmailDto, LoginDto, RegistrationDto } from './types/auth.types';
 import { UserService } from '../user/user.service';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
@@ -29,8 +24,7 @@ export class AuthService {
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn, taxRateId, workType } =
-      registrationDto;
+    const { uniqueBotId, password, email, inn, taxRateId } = registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
