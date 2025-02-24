@@ -646,7 +646,6 @@ export class ChannelsService {
     const categories = Array.isArray(categoriesId) ? categoriesId[0] : 1;
 
     await channel.$set('status', status);
-    await channel.$set('categories', String(categoriesId));
     await channel.$set('categories', String(categories));
 
     channel.conditionCheck = conditionCheck || channel.conditionCheck;
