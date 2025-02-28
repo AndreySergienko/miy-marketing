@@ -11,7 +11,7 @@ import ErrorValidation from 'src/modules/errors/ErrorValidation';
 export class IsTaxRateRequiredValidator
   implements ValidatorConstraintInterface
 {
-  validate(taxRateId: any, args: ValidationArguments) {
+  validate(taxRate: any, args: ValidationArguments) {
     const workType = (args.object as any).workType;
 
     // Если workType - SELF_EMPLOYED
@@ -20,7 +20,7 @@ export class IsTaxRateRequiredValidator
     }
 
     // Если workType - INDIVIDUAL
-    return typeof taxRateId === 'number';
+    return typeof taxRate === 'string' && taxRate.trim().length > 0;
   }
 
   defaultMessage() {
