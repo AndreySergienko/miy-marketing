@@ -289,11 +289,11 @@ export class BotRequestService {
     // const owner = await this.getChannelOwner(slot);
     const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner.isNotification ? owner.chatId : admins[0];
+    // const id = owner.isNotification ? owner.chatId : admins[0];
 
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
-        id,
+        admins[0],
         MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
         useSendMessage({
           remove_keyboard: true,
