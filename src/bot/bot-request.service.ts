@@ -431,14 +431,6 @@ Erid: ${text}`;
       //   }),
       // );
     }
-
-    await global.bot.sendMessage(
-      from.id,
-      MessagesChannel.SUCCESS_MESSAGE_UPDATE,
-      useSendMessage({
-        remove_keyboard: true,
-      }),
-    );
   }
 
   public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({ from }) {
