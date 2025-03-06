@@ -86,7 +86,7 @@ export class RegistrationDto {
   public readonly isNotification: boolean;
 
   @IsTaxRateRequired()
-  public readonly taxRateId?: number;
+  public readonly taxRate: string;
 }
 
 export class ConfirmEmailDto {

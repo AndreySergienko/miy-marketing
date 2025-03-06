@@ -1,5 +1,4 @@
-import { Table, Model, Column, DataType, HasMany } from 'sequelize-typescript';
-import { User } from '../user/models/user.model';
+import { Table, Model, Column, DataType } from 'sequelize-typescript';
 
 @Table({ tableName: 'tax_rate' })
 export class TaxRate extends Model {
@@ -12,7 +11,4 @@ export class TaxRate extends Model {
 
   @Column({ type: DataType.STRING, allowNull: false })
   value: string;
-
-  @HasMany(() => User)
-  users: User[];
 }

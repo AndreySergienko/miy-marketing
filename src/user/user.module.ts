@@ -14,7 +14,6 @@ import { Channel } from '../channels/models/channels.model';
 import { UserChannel } from '../channels/models/user-channel.model';
 import { UserBank } from '../payments/models/user-bank.model';
 import { UserDocument } from './models/user-document.model';
-import { TaxRateModule } from 'src/tax-rate/tax-rate.module';
 
 @Module({
   controllers: [UserController],
@@ -34,7 +33,6 @@ import { TaxRateModule } from 'src/tax-rate/tax-rate.module';
     PermissionModule,
     JwtModule,
     NodemailerModule,
-    TaxRateModule,
   ],
 })
 export class UserModule {}
