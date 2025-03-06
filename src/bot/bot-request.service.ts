@@ -355,20 +355,18 @@ export class BotRequestService {
       );
     }
 
-    if (owner.isNotification) {
-      await this.userService.updateLastBotActive(
-        owner.chatId,
-        `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
-      );
+    await this.userService.updateLastBotActive(
+      admins[0],
+      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+    );
 
-      await global.bot.sendMessage(
-        owner.chatId,
-        MessagesChannel.INPUT_TO_FIELD_ERID,
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
-    }
+    await global.bot.sendMessage(
+      admins[0],
+      MessagesChannel.INPUT_TO_FIELD_ERID,
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
   }
 
   public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
@@ -434,15 +432,13 @@ Erid: ${text}`;
       // );
     }
 
-    if (owner.isNotification) {
-      await global.bot.sendMessage(
-        owner.chatId,
-        MessagesChannel.SUCCESS_MESSAGE_UPDATE,
-        useSendMessage({
-          remove_keyboard: true,
-        }),
-      );
-    }
+    await global.bot.sendMessage(
+      from.id,
+      MessagesChannel.SUCCESS_MESSAGE_UPDATE,
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
   }
 
   public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({ from }) {
