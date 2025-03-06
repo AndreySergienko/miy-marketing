@@ -354,6 +354,21 @@ export class BotRequestService {
         }),
       );
     }
+
+    if (owner.isNotification) {
+      await this.userService.updateLastBotActive(
+        owner.chatId,
+        `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+      );
+
+      await global.bot.sendMessage(
+        owner.chatId,
+        MessagesChannel.INPUT_TO_FIELD_ERID,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
   }
 
   public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
@@ -417,6 +432,16 @@ Erid: ${text}`;
       //     inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
       //   }),
       // );
+    }
+
+    if (owner.isNotification) {
+      await global.bot.sendMessage(
+        owner.chatId,
+        MessagesChannel.SUCCESS_MESSAGE_UPDATE,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
     }
   }
 
