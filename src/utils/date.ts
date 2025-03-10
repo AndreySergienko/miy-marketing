@@ -86,10 +86,11 @@ export function normalizeTime(time: string): string {
   return `${hours.padStart(2, '0')}:${minutes.padEnd(2, '0')}`;
 }
 
-export function timeToMinutes(time: string): number {
-  if (!time) return 0;
+export function timeToMinutes(time: string): string {
+  if (!time) return '0';
   const [hours, minutes] = time.split('.').map(Number);
-  return hours * 60 + minutes; // Перевод в минуты
+  const totalMinutes = hours * 60 + minutes;
+  return totalMinutes.toString();
 }
 
 export function convertMinutesToHoursAndMinutes(minutes: number) {
