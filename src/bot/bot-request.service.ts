@@ -289,11 +289,11 @@ export class BotRequestService {
     // const owner = await this.getChannelOwner(slot);
     const admins = await this.userService.getAllAdminsChatIds();
 
-    const id = owner.isNotification ? owner.chatId : admins[0];
+    // const id = owner.isNotification ? owner.chatId : admins[0];
 
     if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
-        id,
+        admins[0],
         MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
         useSendMessage({
           remove_keyboard: true,
@@ -354,6 +354,19 @@ export class BotRequestService {
         }),
       );
     }
+
+    await this.userService.updateLastBotActive(
+      admins[0],
+      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+    );
+
+    await global.bot.sendMessage(
+      admins[0],
+      MessagesChannel.INPUT_TO_FIELD_ERID,
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
   }
 
   public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
