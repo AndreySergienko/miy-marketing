@@ -6,13 +6,14 @@ import { JwtService } from '@nestjs/jwt';
 import { INestApplication } from '@nestjs/common';
 import { UserService } from './user/user.service';
 import * as cookieParser from 'cookie-parser';
-import { AuthTokenGuard } from './auth/guards/auth-token.guard';
+import * as process from 'node:process';
+import { join } from 'path';
+import * as express from 'express';
 
 function connectGuards(app: INestApplication) {
   const reflector = app.get(Reflector);
   const jwt = app.get(JwtService);
   const user = app.get(UserService);
-  app.useGlobalGuards(new AuthTokenGuard(reflector));
   app.useGlobalGuards(new PermissionGuard(jwt, reflector, user));
 }
 
@@ -22,7 +23,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   connectGuards(app);
   app.enableCors({
-    origin: '*',
+    origin: process.env.FRONT_URL || '*',
+    // origin: '*',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: [
@@ -35,7 +37,10 @@ async function bootstrap() {
     exposedHeaders: ['Authorization'],
   });
   app.use(cookieParser());
-  await app.listen(process.env.PORT || 5000);
+  app.use('/static', express.static(join(__dirname, '..', 'public')));
+  const port = process.env.PORT || 5000;
+  console.log('Server has been start on port:', port);
+  await app.listen(port);
 }
 
 bootstrap();

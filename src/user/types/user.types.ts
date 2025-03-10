@@ -9,13 +9,23 @@ import {
 } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { IsInnValidate } from '../../modules/extensions/validator/innValidator';
-import { CARD_NUMBER, MIN_LENGTH_NAME } from '../../constants/validate.value';
-import { CardModelAttrs } from '../../payments/types/types';
+import {
+  MAX_LENGTH_PASSWORD,
+  MIN_LENGTH_NAME,
+  MIN_LENGTH_PASSWORD,
+} from '../../constants/validate.value';
+import { UserBankModelAttrs } from '../../payments/types/types';
+import { IsUserBankValidate } from '../../modules/extensions/validator/userBankValidator';
+import { IsPasswordValidate } from '../../modules/extensions/validator/passwordValidator';
+import { WORK_TYPES } from '../../auth/types/auth.types';
 
 export interface UserModelAttrs {
-  fio?: string;
+  name: string;
+  surname: string;
+  lastname: string;
+  workType?: string;
   password?: string;
-  inn?: number;
+  inn?: string;
   email?: string;
   uniqueBotId: string;
   chatId: number;
@@ -24,6 +34,18 @@ export interface UserModelAttrs {
   banReason?: string;
   isNotification?: boolean;
   lastUpdateEmail?: number;
+  taxRate?: string;
+}
+
+export enum UserDocumentVerificationStatus {
+  PROCESS = 'process',
+  REJECT = 'reject',
+  ACCEPT = 'accept',
+}
+
+export interface UserDocumentModelAttrs {
+  name: string;
+  verificationStatus?: UserDocumentVerificationStatus;
 }
 
 export class UserRegistrationBotDto {
@@ -33,34 +55,44 @@ export class UserRegistrationBotDto {
 
 export class UserCreateDto implements UserModelAttrs {
   chatId: number;
+  workType: string;
   email: string;
-  inn: number;
-  fio: string;
+  inn: string;
+  name: string;
+  surname: string;
+  lastname: string;
   password: string;
   uniqueBotId: string;
   isValidEmail: boolean;
   lastUpdateEmail?: number;
+  taxRate: string;
 }
 
 export class UpdateUserDto {
   @IsEmail({}, ErrorValidation.IS_EMAIL())
   public readonly email: string;
 
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @IsString(ErrorValidation.IS_STRING())
   @IsInnValidate('inn', ErrorValidation.IS_INN())
-  public readonly inn: number;
+  public readonly inn: string;
 
   @IsString(ErrorValidation.IS_STRING())
   @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
-  public readonly fio: string;
+  public readonly name: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly surname: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(MIN_LENGTH_NAME, ErrorValidation.MIN_LENGTH(MIN_LENGTH_NAME))
+  public readonly lastname: string;
 
   @IsBoolean(ErrorValidation.IS_BOOLEAN())
   public readonly isNotification: boolean;
 
-  @IsString(ErrorValidation.IS_STRING())
-  @MinLength(CARD_NUMBER, ErrorValidation.MIN_LENGTH(CARD_NUMBER))
-  @MaxLength(CARD_NUMBER, ErrorValidation.MAX_LENGTH(CARD_NUMBER))
-  public readonly cardNumber: string;
+  @IsUserBankValidate('bank', ErrorValidation.IS_BANK())
+  public readonly bank: UserBankModelAttrs;
 }
 
 export class BanUserDto {
@@ -77,6 +109,32 @@ export class UpdateEmailDto {
   email: string;
 }
 
+export class UpdatePasswordDto {
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('password', ErrorValidation.IS_PASSWORD())
+  public readonly password: string;
+
+  @IsString(ErrorValidation.IS_STRING())
+  @MinLength(
+    MIN_LENGTH_PASSWORD,
+    ErrorValidation.MIN_LENGTH(MIN_LENGTH_PASSWORD),
+  )
+  @MaxLength(
+    MAX_LENGTH_PASSWORD,
+    ErrorValidation.MAX_LENGTH(MAX_LENGTH_PASSWORD),
+  )
+  @IsPasswordValidate('newPassword', ErrorValidation.IS_PASSWORD())
+  public readonly newPassword: string;
+}
+
 export class PardonUserDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   userId: number;
@@ -84,8 +142,22 @@ export class PardonUserDto {
 
 export class GetUserDto {
   email: string;
-  inn: number;
-  fio: string;
+  inn: string;
+  name: string;
+  surname: string;
+  lastname: string;
+  isNotification: boolean;
   permissions: string[];
-  cardNumber?: string;
+  bank?: UserBankModelAttrs;
+  document?: UserDocumentModelAttrs;
+  taxRate: string;
+}
+
+export class UploadDocumentDto {
+  workType: WORK_TYPES;
+}
+
+export class TaxRateDto {
+  @IsString()
+  rate: string;
 }

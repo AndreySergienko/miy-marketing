@@ -5,12 +5,13 @@ import {
   Model,
   ForeignKey,
   BelongsTo,
+  HasMany,
 } from 'sequelize-typescript';
-import { Channel } from '../../channels/models/channels.model';
 import type { SlotsModelAttrs } from '../types/types';
-import { Status } from '../../status/models/status.model';
-import { PublisherMessages } from '../../publisher-messages/models/publisher-messages.model';
-import { Payment } from '../../payments/models/payment.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelDate } from 'src/channels/models/channel-dates.model';
+import { FormatChannel } from 'src/channels/models/format-channel.model';
+import { Channel } from '../../channels/models/channels.model';
 
 @Table({ tableName: 'slots', createdAt: false, updatedAt: false })
 export class Slots extends Model<Slots, SlotsModelAttrs> {
@@ -25,6 +26,30 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @Column({ type: DataType.BIGINT })
   timestamp: number;
 
+  // Цена
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  price: number;
+
+  @HasMany(() => Advertisement)
+  advertisements: Advertisement[];
+
+  @Column({
+    type: DataType.STRING,
+  })
+  minutes: string;
+
+  // Интервал
+  @ForeignKey(() => FormatChannel)
+  @Column({ type: DataType.INTEGER })
+  formatChannelId: number;
+
+  @BelongsTo(() => FormatChannel)
+  formatChannel: FormatChannel;
+
+  @ForeignKey(() => ChannelDate)
+  @Column({ type: DataType.BIGINT })
+  channelDateId: number;
+
   @ForeignKey(() => Channel)
   @Column({ type: DataType.BIGINT })
   channelId: number;
@@ -32,25 +57,6 @@ export class Slots extends Model<Slots, SlotsModelAttrs> {
   @BelongsTo(() => Channel)
   channel: Channel;
 
-  @ForeignKey(() => Status)
-  @Column({ type: DataType.INTEGER })
-  statusId: number;
-
-  @BelongsTo(() => Status)
-  status: Status;
-
-  @ForeignKey(() => PublisherMessages)
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  messageId: number;
-
-  @BelongsTo(() => PublisherMessages)
-  message: PublisherMessages;
-
-  @ForeignKey(() => Payment)
-  @Column({ type: DataType.INTEGER })
-  paymentId: number;
-
-  // TODO много ко многим, т.к платёж могут повторить
-  @BelongsTo(() => Payment)
-  payment: Payment;
+  @BelongsTo(() => ChannelDate)
+  channelDate: ChannelDate;
 }

@@ -35,6 +35,46 @@ export class CallbackDataChannel {
     return 'cancelReasonMessage';
   }
 
+  static get CHANGE_VALIDATE_MESSAGE_HANDLER() {
+    return 'changeValidateMessage';
+  }
+
+  static get AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER() {
+    return 'afterChangeValidateMessage';
+  }
+
+  static get SET_ERID_HANDLER() {
+    return 'setErid';
+  }
+
+  static get AFTER_SET_ERID_HANDLER() {
+    return 'aferSetErid';
+  }
+
+  static get ACCEPT_ERID_MESSAGE_HANDLER() {
+    return 'acceptErid';
+  }
+
+  static ACCEPT_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static SET_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.SET_ERID_HANDLER}:${slotId}`;
+  }
+
+  static AFTER_SET_ERID_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.AFTER_SET_ERID_HANDLER}:${slotId}`;
+  }
+
+  static AFTER_CHANGE_VALIDATE_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER}:${slotId}`;
+  }
+
+  static CHANGE_VALIDATE_MESSAGE(slotId: number) {
+    return `${CallbackDataChannel.CHANGE_VALIDATE_MESSAGE_HANDLER}:${slotId}`;
+  }
+
   static ACCEPT_MESSAGE(slotId: number) {
     return `${CallbackDataChannel.ACCEPT_MESSAGE_HANDLER}:${slotId}`;
   }

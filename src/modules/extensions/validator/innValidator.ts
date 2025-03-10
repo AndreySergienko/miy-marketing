@@ -15,10 +15,9 @@ export function IsInnValidate(
       constraints: [property],
       options: validationOptions,
       validator: {
-        validate(value?: number) {
+        validate(value?: string) {
           if (!value) return false;
-          if (typeof value !== 'number') return false;
-          return validateINN(String(value));
+          return validateINN(value);
         },
       },
     });

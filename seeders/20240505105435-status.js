@@ -32,6 +32,10 @@ module.exports = {
         value: 'PAID',
         description: 'Оплачено',
       },
+      {
+        value: 'MODERATE',
+        description: 'Проверка сообщения',
+      },
     ]);
   },
 

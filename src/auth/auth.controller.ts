@@ -39,13 +39,8 @@ export class AuthController {
 
   @Public()
   @Post('login')
-  async login(@Body() loginDto: LoginDto, @Res() response: Response) {
-    const { token } = await this.authService.login(loginDto);
-    response.cookie(AUTH_TOKEN, token, AUTH_COOKIE_CONFIG());
-    response.send({
-      token,
-    });
-    response.status(HttpStatus.OK);
+  async login(@Body() loginDto: LoginDto) {
+    return await this.authService.login(loginDto);
   }
 
   @Public()

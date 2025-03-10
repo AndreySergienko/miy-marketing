@@ -4,7 +4,6 @@ import { ConfigModule } from '@nestjs/config';
 import SqlDatabase from './database/samples/SqlDatabase';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BotModule } from './bot/bot.module';
-import { Bot } from './bot/models/bot.model';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/models/user.model';
@@ -29,7 +28,16 @@ import { FormatChannel } from './channels/models/format-channel.model';
 import { PaymentsModule } from './payments/payments.module';
 import { Payment } from './payments/models/payment.model';
 import { UserPayment } from './payments/models/user-payment.model';
-import { Card } from './payments/models/card.model';
+import { UserBank } from './payments/models/user-bank.model';
+import { UserDocument } from './user/models/user-document.model';
+import { ScheduleModule } from '@nestjs/schedule';
+import { QueuesModule } from './queues/queues.module';
+import { Advertisement } from './advertisement/models/advertisement.model';
+import { AdvertisementModule } from './advertisement/advertisement.module';
+import { AdvertisementPayment } from './payments/models/advertisement-payment.model';
+import { ChannelDate } from './channels/models/channel-dates.model';
+import { TaxRate } from './tax-rate/tax-rate.model';
+import { TaxRateModule } from './tax-rate/tax-rate.module';
 
 @Module({
   imports: [
@@ -38,7 +46,6 @@ import { Card } from './payments/models/card.model';
     }),
     SequelizeModule.forRoot(
       new SqlDatabase().connect([
-        Bot,
         User,
         Permission,
         UserPermission,
@@ -47,15 +54,21 @@ import { Card } from './payments/models/card.model';
         Categories,
         CategoriesChannel,
         Channel,
+        ChannelDate,
         UserChannel,
         Slots,
         PublisherMessages,
         FormatChannel,
         Payment,
         UserPayment,
-        Card,
+        UserBank,
+        UserDocument,
+        Advertisement,
+        AdvertisementPayment,
+        TaxRate,
       ]),
     ),
+    ScheduleModule.forRoot(),
     BotModule,
     UserModule,
     AuthModule,
@@ -67,6 +80,9 @@ import { Card } from './payments/models/card.model';
     SlotsModule,
     PublisherMessagesModule,
     PaymentsModule,
+    QueuesModule,
+    AdvertisementModule,
+    TaxRateModule,
   ],
 
   controllers: [],

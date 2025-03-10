@@ -22,7 +22,7 @@ export class AuthService {
 
   /** Второй этап регистрации **/
   public async registration(registrationDto: RegistrationDto) {
-    const { uniqueBotId, password, email, inn } = registrationDto;
+    const { uniqueBotId, password, email, inn, taxRate } = registrationDto;
     /** Свободен ли текущий инн **/
     const userWithDtoInn = await this.userService.findByInn(inn);
     if (userWithDtoInn) {
@@ -42,7 +42,7 @@ export class AuthService {
       }
 
     /** Если прошёл, то проверяем проходил ли он второй этап регистрации прежде, отслеживаем по наличии инн/карты **/
-    if (userBot.inn || userBot.card) {
+    if (userBot.inn || userBot.bank) {
       throw new HttpException(
         AuthErrorMessages.INCORRECT_DATA_FOR_REGISTERED,
         HttpStatus.FORBIDDEN,
@@ -65,11 +65,12 @@ export class AuthService {
 
     const hashPassword = await bcrypt.hash(password, 7);
 
-    await this.userService.updateAllFiledUserById({
+    await this.userService.updateAllFilledUserById({
       ...registrationDto,
       password: hashPassword,
       chatId: userBot.chatId,
       isValidEmail: false,
+      taxRate,
     });
 
     return {
@@ -116,7 +117,7 @@ export class AuthService {
     const userPermissions =
       await this.permissionService.getIdsUserPermissions(user);
     /** Если прежде пользователь регистрировал карту, то выдать полный набро пользовательских прав **/
-    if (user.card?.number) {
+    if (user.bank?.currentAccount) {
       userPermissions.push(...PermissionStore.USER_CHANNELS_PERMISSIONS);
     }
     const packedPermissions = this.permissionService.updatePermissions(
@@ -157,9 +158,13 @@ export class AuthService {
       );
     }
     const passwordEquals = await bcrypt.compare(password, candidate.password);
-    if (!passwordEquals) return;
-
-    return await this.tokenService.generateToken(candidate);
+    if (!passwordEquals)
+      throw new HttpException(
+        AuthErrorMessages.INCORRECT_DATA,
+        HttpStatus.BAD_REQUEST,
+      );
+    const token = await this.tokenService.generateToken(candidate);
+    return token;
   }
 
   public async resetPassword(chatId: number) {
@@ -170,9 +175,11 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const password = await bcrypt.hash(generatePassword(), 7);
+    const password = generatePassword();
+    const hash = await bcrypt.hash(password, 7);
+
     await this.nodemailerService.sendNewPassword(candidate.email, password);
-    await candidate.$set('password', password);
+    await candidate.$set('password', hash);
     return AuthSuccessMessages.SEND_PASSWORD_RESET;
   }
 }

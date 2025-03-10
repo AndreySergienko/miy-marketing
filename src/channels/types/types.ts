@@ -1,12 +1,11 @@
-import { IsArray, IsNumber, IsString, MaxLength } from 'class-validator';
+import { IsArray, IsNumber, IsString, Min } from 'class-validator';
 import ErrorValidation from '../../modules/errors/ErrorValidation';
 import { Channel } from '../models/channels.model';
-import { Slots } from '../../slots/models/slots.model';
-import { IsSlotValidate } from '../../modules/extensions/validator/slotValidator';
-import {
-  MAX_LENGTH_CONDITION,
-  MAX_LENGTH_PASSWORD,
-} from '../../constants/validate.value';
+import { IsChannelDatesValidate } from '../../modules/extensions/validator/channelDateValidator';
+import { UserModelAttrs } from '../../user/types/user.types';
+
+const MIN_PRICE = 100;
+const MAX_PRICE = 1000000;
 
 export interface ChannelsModelAttrs {
   avatar?: string;
@@ -35,34 +34,38 @@ export class CheckConnectChannelDto {
   channelName: string;
 }
 
+export class ChannelDateSlotDto {
+  time: string; // 20:00
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  @Min(MIN_PRICE, ErrorValidation.MIN_PRICE(MIN_PRICE))
+  @Min(MAX_PRICE, ErrorValidation.MAX_PRICE(MAX_PRICE))
+  price: number;
+  formatChannel: number;
+}
+
+export interface ChannelDateDto {
+  date: string; // 18.09.2024
+  slots: ChannelDateSlotDto[];
+}
+
+export interface RemoveChannelDto {
+  channelId: number;
+}
+
 export class RegistrationChannelDto {
+  id?: number;
   @IsString(ErrorValidation.IS_STRING())
   name: string;
-  @IsString(ErrorValidation.IS_STRING())
-  @MaxLength(
-    MAX_LENGTH_CONDITION,
-    ErrorValidation.MAX_LENGTH(MAX_LENGTH_CONDITION),
-  )
-  conditionCheck: string;
-  @IsString(ErrorValidation.IS_STRING())
-  link: string;
-  @IsString(ErrorValidation.IS_STRING())
-  description: string;
+  link?: string;
+  conditionCheck?: string;
   @IsArray(ErrorValidation.IS_ARRAY())
   categoriesId: number[];
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  price: number;
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  day: number;
-  @IsSlotValidate('', ErrorValidation.IS_SLOT_INCORRECT())
-  slots: string[];
-  @IsNumber({}, ErrorValidation.IS_NUMBER())
-  formatChannel: number;
+  @IsChannelDatesValidate('', ErrorValidation.IS_CHANNEL_DATES_INCORRECT())
+  channelDates: ChannelDateDto[];
 }
 
 export interface IValidationChannelDto {
   name: string;
-  day: string;
 }
 
 export interface IValidationCancelChannelDto extends IValidationChannelDto {
@@ -72,6 +75,10 @@ export interface IValidationCancelChannelDto extends IValidationChannelDto {
 export class BuyChannelDto {
   @IsNumber({}, ErrorValidation.IS_NUMBER())
   slotId: number;
+  @IsNumber({}, ErrorValidation.IS_NUMBER())
+  dateIdx: number;
+  // @IsString(ErrorValidation.IS_STRING())
+  // date: string;
 }
 
 export interface IBuyChannelMessage {
@@ -80,23 +87,65 @@ export interface IBuyChannelMessage {
   price: number;
   format: string;
   date: number;
-  slotId: number;
+  channelId: number;
   conditionCheck?: string;
+  link: string;
+  email: string;
+  slotId: number;
 }
 
-export interface ChannelGetAllRequestDto {
-  slots: Slots[];
-  channel: Pick<
+export interface ChannelGetAllRequestDto
+  extends Pick<
     Channel,
     | 'id'
     | 'name'
-    | 'formatChannelId'
     | 'subscribers'
     | 'avatar'
-    | 'day'
-    | 'price'
     | 'link'
     | 'description'
     | 'conditionCheck'
-  >;
+    | 'channelDates'
+    | 'categories'
+  > {}
+
+export interface ICreateSlot {
+  channelDateId: number;
+  timestamp: number;
+  price: number;
+  formatChannel: number;
+  minutes: string;
+}
+
+interface IInfoUserForErid
+  extends Pick<
+    UserModelAttrs,
+    'inn' | 'name' | 'surname' | 'lastname' | 'workType'
+  > {}
+
+export interface ICreateAdvertisementMessage {
+  channelName: string;
+  format: string;
+  message: string;
+  day: string;
+  owner?: IInfoUserForErid;
+  advertiser?: IInfoUserForErid;
+}
+
+export interface IResetCashMessage {
+  price: number;
+  email: string;
+  productId: string;
+  id: number;
+  fio: string;
+}
+
+export interface ISendCashAdminChannelAfterSuccessPostMessage {
+  fio: string;
+  inn: string;
+  bik: string;
+  price: string;
+  nameBank: string;
+  paymentAccount: string;
+  correspondentAccount: string;
+  taxRate: string;
 }

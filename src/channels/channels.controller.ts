@@ -3,6 +3,7 @@ import {
   BuyChannelDto,
   CheckConnectChannelDto,
   RegistrationChannelDto,
+  RemoveChannelDto,
 } from './types/types';
 import { ChannelsService } from './channels.service';
 import type { IQueryFilterAndPagination } from '../database/pagination.types';
@@ -34,6 +35,12 @@ export class ChannelsController {
     return await this.channelService.getAll(query);
   }
 
+  @Public()
+  @Get('format/all')
+  async getFormatAll() {
+    return this.channelService.getFormatAll();
+  }
+
   @Get('my')
   async getMyChannels(
     @Req() req: Request,
@@ -57,6 +64,29 @@ export class ChannelsController {
     const userId = req.user.id;
     if (typeof userId !== 'number') return;
     return await this.channelService.registrationChannel(dto, userId);
+  }
+
+  @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)
+  @Post('update')
+  async updateChannel(
+    @Req() req: Request,
+    @Body() dto: RegistrationChannelDto,
+  ) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error;
+    const userId = req.user.id;
+    if (typeof userId !== 'number') return;
+    return await this.channelService.updateRegistrationChannel(dto, userId);
+  }
+
+  @Perms(PermissionStore.CAN_PUBLIC_CHANNEL)
+  @Post('remove')
+  async remove(@Req() req: Request, @Body() dto: RemoveChannelDto) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error;
+    const userId = req.user.id;
+    if (typeof userId !== 'number') return;
+    return await this.channelService.removeByDeleteButton(dto, userId);
   }
 
   @Perms(PermissionStore.CAN_BUY)

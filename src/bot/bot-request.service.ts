@@ -8,7 +8,6 @@ import { ChannelsService } from '../channels/channels.service';
 import { BotEvent } from './BotEvent';
 import type { IBotRequestDto } from './types/bot.types';
 import TelegramBot, { PreCheckoutQuery } from 'node-telegram-bot-api';
-import { SlotsService } from '../slots/slots.service';
 import { PaymentsService } from '../payments/payments.service';
 import { MessagesChannel } from '../modules/extensions/bot/messages/MessagesChannel';
 import { StatusStore } from '../status/StatusStore';
@@ -17,6 +16,12 @@ import { KeyboardChannel } from '../modules/extensions/bot/keyboard/KeyboardChan
 import { PublisherMessagesService } from '../publisher-messages/publisher-messages.service';
 import BotErrorMessages from './messages/BotErrorMessages';
 import SlotsErrorMessages from '../slots/messages/SlotsErrorMessages';
+import { KeyboardAuthentication } from '../modules/extensions/bot/keyboard/KeyboardAuthentication';
+import { convertUtcDateToFullDate } from '../utils/date';
+import { ICreateAdvertisementMessage } from '../channels/types/types';
+import { AdvertisementService } from 'src/advertisement/advertisement.service';
+import { getFormatChannelDuration } from 'src/channels/utils/getFormatChannelDuration';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
 @Injectable()
 export class BotRequestService {
@@ -24,7 +29,7 @@ export class BotRequestService {
     private authService: AuthService,
     private userService: UserService,
     private channelsService: ChannelsService,
-    private slotService: SlotsService,
+    private advertisementService: AdvertisementService,
     private botEvent: BotEvent,
     private paymentsService: PaymentsService,
     private publisherMessages: PublisherMessagesService,
@@ -77,15 +82,25 @@ export class BotRequestService {
    * **/
   public async checkBuyAdvertising(query: PreCheckoutQuery) {
     let status = false;
-    const slot = await this.slotService.findOneBySlotId(+query.invoice_payload);
-    if (!slot) {
+
+    if (!query.invoice_payload) return;
+
+    const [channelId, timestamp] = query.invoice_payload.split(':');
+
+    const advertisement =
+      await this.advertisementService.findByTimestampAndChannelId(
+        +timestamp,
+        +channelId,
+      );
+
+    if (advertisement) {
       await global.bot.answerPreCheckoutQuery(query.id, status, {
         error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
       });
       return;
     }
 
-    if (slot.statusId === StatusStore.PUBLIC) status = true;
+    status = true;
     await global.bot.answerPreCheckoutQuery(query.id, status, {
       error_message: BotErrorMessages.PRE_CHECKOUT_QUERY,
     });
@@ -102,19 +117,34 @@ export class BotRequestService {
   }: TelegramBot.Message) {
     const user = await this.userService.findUserByChatId(from.id);
     if (!user) return;
-    const slot = await this.slotService.findOneBySlotId(
-      +successful_payment.invoice_payload,
-    );
-    if (!slot) return;
+    if (!successful_payment.invoice_payload) return;
 
-    await this.paymentsService.addPayment({
-      price: successful_payment.total_amount,
-      userId: user.id,
-      slotId: slot.id,
-      statusId: StatusStore.PAID,
+    const [channelId, timestamp, formatChannel, slot] =
+      successful_payment.invoice_payload.split(':');
+
+    const timestampFinish =
+      +timestamp + 1000 * 60 * 60 * getFormatChannelDuration(formatChannel);
+
+    const advertisement = await this.advertisementService.createAdvertisement({
+      timestamp: +timestamp,
+      timestampFinish,
+      channelId: +channelId,
+      slotId: +slot,
     });
 
-    await slot.$set('status', StatusStore.AWAIT);
+    await this.paymentsService.addPayment({
+      price: successful_payment.total_amount / 100,
+      userId: user.id,
+      slotId: advertisement.id,
+      statusId: StatusStore.PAID,
+      productId: successful_payment.telegram_payment_charge_id,
+    });
+
+    await advertisement.update(
+      { publisherId: user.id },
+      { where: { id: advertisement.id } },
+    );
+    await advertisement.$set('status', StatusStore.AWAIT);
 
     await global.bot.sendMessage(
       from.id,
@@ -123,7 +153,7 @@ export class BotRequestService {
 
     await this.userService.updateLastBotActive(
       from.id,
-      `${CallbackDataChannel.VALIDATE_MESSAGE_HANDLER}:${slot.id}`,
+      `${CallbackDataChannel.VALIDATE_MESSAGE_HANDLER}:${advertisement.id}`,
     );
   }
 
@@ -160,14 +190,14 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
     if (!slot)
       throw new HttpException(
         SlotsErrorMessages.SLOT_NOT_FOUND,
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId === StatusStore.AWAIT) return;
+    if (slot.statusId !== StatusStore.AWAIT) return;
 
     await this.userService.updateLastBotActive(
       from.id,
@@ -176,8 +206,15 @@ export class BotRequestService {
 
     await global.bot.sendMessage(
       from.id,
-      MessagesChannel.SEND_MESSAGE_VERIFICATION,
+      MessagesChannel.CHANGE_MESSAGE_VERIFICATION,
     );
+  }
+
+  private async getChannelOwner(slot: Advertisement) {
+    const channel = await this.channelsService.findById(slot.channel.id);
+    if (!channel.users[0].isNotification) return;
+
+    return channel.users[0];
   }
 
   /** User
@@ -187,7 +224,7 @@ export class BotRequestService {
     from,
     id: slotId,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
 
     if (!slot)
       throw new HttpException(
@@ -195,22 +232,47 @@ export class BotRequestService {
         HttpStatus.BAD_REQUEST,
       );
 
-    if (slot.statusId === StatusStore.AWAIT) return;
+    if (slot.statusId === StatusStore.MODERATE_MESSAGE) return;
 
+    await slot.$set('status', StatusStore.MODERATE_MESSAGE);
     await this.userService.clearLastBotActive(from.id);
     await global.bot.sendMessage(
       from.id,
       MessagesChannel.SUCCESS_SEND_TO_MODERATE,
     );
 
-    const ids = await this.userService.getAllAdminsChatIds();
-    await global.bot.sendMessage(
-      ids[0],
-      MessagesChannel.VALIDATE_MESSAGE(slot.message.message),
-      useSendMessage({
-        inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
-      }),
-    );
+    const channel = await this.channelsService.findById(slot.channel.id);
+    const owner = channel.users[0];
+    // const owner = await this.getChannelOwner(slot);
+    const admins = await this.userService.getAllAdminsChatIds();
+
+    const id = owner.isNotification ? owner.chatId : admins[0];
+    const text = slot.message.message;
+    const message = owner.isNotification
+      ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
+      : MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck);
+
+    if (owner.isNotification) {
+      await global.bot.sendMessage(
+        id,
+        message,
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+        }),
+      );
+    } else {
+      for (let i = 0; i < admins.length; i++) {
+        const adminId = admins[i];
+
+        await global.bot.sendMessage(
+          adminId,
+          message,
+          useSendMessage({
+            inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+          }),
+        );
+      }
+    }
   }
 
   /** MODERATOR
@@ -218,50 +280,172 @@ export class BotRequestService {
    * **/
   public async [CallbackDataChannel.ACCEPT_MESSAGE_HANDLER]({
     id: slotId,
-    from,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(slotId);
+    const slot = await this.advertisementService.findOneById(slotId);
     if (!slot) return;
-    const ids = await this.userService.getAllAdminsChatIds();
-    if (slot.statusId !== StatusStore.AWAIT)
+
+    const channel = await this.channelsService.findById(slot.channel.id);
+    const owner = channel.users[0];
+    // const owner = await this.getChannelOwner(slot);
+    const admins = await this.userService.getAllAdminsChatIds();
+
+    // const id = owner.isNotification ? owner.chatId : admins[0];
+
+    if (slot.statusId !== StatusStore.MODERATE_MESSAGE)
       return await global.bot.sendMessage(
-        ids[0],
+        admins[0],
         MessagesChannel.SLOT_IS_NOT_ACTIVE_STATUS(),
         useSendMessage({
           remove_keyboard: true,
         }),
       );
-    await this.slotService.updateSlotStatusById(slotId, StatusStore.PROCESS);
-    const channelId = slot.channel.id;
-    const channel = await this.channelsService.findById(channelId);
+    await this.advertisementService.updateStatusById({
+      slotId,
+      statusId: StatusStore.PROCESS,
+    });
+    const message = await this.publisherMessages.findById(slot.messageId);
+    if (!message) return;
+    const advertiser = await this.userService.findOneById(message.userId);
+    if (!advertiser) return;
+
+    const channelName = channel.name;
+    const day = convertUtcDateToFullDate(slot.timestamp);
+    const format = await this.channelsService.findFormatById(
+      slot.slot.formatChannelId,
+    );
+    const formatName = format.value;
+    const dataMessage: ICreateAdvertisementMessage = {
+      channelName,
+      day,
+      format: formatName,
+      message: message.message,
+    };
+
     /** Сообщение для админа канала **/
-    const isNotificationAdminChannel = channel.users[0].isNotification;
-    if (isNotificationAdminChannel) {
+    await global.bot.sendMessage(
+      owner.chatId,
+      MessagesChannel.ADMIN_CHANNEL_CREATE_ADVERTISEMENT(dataMessage),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+
+    /** Сообщение для рекламодателя **/
+    await global.bot.sendMessage(
+      advertiser.chatId,
+      MessagesChannel.ADVERTISER_CREATE_ADVERTISEMENT(dataMessage),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+
+    /** Сообщение для модератора **/
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
       await global.bot.sendMessage(
-        channel.users[0].chatId,
-        MessagesChannel.MESSAGE_IS_VALIDATION('admin'),
+        adminId,
+        MessagesChannel.MODERATOR_CREATE_ADVERTISEMENT({
+          ...dataMessage,
+          advertiser,
+          owner,
+        }),
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.SET_ERID(slotId),
+        }),
+      );
+    }
+
+    await this.userService.updateLastBotActive(
+      admins[0],
+      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+    );
+
+    await global.bot.sendMessage(
+      admins[0],
+      MessagesChannel.INPUT_TO_FIELD_ERID,
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+  }
+
+  public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
+    await this.userService.updateLastBotActive(
+      from.id,
+      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+    );
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.INPUT_TO_FIELD_ERID,
         useSendMessage({
           remove_keyboard: true,
         }),
       );
     }
+  }
 
-    /** Сообщение для рекламодателя **/
-    await global.bot.sendMessage(
-      from.id,
-      MessagesChannel.MESSAGE_IS_VALIDATION('reclam'),
-      useSendMessage({
-        remove_keyboard: true,
-      }),
+  public async [CallbackDataChannel.AFTER_SET_ERID_HANDLER]({
+    from,
+    id: slotId,
+    text,
+  }) {
+    const advertisement = await this.advertisementService.findOneById(slotId);
+    const channel = await this.channelsService.findById(
+      advertisement.channel.id,
     );
-    /** Сообщение для модератора **/
-    await global.bot.sendMessage(
-      ids[0],
-      MessagesChannel.MESSAGE_IS_VALIDATION('moder'),
-      useSendMessage({
-        remove_keyboard: true,
-      }),
+    const owner = channel.users[0];
+
+    if (!advertisement) return;
+    const message = await this.publisherMessages.findById(
+      advertisement.messageId,
     );
+    if (!message) return;
+    await this.publisherMessages.updateErid(message.id, text);
+    const updateMessage = `${message.message}
+
+ФИО: ${owner.name} ${owner.surname} ${owner.lastname}
+ИНН: ${owner.inn}
+Erid: ${text}`;
+
+    const admins = await this.userService.getAllAdminsChatIds();
+    await this.userService.clearLastBotActive(from.id);
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await global.bot.sendMessage(
+        adminId,
+        updateMessage,
+        useSendMessage({
+          inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId),
+        }),
+      );
+      // await global.bot.sendMessage(
+      //   adminId,
+      //   MessagesChannel.UPDATE_ERID_MESSAGE_IS_CORRECT_QUESTION,
+      //   useSendMessage({
+      //     inline_keyboard: KeyboardChannel.CHANGE_ERID(slotId, updateMessage),
+      //   }),
+      // );
+    }
+  }
+
+  public async [CallbackDataChannel.ACCEPT_ERID_MESSAGE_HANDLER]({ from }) {
+    await this.userService.clearLastBotActive(from.id);
+    const admins = await this.userService.getAllAdminsChatIds();
+    for (let i = 0; i < admins.length; i++) {
+      const adminId = admins[i];
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.SUCCESS_MESSAGE_UPDATE,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+    }
   }
 
   /** MODERATOR
@@ -274,7 +458,63 @@ export class BotRequestService {
     await this.botEvent.sendReasonCancelChannel(from.id);
     await this.userService.updateLastBotActive(
       from.id,
-      `${CallbackDataChannel.CANCEL_HANDLER}:${slotId}`,
+      CallbackDataChannel.CANCEL_MESSAGE(slotId),
+    );
+  }
+
+  /** MODERATOR
+   * Поправить сообщение, которое пришло на проверку
+   * Срабатывает, когда нажимают изменить
+   * Отправка месседж и ожидание нового сообщения
+   * **/
+  public async [CallbackDataChannel.CHANGE_VALIDATE_MESSAGE_HANDLER]({
+    from,
+    id: slotId,
+  }: IBotRequestDto) {
+    await this.userService.updateLastBotActive(
+      from.id,
+      `${CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE(slotId)}`,
+    );
+    await global.bot.sendMessage(
+      from.id,
+      MessagesChannel.CHANGE_MESSAGE_VERIFICATION,
+    );
+  }
+
+  /** MODERATOR
+   * Показать набор кнопок и снова сообщение на модерацию сообщения, после того, как модератор его поправил
+   * **/
+  public async [CallbackDataChannel.AFTER_CHANGE_VALIDATE_MESSAGE_HANDLER]({
+    from,
+    text,
+    id: slotId,
+  }: IBotRequestDto) {
+    const slot = await this.advertisementService.findOneById(slotId);
+    if (!slot)
+      throw new HttpException(
+        SlotsErrorMessages.SLOT_NOT_FOUND,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    if (slot.statusId !== StatusStore.MODERATE_MESSAGE) return;
+    await this.publisherMessages.updateMessage(slot.messageId, text);
+    await this.userService.clearLastBotActive(from.id);
+
+    const owner = await this.getChannelOwner(slot);
+    const admins = await this.userService.getAllAdminsChatIds();
+
+    const id = owner ? owner.chatId : admins[0];
+
+    const message = owner
+      ? MessagesChannel.VALIDATE_MESSAGE_PUBLISHER(text)
+      : MessagesChannel.VALIDATE_MESSAGE(text, slot.channel.conditionCheck);
+
+    await global.bot.sendMessage(
+      id,
+      message,
+      useSendMessage({
+        inline_keyboard: KeyboardChannel.VALIDATE_MESSAGE(slotId),
+      }),
     );
   }
 
@@ -285,20 +525,64 @@ export class BotRequestService {
    * **/
   public async [CallbackDataChannel.CANCEL_MESSAGE_HANDLER]({
     from,
+    text,
     id,
   }: IBotRequestDto) {
-    const slot = await this.slotService.findOneBySlotId(id);
+    const slot = await this.advertisementService.findOneById(id);
+    if (!slot) return;
+    if (slot.statusId !== StatusStore.AWAIT) {
+      const owner = await this.getChannelOwner(slot);
+      const admins = await this.userService.getAllAdminsChatIds();
+
+      const id = owner ? owner.chatId : admins[0];
+
+      await global.bot.sendMessage(
+        id,
+        MessagesChannel.SLOT_IS_NOT_AWAIT,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
+      return;
+    }
     await this.publisherMessages.destroy(slot.messageId);
     await slot.$set('status', StatusStore.PUBLIC);
-    await slot.$set('message', '');
+    // await slot.$set('message', '');
     // Отправить сообщение покупателю text и mainAdmin в чат, что статус изменён
     await this.userService.clearLastBotActive(from.id);
+
+    const user = await this.userService.findOneById(slot.message.userId);
+    if (!user) return;
+    await global.bot.sendMessage(
+      user.chatId,
+      MessagesChannel.MESSAGE_SUCCESS_CANCEL(text),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
+
+    const ids = await this.userService.getAllAdminsChatIds();
+    await global.bot.sendMessage(
+      ids[0],
+      MessagesChannel.MESSAGE_SUCCESS_CANCEL(text),
+      useSendMessage({
+        remove_keyboard: true,
+      }),
+    );
   }
 
+  /** User
+   * Получение кода первификации пользователем **/
   async [CallbackDataAuthentication.GET_TOKEN]({ from }: IBotRequestDto) {
     const { id, isAlready } = await this.authService.registrationInBot(from.id);
     const sendToken = async (cb: (id: string) => string) =>
-      await global.bot.sendMessage(from.id, cb(String(id)));
+      await global.bot.sendMessage(
+        from.id,
+        cb(String(id)),
+        useSendMessage({
+          inline_keyboard: KeyboardAuthentication.GO_SITE(String(id)),
+        }),
+      );
     isAlready
       ? await sendToken(MessagesAuthentication.HAS_TOKEN)
       : await sendToken(MessagesAuthentication.NEW_TOKEN);

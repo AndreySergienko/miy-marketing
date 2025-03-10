@@ -13,4 +13,16 @@ export class KeyboardAuthentication {
       ],
     ];
   }
+
+  static GO_SITE(token: string): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesAuthentication.BTN_BACK_SITE,
+          url: 'https://ya.ru',
+          // url: goToAuthorization(token),
+        },
+      ],
+    ];
+  }
 }

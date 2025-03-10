@@ -6,10 +6,10 @@ import {
   ForeignKey,
   HasOne,
 } from 'sequelize-typescript';
-import { Slots } from '../../slots/models/slots.model';
 import { User } from '../../user/models/user.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
 
-const MAX_LENGTH_MESSAGE = 200;
+const MAX_LENGTH_MESSAGE = 400;
 
 @Table({ tableName: 'publisherMessages', createdAt: false, updatedAt: false })
 export class PublisherMessages extends Model<PublisherMessages> {
@@ -29,10 +29,16 @@ export class PublisherMessages extends Model<PublisherMessages> {
   })
   message: string;
 
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  erid: string;
+
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
   userId: number;
 
-  @HasOne(() => Slots)
-  slot: Slots;
+  @HasOne(() => Advertisement)
+  advertisement: Advertisement;
 }

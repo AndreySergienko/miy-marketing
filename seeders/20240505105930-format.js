@@ -8,7 +8,10 @@ module.exports = {
         value: '1/24',
       },
       {
-        value: '2/48',
+        value: '1/48',
+      },
+      {
+        value: '30/24',
       },
     ]);
   },

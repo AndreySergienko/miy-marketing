@@ -5,17 +5,21 @@ import { pagination } from '../database/pagination';
 import type { IQueryPagination } from '../database/pagination.types';
 import { UserPayment } from './models/user-payment.model';
 import { PaymentCreateDto, PaymentResponseDto } from './types/types';
+import { StatusStore } from '../status/StatusStore';
+import { ChannelsService } from '../channels/channels.service';
 
 @Injectable()
 export class PaymentsService {
   constructor(
     @InjectModel(Payment) private paymentRepository: typeof Payment,
     @InjectModel(UserPayment) private userPaymentRepository: typeof UserPayment,
+    private channelService: ChannelsService,
   ) {}
 
-  async addPayment({ price, slotId, userId }: PaymentCreateDto) {
-    const payment = await this.paymentRepository.create({ price });
-    await payment.$set('slot', slotId);
+  async addPayment({ price, slotId, userId, productId }: PaymentCreateDto) {
+    const payment = await this.paymentRepository.create({ price, productId });
+    await payment.$set('advertisement', slotId);
+    await payment.$set('status', StatusStore.PAID);
     await payment.$set('user', userId);
   }
 
@@ -27,12 +31,10 @@ export class PaymentsService {
     const userPayments = await this.userPaymentRepository.findAll({
       ...pagination({ page, size }),
       where: {
-        id: userId,
+        userId: userId,
       },
     });
-
     const ids = userPayments.map((userPayment) => userPayment.paymentId);
-
     const payments = await this.paymentRepository.findAll({
       where: {
         id: ids,
@@ -42,9 +44,12 @@ export class PaymentsService {
     const list: PaymentResponseDto[] = [];
     for (let i = 0; i < payments.length; i++) {
       const payment = payments[i];
-      const datetime = payment.slot.timestamp;
+      const channelSlot = await this.channelService.findById(
+        payment.advertisement.channelId,
+      );
+      const datetime = payment.advertisement.timestamp;
       const channel = {
-        name: payment.slot.channel.name,
+        name: channelSlot.name,
       };
       list.push({
         statusId: payment.statusId,
@@ -55,5 +60,11 @@ export class PaymentsService {
     }
 
     return list;
+  }
+
+  async findPaymentBySlotId(advertisementId: number) {
+    return await this.paymentRepository.findOne({
+      where: { advertisementId },
+    });
   }
 }

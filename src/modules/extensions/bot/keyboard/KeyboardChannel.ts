@@ -1,6 +1,7 @@
 import { MessagesChannel } from '../messages/MessagesChannel';
 import { CallbackDataChannel } from '../callback-data/CallbackDataChannel';
 import { TInlineKeyboard } from '../types';
+import { goToFront } from '../../../../utils/links';
 
 export class KeyboardChannel {
   static SEND_VALIDATE_USER_MESSAGE(slotId: number) {
@@ -18,6 +19,19 @@ export class KeyboardChannel {
     ];
   }
 
+  /** User **/
+  static get GO_TO_PERSONAL(): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_GO_TO_PERSONAL,
+          url: goToFront('/personal/profile'),
+        },
+      ],
+    ];
+  }
+
+  /** Moderate **/
   static VALIDATE_MESSAGE(slotId: number) {
     return [
       [
@@ -28,6 +42,10 @@ export class KeyboardChannel {
         {
           text: MessagesChannel.BTN_CANCEL,
           callback_data: CallbackDataChannel.CANCEL_REASON_MESSAGE(slotId),
+        },
+        {
+          text: MessagesChannel.BTN_CHANGE,
+          callback_data: CallbackDataChannel.CHANGE_VALIDATE_MESSAGE(slotId),
         },
       ],
     ];
@@ -43,6 +61,32 @@ export class KeyboardChannel {
         {
           text: MessagesChannel.BTN_CANCEL,
           callback_data: CallbackDataChannel.CANCEL_REASON(channelId),
+        },
+      ],
+    ];
+  }
+
+  static SET_ERID(slotId: number): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_SET_ERID,
+          callback_data: CallbackDataChannel.SET_ERID_MESSAGE(slotId),
+        },
+      ],
+    ];
+  }
+
+  static CHANGE_ERID(slotId: number): TInlineKeyboard {
+    return [
+      [
+        {
+          text: MessagesChannel.BTN_ACCEPT,
+          callback_data: CallbackDataChannel.ACCEPT_ERID_MESSAGE(slotId),
+        },
+        {
+          text: MessagesChannel.BTN_CHANGE_ERID,
+          callback_data: CallbackDataChannel.SET_ERID_MESSAGE(slotId),
         },
       ],
     ];

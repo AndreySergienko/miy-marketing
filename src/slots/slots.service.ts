@@ -1,30 +1,48 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Slots } from './models/slots.model';
-import { StatusStore } from '../status/StatusStore';
+import type { ICreateSlot } from '../channels/types/types';
 
 @Injectable()
 export class SlotsService {
   constructor(@InjectModel(Slots) private slotsRepository: typeof Slots) {}
 
-  async createSlot(timestamp: number, channelId: number) {
+  async createSlot({
+    timestamp,
+    price,
+    formatChannel,
+    channelDateId,
+    minutes,
+  }: ICreateSlot) {
+    const oldSlot = await this.slotsRepository.findOne({
+      where: {
+        timestamp,
+        channelDateId,
+        minutes,
+      },
+    });
+
+    if (oldSlot) return;
+
     const slot = await this.slotsRepository.create({
       timestamp,
+      price,
+      minutes,
     });
-    await slot.$set('status', StatusStore.CREATE);
-    await slot.$set('channel', channelId);
+
+    await slot.$set('formatChannel', formatChannel);
+    await slot.$set('channelDate', channelDateId);
   }
 
-  async removeSlots(channelId: number) {
+  async removeSlotsById(id: number[]) {
     return await this.slotsRepository.destroy({
-      where: { channelId, statusId: StatusStore.CREATE },
+      where: { id },
     });
   }
 
-  async findAllSlotByChannelId(channelId: number) {
-    return await this.slotsRepository.findAll({
-      where: { channelId },
-      include: { all: true },
+  async removeSlots(channelDateId: number) {
+    return await this.slotsRepository.destroy({
+      where: { channelDateId },
     });
   }
 
@@ -35,7 +53,10 @@ export class SlotsService {
     });
   }
 
-  async updateSlotStatusById(slotId: number, statusId: number) {
-    await this.slotsRepository.update({ statusId }, { where: { id: slotId } });
+  async findAllByChannelDateId(channelDateId: number) {
+    return await this.slotsRepository.findAll({
+      where: { channelDateId },
+      include: { all: true },
+    });
   }
 }

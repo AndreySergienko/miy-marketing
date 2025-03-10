@@ -5,10 +5,30 @@ export default class ErrorValidation {
     return createError('Поле должно быть строкой');
   }
 
+  static MIN_PRICE(price: number) {
+    return createError(`Минимально допустимая сумма слота: ${price}`);
+  }
+
+  static MAX_PRICE(price: number) {
+    return createError(`Максимально допустимая сумма слота: ${price}`);
+  }
+
   static IS_PASSWORD() {
     return createError(
       'Пароль должен содержать минимум 1 цифру, заглавную букву и спец символ',
     );
+  }
+
+  static IS_WORK_TYPE() {
+    return createError('Некорректный тип лица (ИП или самозанятый)');
+  }
+
+  static IS_TAX_RATE_REQUIRED() {
+    return createError('Налоговый режим обязателен для ИП');
+  }
+
+  static IS_BANK() {
+    return createError('Некорректный формат данных о банке');
   }
 
   static IS_INN() {
@@ -17,6 +37,10 @@ export default class ErrorValidation {
 
   static IS_SLOT_INCORRECT() {
     return createError('Некорректная дата слотов');
+  }
+
+  static IS_CHANNEL_DATES_INCORRECT() {
+    return createError('Некорректная дата для канала');
   }
 
   static IS_BOOLEAN() {

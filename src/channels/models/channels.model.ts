@@ -14,8 +14,9 @@ import { UserChannel } from './user-channel.model';
 import { Categories } from '../../categories/models/categories.model';
 import { CategoriesChannel } from '../../categories/models/categories-channel.model';
 import { Status } from '../../status/models/status.model';
+import { Advertisement } from 'src/advertisement/models/advertisement.model';
+import { ChannelDate } from './channel-dates.model';
 import { Slots } from '../../slots/models/slots.model';
-import { FormatChannel } from './format-channel.model';
 
 @Table({ tableName: 'channels' })
 export class Channel extends Model<Channel, ChannelsModelAttrs> {
@@ -39,7 +40,7 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @Column({ type: DataType.BOOLEAN, defaultValue: false })
   isCanPostMessage: boolean;
 
-  @Column({ type: DataType.STRING, allowNull: true, validate: { isUrl: true } })
+  @Column({ type: DataType.STRING, allowNull: true })
   link: string;
 
   @Column({ type: DataType.STRING, allowNull: true })
@@ -47,13 +48,6 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
 
   @Column({ type: DataType.STRING, allowNull: true })
   avatar: string;
-
-  // Вынести в дальнейшем в заказ
-  @Column({ type: DataType.INTEGER, allowNull: true })
-  price: number;
-
-  @Column({ type: DataType.BIGINT, allowNull: true })
-  day: number;
 
   // Условия для проверки
   @Column({ type: DataType.STRING, allowNull: true })
@@ -72,13 +66,13 @@ export class Channel extends Model<Channel, ChannelsModelAttrs> {
   @BelongsTo(() => Status)
   status: Status;
 
+  // Даты
+  @HasMany(() => ChannelDate)
+  channelDates: ChannelDate[];
+
   @HasMany(() => Slots)
   slots: Slots[];
 
-  @ForeignKey(() => FormatChannel)
-  @Column({ type: DataType.INTEGER })
-  formatChannelId: number;
-
-  @BelongsTo(() => FormatChannel)
-  formatChannel: FormatChannel;
+  @HasMany(() => Advertisement)
+  advertisements: Advertisement[];
 }

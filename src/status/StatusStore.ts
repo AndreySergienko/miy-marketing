@@ -26,4 +26,8 @@ export class StatusStore {
   static get PAID() {
     return 7;
   }
+
+  static get MODERATE_MESSAGE() {
+    return 8;
+  }
 }

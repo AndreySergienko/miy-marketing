@@ -30,8 +30,19 @@ export function validateINN(value: string) {
 }
 
 export function validatePassword(string: string) {
-  const regex = new RegExp(
-    '(?=^.{10,}$)(?=.*[0-9])(?=.*[A-Z])(?=.*[a-z])(?=.*[^A-Za-z0-9]).*',
-  );
+  const regex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/gm;
   return regex.test(string);
 }
+
+export const validateBik = (value: string) => {
+  return /04[0-9]{4}(000|001|002|(0[5-9][0-9])|([1-9][0-9]{2}))/.test(value);
+};
+
+export const validateCorrespondentAccount = (value: string) => {
+  return /301[0-9]{17}/.test(value);
+};
+
+export const validateCurrentAccount = (value: string) => {
+  return /408[0-9]{17}/.test(value);
+};
