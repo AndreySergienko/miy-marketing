@@ -354,9 +354,6 @@ export class BotRequestService {
           advertiser,
           owner,
         }),
-        useSendMessage({
-          inline_keyboard: KeyboardChannel.SET_ERID(slotId),
-        }),
       );
 
       await this.userService.updateLastBotActive(
@@ -367,9 +364,6 @@ export class BotRequestService {
       await global.bot.sendMessage(
         adminId,
         MessagesChannel.INPUT_TO_FIELD_ERID,
-        useSendMessage({
-          remove_keyboard: true,
-        }),
       );
     }
   }
