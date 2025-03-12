@@ -358,20 +358,20 @@ export class BotRequestService {
           inline_keyboard: KeyboardChannel.SET_ERID(slotId),
         }),
       );
+
+      await this.userService.updateLastBotActive(
+        adminId,
+        `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
+      );
+
+      await global.bot.sendMessage(
+        adminId,
+        MessagesChannel.INPUT_TO_FIELD_ERID,
+        useSendMessage({
+          remove_keyboard: true,
+        }),
+      );
     }
-
-    await this.userService.updateLastBotActive(
-      admins[0],
-      `${CallbackDataChannel.AFTER_SET_ERID_MESSAGE(slotId)}`,
-    );
-
-    await global.bot.sendMessage(
-      admins[0],
-      MessagesChannel.INPUT_TO_FIELD_ERID,
-      useSendMessage({
-        remove_keyboard: true,
-      }),
-    );
   }
 
   public async [CallbackDataChannel.SET_ERID_HANDLER]({ from, id: slotId }) {
